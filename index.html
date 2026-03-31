@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aceitar Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#112240; --surface:#0d1b35; --panel:rgba(255,255,255,0.05); --border:rgba(255,255,255,0.09); --text:#e8eaf0; --muted:rgba(255,255,255,0.38); --gold:#f0a040; }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:Calibri,sans-serif;font-size:14px;min-height:100vh;}
+  header{background:var(--surface);border-bottom:1px solid var(--border);position:relative;z-index:10;}
+  .header-inner{max-width:1600px;margin:0 auto;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+  .logo{display:flex;align-items:center;gap:.7rem;}
+  .logo-mark{width:40px;height:40px;display:flex;align-items:center;justify-content:center;}
+  .logo-text{font-family:'Righteous',cursive;font-size:1.2rem;font-weight:700;letter-spacing:.04em;color:var(--text);}
+  .logo-sub{font-size:.68rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:1px;}
+  .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;}
+  .clock-digital{text-align:right;line-height:1.3;}
+  .clock-day{font-size:.72rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+  .clock-time{font-size:1.6rem;font-weight:300;color:white;letter-spacing:.06em;font-variant-numeric:tabular-nums;}
+  .clock-date{font-size:.72rem;color:var(--muted);}
+  .wx-location-sel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--text);font-family:Calibri,sans-serif;font-size:.75rem;padding:.25rem .6rem;cursor:pointer;outline:none;}
+  .wx-location-sel option{background:#0d1b35;}
+  main{max-width:1600px;margin:0 auto;padding:1.5rem 2rem;display:flex;flex-direction:column;gap:1rem;}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;}
+  .panel-label{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  /* Meteo */
+  .wx-current{display:flex;align-items:center;gap:1rem;margin-bottom:.8rem;}
+  .wx-icon{font-size:2.6rem;line-height:1;}
+  .wx-temp{font-size:2rem;font-weight:300;color:white;line-height:1;}
+  .wx-desc{font-size:.8rem;color:rgba(255,255,255,.55);}
+  .wx-wind{font-size:.75rem;color:var(--muted);margin-top:2px;}
+  .wx-week{display:flex;gap:5px;}
+  .wx-day{flex:1;text-align:center;background:rgba(255,255,255,.04);border-radius:8px;padding:5px 3px;}
+  .wx-day.today{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);}
+  .wx-dn{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+  .wx-di{font-size:1rem;margin:2px 0;}
+  .wx-dt{font-size:.75rem;color:white;font-weight:500;}
+  .wx-dm{font-size:.65rem;color:var(--muted);}
+  /* Aniversários */
+  .bday-item{display:flex;align-items:center;gap:.7rem;padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,.05);}
+  .bday-item:last-child{border-bottom:none;}
+  .bday-avatar{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;color:rgba(255,255,255,.6);flex-shrink:0;}
+  .bday-avatar.hoje{background:rgba(240,160,64,.2);border-color:rgba(240,160,64,.5);color:var(--gold);}
+  .bday-name{font-size:.82rem;color:rgba(255,255,255,.85);font-weight:400;}
+  .bday-date{font-size:.78rem;color:var(--muted);}
+  .bday-badge{margin-left:auto;flex-shrink:0;font-size:.68rem;background:rgba(240,160,64,.15);color:var(--gold);border:1px solid rgba(240,160,64,.3);border-radius:100px;padding:2px 8px;}
+  .bday-badge.soon{background:rgba(255,255,255,.06);color:var(--muted);border-color:rgba(255,255,255,.1);}
+  /* Notícias */
+  .news-cats{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem;}
+  .news-cat{background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--muted);padding:.25rem .75rem;border-radius:100px;font-size:.75rem;font-family:Calibri,sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .news-cat:hover{border-color:rgba(255,255,255,.25);color:var(--text);}
+  .news-cat.active{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:white;}
+  .news-list{display:flex;flex-direction:column;gap:2px;}
+  .news-item{display:flex;gap:.6rem;padding:.45rem .5rem;border-radius:7px;text-decoration:none;transition:background .15s;align-items:flex-start;}
+  .news-item:hover{background:rgba(255,255,255,.06);}
+  .news-num{font-size:.85rem;font-weight:700;color:rgba(255,255,255,.1);flex-shrink:0;min-width:18px;}
+  .news-headline{font-size:.82rem;color:var(--text);line-height:1.35;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .news-meta{font-size:.7rem;color:var(--muted);margin-top:2px;display:flex;gap:.4rem;}
+  .news-loading{font-size:.82rem;color:var(--muted);padding:.5rem 0;}
+  /* Efemérides */
+  .efem-date{font-size:.75rem;color:rgba(255,255,255,.45);margin-bottom:.7rem;}
+  .efem-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
+  .efem-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:.6rem .8rem;display:flex;gap:.6rem;align-items:flex-start;}
+  .efem-card.hl{border-color:rgba(240,160,64,.3);background:rgba(240,160,64,.05);}
+  .efem-ei{font-size:1.2rem;line-height:1;flex-shrink:0;margin-top:1px;}
+  .efem-tag{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  .efem-title{font-size:.82rem;color:rgba(255,255,255,.85);line-height:1.35;margin-top:2px;font-weight:400;}
+  .efem-sub{font-size:.75rem;color:var(--muted);margin-top:2px;}
+  /* Apps */
+  .apps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;}
+  .app-card{border-radius:14px;overflow:hidden;cursor:pointer;text-decoration:none;display:block;position:relative;transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s;animation:cardIn .5s ease both;}
+  .app-card:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 20px 50px rgba(0,0,0,.45);}
+  .app-card:hover .card-arrow{transform:translate(3px,-3px);opacity:1;}
+  .card-inner{padding:1.3rem;min-height:140px;display:flex;flex-direction:column;justify-content:space-between;}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .card-badge{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;padding:.22rem .6rem;border-radius:100px;background:rgba(0,0,0,.22);color:rgba(255,255,255,.65);}
+  .card-arrow{width:26px;height:26px;background:rgba(0,0,0,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:.4;transition:transform .25s,opacity .25s;}
+  .card-title{font-family:'Righteous',cursive;font-size:2.4rem;color:white;line-height:1;margin-bottom:.25rem;}
+  .card-desc{font-size:.78rem;color:rgba(255,255,255,.6);}
+  .card-edit{position:absolute;top:.6rem;right:2rem;z-index:10;opacity:0;transition:opacity .2s;}
+  .app-card:hover .card-edit{opacity:1;}
+  .edit-btn{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);color:white;border-radius:5px;padding:.22rem .5rem;font-size:.7rem;cursor:pointer;font-family:Calibri,sans-serif;}
+  .add-card{border-radius:14px;border:2px dashed rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:140px;transition:border-color .2s,background .2s;background:rgba(255,255,255,.02);}
+  .add-card:hover{border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.04);}
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:#0f1e38;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:2rem;width:90%;max-width:460px;animation:modalIn .3s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes modalIn{from{transform:scale(.92) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+  @keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  .modal-title{font-size:1.2rem;font-weight:600;margin-bottom:1.5rem;}
+  .form-group{margin-bottom:1rem;}
+  label{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;}
+  input,select{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:.65rem .9rem;color:var(--text);font-family:Calibri,sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;}
+  input:focus,select:focus{border-color:rgba(255,255,255,.3);}
+  select option{background:#0f1e38;}
+  .color-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem;}
+  .color-swatch{height:30px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;}
+  .color-swatch:hover{transform:scale(1.1);}
+  .color-swatch.selected{border-color:white;transform:scale(1.1);}
+  .modal-actions{display:flex;gap:.6rem;margin-top:1.5rem;justify-content:flex-end;}
+  .btn-cancel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted);padding:.5rem 1.2rem;border-radius:9px;font-family:Calibri,sans-serif;font-size:.85rem;cursor:pointer;}
+  .btn-save{background:white;border:none;color:#112240;padding:.5rem 1.4rem;border-radius:9px;font-family:Calibri,sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;}
+  .btn-save:hover{opacity:.85;}
+  .btn-delete{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444;padding:.5rem 1rem;border-radius:9px;font-family:Calibri,sans-serif;font-size:.85rem;cursor:pointer;margin-right:auto;}
+  @media(max-width:800px){.row-2{grid-template-columns:1fr;}header{padding:1rem;}main{padding:1rem;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-mark"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAMc0lEQVR4nNWYaZBdxXXH/6f7Lm9/897s0mhhGLQgkBAKKALCgE1hQHIIkCfhsLggZhSlIIksuxwXQU/jyCFViXGCIQFBgk0wcWYcwBgZyQRJw45BaLE0MNJIFqNZNPubt96t++TDCMqOJaGqfPL52LdPnV/9z7n/7nsJZxmZTEZ+OO7UWKybSNF8EBYJKc4RoLlSUpKESAshQoYhLENIS0ophBBEQjBJQ5CQIEEQQkJIA9I0YRgGAAIIECRAgmCcJQ8dHBkJ2xxNg7iRhJgrwGnFVKcYUgEJqXTcNDkQWtiWQZASBIIWggQEQbOGgGRiBrQmHQTwtQYRQUgJkAZpcVZAlMlkxEdDZTMkVEgBLUUlIkLQOekw1dfHjUQ8YteEDFOStKKe66NSceEHLqRlCy0kBcRgIcCsiJmhwSAA0ApCGpheI4DOQqHW1lZ5/DjMtF3k/qDGE5IPXZ0abTwnXGmeGQkaqsIUTsUsxJMRGatOMiXSNIUGHBnWONAzSn25InwzCl8L9jVDA4AWDKEJQpJmgIQAQKDpBn5miFXLloVean7f3ZBbuLDJdh6MGvpaIjINKSkeNlAVs5BMWIgnbUTTIRWtr4JV2yhLqMWOtyawc88gHBmGp0i7CqxITlNIAxCShBAgEiDCZyuUyYA6O3eXN0Sbro8b+hnXk2nXI1RFDDALlBQd9ctc9gVXeaRrQjEZEj5QGh5hI13CTdfPpuqUjZ/sPIqcNglsMBikCQAUiBlKS5Dg6fk4E0w2C9HeDt12Sd3nkzZtNwRJy5CwpahYBj0mJJ75eWAd3Lat1wWAvbc31x1K1l2TTpl3tLSkrkvPrIIjoBO1jeKt94Fntx9GjkPsaqEUScEgkCAiYRARfdq2U8MAAgCGV9TXUKAOmpLSUcsQliE+VIwvbd45sO+TvV/7/k8Wx7ly3hPf/4+e/q6tBwDgoVuXrPzcZQ0/aFlYX13wfZ2sbRQ/3O7gp+8Os7LCWoGIITRN90oQEYQQ00VPFd0ZUDugPU/9vSlFjQAxA/0DRVy7eefAvrZVqyIM0LWb/uVf+z25r1J97o/vWXffL6+45fb1koCv/mjf1n9/as/nDu85Nma7HkoDx/TVixTScRMq8LVWSjNrDoKAA6U4UBqBUqcGygKisxPqjsU184j5DjfQ2jQl2aa858lfDPRnMq2xLS8tc1as/84lrgz/WS5fUD39g66bmsELLr38H0PNS65mzoqH94zsf/GVI3eOD+SEO+Ug7Q1i6WxGxVVgMPt+wEoFWgUBKxVABacB2tU6va6J/8QQZBhSCEOKoe6hxA4G6Ghqvgu064pTXF8plbhSLkvW2u4fHNKzz18iWhZd8CjRY2HuyMjsKwMv7+8eecnwPFEaL6hFiSk2JKlAKY+18pTWntaKlApY6dMAXdU1bRcEXKUYSIQNJGOh1zq7u/21bcuM3Vu2+Oe3fWO28tWNgefCKZUPFIv5A2XPF44IB/MvXLIwsWDOHxprOhUzqG+o/MT4aBGFXAVVuoCEFXi+rytM7LNmTykNpVgHQcCnAqJ2QF/X0mKTEM1MAvGIBSOW7AHAtl07rV5ZtzEoLEhQImJvdCvOWk2ChiYnMWvBhWiY0XD7FVe2xojAHw0W9w+OVjzPU1L4LsWlrwLNirUONGtTKeVqHThKK3Xaoa6P+mGCCDOAUMiCYVvDAPBwerk//+6vx7XSd2ul2NDqxD233PjK6+1r3/WL+Z6KFxgynuI58xZcsqdv9HwAcJyGnPL1lOMq+G7AJvwJX+mcVlxhzVNas6MVT3KgiqcFmnSKKgBrPnkAwrCi0/K1a674a4RhNhqWRbF45OnVF9QXAahKodgBEigG2m++cGltvKZ+JQBctrw5DBLhcsVHuRLA8XWJGWXNXFSaJxTrAa2UFwTKPxUQA8CLPeNFpXg00IDjKZiGvBAAtbWtiiDQX1VKs2UY3rlzZz35SeLYseM/KuVzXqFcMaqamrll/rwWZqaY33euCRXzfM0lT6ucI4aJ1YDW6mOt9WHWmpn1uGYePKVCra0wADBI7JdS8vhUBYmwXAKAD0zWfllY9kJpmhSLhl/ecvcXDyOTkVlmsfep9m43X3jVUyxynqKWiy9tJiK2pLNSEgNKY6JMucGKPGiCj2qF/Qw9Dta9ivUJhi6ftmUAICA6SEgaK7o6PzZ50e6/+6MVY755j1KabdtCdU36EZ6+nmDXpk0CAKaGh58MXAdT+TyM2tkt3153y2L23bUTpQCsmPoK1DWh7cNAsFshGGbNBwLm15jRpzX3nRKoqwsKAAV+6mdlL+iWhonjHx/vad9rzdFW5CIIgm2IPV8ovflWJpMxOzIHeRN24fG2ZWZox9M/z4+NHPGCgD3DTleuvOvioFz8yBJCjxT8/PuTiSeSMjgaaD1IWg9pjV8R8zDAPWC8crrTnjMZyM7Obu+Li2s3VEt6OcTeo2+quYuqpU+GZSNpqOcfe+693ytRyCB6dw/QN3ky128dGf6xl675RqFYpKG6phsu9subTEptn3Sw8YXum968bMGOhS4LV2oeVNLzNIs4Ao4SEZ/5tAdEO6DvumTG/VNVzbvejyx+wRCiOhqPnqg1xdI1xuvPm5HkeRMl970ZEedlb2K81g5ZkZ2T837Qe8G17xjxeCRdVRXM94evr/npNxffF/6nf1422RnzSznbtkwBAFTR5Yk03FgRCdKBecYZagf0smVt5lPvDX77F+aCqyXrGikleaHEI3/e82BUDfevEIMf1jRU+q/3RkYe9kvOAyhXNtxlvJycnCx0AISS4xq/Mmtvu++lwYeWO8/VxPwRFzGUTN8omb5RCocrXu/y5f7eN7aNubnU2GfdGAkAWq67Le7D+hDSaLRCIT//+7fOuvO5VY8lY5GbHF8pAYYQxFIIqo3bMmToV//GWvvNcxc0vmvaFhKxiF/e98ZtB7b+19amFRnYIx/4rltn5u0RmXBd9c477zifFDyjQmhtlQDYZftmJjGDpGAy5NaRr18+MmA0FgYqsi8fkOeyIT0Whqs4f2LKe2O4RNtv+Oi/905N5D9QzFz2tSFnzftjv79fVDXM1V1dXcq2R3wvHPZnzZrlYdr7GACf1WeQVv6NhrRB0hSGKR9hAM++fujL6evuT6wob6tPc6kmhsCr8oO+zW/0jk5nHcN5S25+PFaT2qIdB37Za0F9PfpOTDAAdHV1aQC696QRfxJnBqqrYwDwojOfI12YhUrxZ92Lq3cBWZFFO9q3tee3AnkAh389LZPJWEdT13Bfz77/NExxSzQRTrljJ+6vrr7S9wrvEjKZ6c50duqzEQQACNmsALIi09Eh/+9D5um3s7U1awAQREBHJiPbstlI9qmdobMtcurC/79cJgCMZBUwlbt0w0PrURirS8ZTr2mBq95/4enHG2rrncCOX2OFrKVOLtdrW/a4X8pzMDq6/+OPD/YC8M8ERABw3so7Z0Qj4RVWumFVw6yZoQajau3br78gOFH93dqmOZeHbOPtbZv/6s6Ft/7F+tqZTbfHoqGGOXFx2at7+i+tDovkCBt/0Hz++XeWen/ZOzY8vLtp0ZI14UgYU31HMHDo0INzLlq2TgV+yJL0p//z3Y3PZjo6ZOfq1eoUQEwA8cyVa8+L2kGdq+xkNJX6YW1Tw7ru195otcKhog7HP2iYOdMbPXxQmXZkI4Uj98UbZ9/bUBsv7Hv9nVK6tqZvsuIkEzXVK9Lpmg1jDk3OqbYvyI2OVinmdrNm7prc4JHOuC3+rTA+1nHome8cAzNAxMBvDTUxAEpGJj6GGzMbZzWahw4f3VH0tZGorQ8dWXPFvVi9Wg0BqP/8HU8kUqlyKp1ePZmf9HonRtgyDeU7pXFJIofy1DlvP77xwEVf+esvuSp6c0irYyfG8zDz5QWVqcmhQ89/7x8AaAD0CQzw2z5EAFjIllTTgkVVR0Ym9pNhvF2ueH22adV/4YOBVy9d97fXXvOX31qoReiwKUXIFHgxHraeWtxc/YCvA4KQYV8BoViy9YZvPbpwcqqyueA4O0LR0Pe01tIplwPSOrT07mzDyRH8jTilMQ6hSuYdXX9ufahOaHQlpH9sYLj0wInhsUi5MNXePzR8+ag34+Gyo7u1Vg8oFXzlWP9Eg2YcUODj+eHidgVxpDBVbC2Ug6/Z0cStjqvuVYHaysrvV0rt0ipXPtmR39GY1pJ/7Q9JVjDz9Dd4NiswfTGTRDTtS/zpXgJA2SwLZiZks+LTPZmMxKce9zsS/wvmyHVJyo3boQAAAABJRU5ErkJggg==" width="40" height="40" style="display:block;"></div>
+      <div><span class="logo-text">Aceitar Hub</span><span class="logo-sub">Aceitar Sucessos, Lda</span></div>
+    </div>
+    <div class="header-right">
+      <div class="clock-digital">
+        <div class="clock-day" id="clk-day"></div>
+        <div class="clock-time" id="clk-time"></div>
+        <div class="clock-date" id="clk-date"></div>
+      </div>
+      <select class="wx-location-sel" id="wx-location" onchange="loadWeather()">
+        <option value="41.15|-8.61|Porto">📍 Porto</option>
+        <option value="41.33|-8.74|Matosinhos">📍 Matosinhos</option>
+        <option value="41.18|-8.70|Maia">📍 Maia</option>
+        <option value="41.13|-8.61|Vila Nova de Gaia">📍 Vila Nova de Gaia</option>
+        <option value="41.20|-8.52|Gondomar">📍 Gondomar</option>
+        <option value="41.30|-8.64|Valongo">📍 Valongo</option>
+        <option value="41.37|-8.55|Paredes">📍 Paredes</option>
+        <option value="41.46|-8.29|Amarante">📍 Amarante</option>
+        <option value="41.54|-8.43|Braga">📍 Braga</option>
+        <option value="38.72|-9.14|Lisboa">📍 Lisboa</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="row-2">
+    <div class="panel" id="weather-panel"><div class="panel-label">Meteorologia</div><div style="color:var(--muted);font-size:.82rem;">A carregar⋯</div></div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:.8rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;flex:1;">
+        <div>
+          <div class="panel-label">🎂 Aniversários do mês</div>
+          <div id="bday-list"><div style="color:var(--muted);font-size:.82rem;">A carregar⋯</div></div>
+        </div>
+        <div style="border-left:1px solid var(--border);padding-left:.8rem;">
+          <div class="panel-label">🇵🇹 Feriados do mês</div>
+          <div id="feriados-list"><div style="color:var(--muted);font-size:.82rem;">A carregar⋯</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row-2">
+    <div class="panel">
+      <div class="panel-label">📰 Notícias</div>
+      <div class="news-cats" id="news-cats">
+        <button class="news-cat active" data-q="Portugal">🇵🇹 Portugal</button>
+        <button class="news-cat" data-q="Economia Portugal">💼 Economia</button>
+        <button class="news-cat" data-q="Construção obras Portugal">🏗️ Construção</button>
+        <button class="news-cat" data-q="Tecnologia">💡 Tecnologia</button>
+        <button class="news-cat" data-q="Desporto Portugal">⚽ Desporto</button>
+      </div>
+      <div class="news-list" id="news-list"><div class="news-loading">A carregar notícias⋯</div></div>
+    </div>
+    <div class="panel" id="efem-panel">
+      <div class="panel-label">📅 Efemérides</div>
+      <div class="efem-date" id="efem-date"></div>
+      <div class="efem-grid" id="efem-body"><div style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">A carregar⋯</div></div>
+    </div>
+  </div>
+  <div class="apps-grid" id="grid"></div>
+</main>
+
+<div class="modal-overlay" id="modal" onmousedown="closeIfOverlay(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Nova Aplicação</div>
+    <div class="form-group"><label>Sigla / Nome curto</label><input type="text" id="f-name" placeholder="ex: SIGO" maxlength="10"></div>
+    <div class="form-group"><label>Descrição</label><input type="text" id="f-desc" placeholder="ex: Gestão de Obras e Projetos"></div>
+    <div class="form-group"><label>URL</label><input type="url" id="f-url" placeholder="https://..."></div>
+    <div class="form-group"><label>Categoria</label><select id="f-badge"><option>Gestão</option><option>Fiscalização</option><option>Segurança</option><option>Documentação</option><option>Relatórios</option><option>Interno</option></select></div>
+    <div class="form-group"><label>Cor do cartão</label><div class="color-grid" id="color-grid"></div></div>
+    <div class="modal-actions">
+      <button class="btn-delete" id="btn-delete" style="display:none" onclick="deleteApp()">Eliminar</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveApp()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PALETTES=[
+  {id:'blue',bg:'linear-gradient(135deg,#1a3a6b,#0f5fa8,#1e8fd4)',glow:'rgba(14,95,168,.6)'},
+  {id:'teal',bg:'linear-gradient(135deg,#0d4a4a,#0a7a6a,#1ab39a)',glow:'rgba(10,122,106,.6)'},
+  {id:'orange',bg:'linear-gradient(135deg,#6b2d0d,#c05a1a,#f0882a)',glow:'rgba(192,90,26,.6)'},
+  {id:'violet',bg:'linear-gradient(135deg,#2d1a6b,#5a2db0,#8c52e8)',glow:'rgba(90,45,176,.6)'},
+  {id:'rose',bg:'linear-gradient(135deg,#6b1a3a,#b02060,#e84080)',glow:'rgba(176,32,96,.6)'},
+  {id:'green',bg:'linear-gradient(135deg,#1a4a1a,#2a8a2a,#48c048)',glow:'rgba(42,138,42,.6)'},
+  {id:'slate',bg:'linear-gradient(135deg,#1a2040,#2a3a6a,#4a5a9a)',glow:'rgba(42,58,106,.6)'},
+  {id:'amber',bg:'linear-gradient(135deg,#5a3a00,#b07800,#e8b800)',glow:'rgba(176,120,0,.6)'},
+  {id:'crimson',bg:'linear-gradient(135deg,#5a1010,#a02020,#d84040)',glow:'rgba(160,32,32,.6)'},
+  {id:'cyan',bg:'linear-gradient(135deg,#0a2a4a,#0a6a9a,#20b0e0)',glow:'rgba(10,106,154,.6)'},
+  {id:'sand',bg:'linear-gradient(135deg,#3a2a10,#7a5a20,#c09050)',glow:'rgba(122,90,32,.6)'},
+  {id:'dark',bg:'linear-gradient(135deg,#1a1a2a,#2a2a4a,#3a3a6a)',glow:'rgba(42,42,74,.6)'},
+];
+
+const DEFAULT_APPS=[
+  {id:1,name:'SIGO',desc:'Gestão de Obras e Projetos',url:'https://sigo-aceitar.vercel.app',badge:'Gestão',palette:'blue'},
+  {id:2,name:'SID',desc:'Sistema de Inspeção e Documentação',url:'https://sid-aceitar.vercel.app',badge:'Fiscalização',palette:'teal'},
+];
+let apps=JSON.parse(localStorage.getItem('csf-hub-apps')||'null')||DEFAULT_APPS;
+let editingId=null,selectedPalette=PALETTES[0].id;
+function saveApps(){localStorage.setItem('csf-hub-apps',JSON.stringify(apps));}
+
+const ANIVERSARIOS=[
+  {nome:'Clarice',   dia:14, mes:2,  iniciais:'CL'},
+  {nome:'Carlos',    dia:15, mes:2,  iniciais:'CF'},
+  {nome:'Pedro',     dia:14, mes:3,  iniciais:'PS'},
+  {nome:'Laurentino',dia:26, mes:3,  iniciais:'LA'},
+  {nome:'Devesas',   dia:9,  mes:4,  iniciais:'DE'},
+  {nome:'Sara',      dia:16, mes:4,  iniciais:'SA'},
+  {nome:'Matheus',   dia:30, mes:4,  iniciais:'MS'},
+  {nome:'Tânia',     dia:20, mes:5,  iniciais:'TF'},
+  {nome:'Padrão',    dia:24, mes:6,  iniciais:'JP'},
+  {nome:'Hector',    dia:8,  mes:11, iniciais:'HE'},
+  {nome:'Tiago',     dia:4,  mes:12, iniciais:'TG'},
+];
+
+const DIAS_PT=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+const MESES_PT=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MESES_C=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const DIAS_C=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+// RELÓGIO
+function updateClock(){
+  const now=new Date(),pad=n=>String(n).padStart(2,'0');
+  document.getElementById('clk-day').textContent=DIAS_PT[now.getDay()];
+  document.getElementById('clk-time').textContent=`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('clk-date').textContent=`${now.getDate()} ${MESES_C[now.getMonth()]} ${now.getFullYear()}`;
+}
+setInterval(updateClock,1000);updateClock();
+
+// ANIVERSÁRIOS
+function loadBirthdays(){
+  const list=document.getElementById('bday-list');
+  const now=new Date();
+  const mesAtual=now.getMonth()+1;
+  const diaAtual=now.getDate();
+
+  function daysUntil(dia,mes){
+    const yr=now.getFullYear();
+    let next=new Date(yr,mes-1,dia);
+    const today=new Date(yr,now.getMonth(),diaAtual);
+    if(next<today)next=new Date(yr+1,mes-1,dia);
+    return Math.round((next-today)/86400000);
+  }
+
+  const doMes=ANIVERSARIOS
+    .filter(p=>p.mes===mesAtual)
+    .sort((a,b)=>a.dia-b.dia);
+
+  if(!doMes.length){list.innerHTML=`<div style="color:var(--muted);font-size:.82rem;padding:.3rem 0;">Nenhum aniversário este mês.</div>`;return;}
+  list.innerHTML=doMes.map(p=>{
+    const dias=daysUntil(p.dia,p.mes);
+    const isHoje=dias===0;
+    const label=isHoje?'🎉 Hoje!':`${p.dia} ${MESES_C[p.mes-1]}`;
+    return `<div class="bday-item"><div class="bday-avatar${isHoje?' hoje':''}">${p.iniciais}</div><div style="flex:1;min-width:0;"><div class="bday-name">${p.nome}</div><div class="bday-date">${label}</div></div>${isHoje?`<div class="bday-badge">🎉 Hoje!</div>`:''}</div>`;
+  }).join('');
+}
+
+// FERIADOS DO MÊS
+function loadFeriados(){
+  const list=document.getElementById('feriados-list');
+  const now=new Date();
+  const mesAtual=now.getMonth()+1;
+  const diaAtual=now.getDate();
+  const doMes=FERIADOS.filter(f=>f.mes===mesAtual).sort((a,b)=>a.dia-b.dia);
+  if(!doMes.length){list.innerHTML=`<div style="color:var(--muted);font-size:.82rem;padding:.3rem 0;">Nenhum feriado este mês.</div>`;return;}
+  list.innerHTML=doMes.map(f=>{
+    const isHoje=f.dia===diaAtual;
+    return `<div class="bday-item${isHoje?' style=\'border-color:rgba(240,160,64,.2)\'':''}">
+      <div style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">${f.icon}</div>
+      <div style="flex:1;min-width:0;"><div class="bday-name">${f.nome}</div><div class="bday-date">${f.dia} ${MESES_C[f.mes-1]}${isHoje?' · Hoje!':''}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// METEOROLOGIA
+const WX_ICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+const WX_DESC={0:'Céu limpo',1:'Maioritariamente limpo',2:'Parcialmente nublado',3:'Nublado',45:'Névoa',51:'Chuvisco leve',55:'Chuvisco intenso',61:'Chuva leve',63:'Chuva moderada',65:'Chuva intensa',71:'Neve leve',75:'Neve intensa',80:'Aguaceiros',82:'Aguaceiros intensos',95:'Trovoada'};
+
+async function loadWeather(){
+  const panel=document.getElementById('weather-panel');
+  const sel=document.getElementById('wx-location');
+  const parts=(sel?.value||'41.15|-8.61|Porto').split('|');
+  const lat=parseFloat(parts[0]),lon=parseFloat(parts[1]),city=parts[2];
+  try{
+    const wx=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`).then(r=>r.json());
+    const cur=wx.current_weather,d=wx.daily;
+    const weekHtml=d.time.map((dt,i)=>{const day=new Date(dt+'T12:00:00');return `<div class="wx-day${i===0?' today':''}"><div class="wx-dn">${i===0?'Hoje':DIAS_C[day.getDay()]}</div><div class="wx-di">${WX_ICONS[d.weathercode[i]]||'🌡️'}</div><div class="wx-dt">${Math.round(d.temperature_2m_max[i])}°</div><div class="wx-dm">${Math.round(d.temperature_2m_min[i])}°</div></div>`;}).join('');
+    panel.innerHTML=`<div class="panel-label">🌤️ Meteorologia</div><div class="wx-current"><div class="wx-icon">${WX_ICONS[cur.weathercode]||'🌡️'}</div><div><div class="wx-temp">${Math.round(cur.temperature)}°C</div><div class="wx-desc">${WX_DESC[cur.weathercode]||''}</div><div class="wx-wind">💨 ${Math.round(cur.windspeed)} km/h &nbsp;·&nbsp; 📍 ${city}</div></div></div><div class="wx-week">${weekHtml}</div>`;
+  }catch{panel.innerHTML='<div class="panel-label">🌤️ Meteorologia</div><div style="color:var(--muted);font-size:.82rem;">Indisponível</div>';}
+}
+
+// NOTÍCIAS
+async function loadNews(query='Portugal'){
+  const list=document.getElementById('news-list');
+  list.innerHTML='<div class="news-loading">A carregar notícias⋯</div>';
+  try{
+    const res=await fetch(`/api/noticias?q=${encodeURIComponent(query)}`,{signal:AbortSignal.timeout(8000)});
+    if(!res.ok)throw new Error();
+    const xml=new DOMParser().parseFromString(await res.text(),'application/xml');
+    const items=Array.from(xml.querySelectorAll('item')).slice(0,8);
+    if(!items.length)throw new Error();
+    list.innerHTML=items.map((item,i)=>{
+      const title=(item.querySelector('title')?.textContent||'').replace(/ - [^-]+$/,'');
+      const link=item.querySelector('link')?.textContent||'#';
+      const source=item.querySelector('source')?.textContent||'';
+      const pub=item.querySelector('pubDate')?.textContent||'';
+      const date=pub?new Date(pub).toLocaleDateString('pt-PT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+      return `<a class="news-item" href="${link}" target="_blank" rel="noopener"><div class="news-num">${String(i+1).padStart(2,'0')}</div><div><div class="news-headline">${title}</div><div class="news-meta"><span style="color:rgba(255,255,255,.28)">${source}</span>${date?`<span>·</span><span>${date}</span>`:''}</div></div></a>`;
+    }).join('');
+  }catch{list.innerHTML='<div class="news-loading">⚠️ Notícias indisponíveis — funciona após deploy no Vercel.</div>';}
+}
+document.getElementById('news-cats').addEventListener('click',e=>{
+  const btn=e.target.closest('.news-cat');if(!btn)return;
+  document.querySelectorAll('.news-cat').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');loadNews(btn.dataset.q);
+});
+
+// EFEMÉRIDES
+const FERIADOS=[
+  {dia:1,mes:1,nome:'Ano Novo',icon:'🎆'},{dia:25,mes:4,nome:'Dia da Liberdade',icon:'🌹'},
+  {dia:1,mes:5,nome:'Dia do Trabalhador',icon:'✊'},{dia:10,mes:6,nome:'Dia de Portugal',icon:'🇵🇹'},
+  {dia:15,mes:8,nome:'Assunção de N.Sra.',icon:'⛪'},{dia:5,mes:10,nome:'Implantação da República',icon:'🏛️'},
+  {dia:1,mes:11,nome:'Todos os Santos',icon:'🕯️'},{dia:1,mes:12,nome:'Restauração da Independência',icon:'⚔️'},
+  {dia:8,mes:12,nome:'Imaculada Conceição',icon:'⛪'},{dia:25,mes:12,nome:'Natal',icon:'🎄'},
+];
+const SANTOS={'1-1':'Maria, Mãe de Deus','1-6':'Epifania','1-17':'S. António Abade','1-20':'S. Sebastião','1-21':'S. Inês','1-25':'Conv. de S. Paulo','1-28':'S. Tomás de Aquino','2-2':'Apresentação do Senhor','2-3':'S. Brás','2-5':'Sta. Águeda','2-11':'N.Sra. de Lourdes','2-14':'S. Valentim','2-22':'Cátedra de S. Pedro','3-4':'S. Casimiro','3-17':'S. Patrício','3-19':'S. José','3-25':'Anunciação do Senhor','4-5':'S. Vicente Ferrer','4-23':'S. Jorge','4-25':'S. Marcos','4-29':'Sta. Catarina de Sena','5-1':'S. José Operário','5-13':'N.Sra. de Fátima','5-22':'Sta. Rita de Cássia','5-31':'Visitação de N.Sra.','6-5':'S. Bonifácio','6-13':'S. António de Lisboa','6-24':'S. João Batista','6-29':'S. Pedro e S. Paulo','7-3':'S. Tomé Apóstolo','7-4':'Sta. Isabel de Portugal','7-11':'S. Bento','7-16':'N.Sra. do Carmo','7-22':'Sta. Maria Madalena','7-25':'S. Tiago Apóstolo','7-26':'S. Joaquim e Sta. Ana','7-29':'Sta. Marta','7-31':'S. Inácio de Loyola','8-4':'S. João M. Vianney','8-6':'Transfiguração','8-10':'S. Lourenço','8-11':'Sta. Clara','8-15':'Assunção de N.Sra.','8-22':'Rainha de N.Sra.','8-24':'S. Bartolomeu','8-27':'Sta. Mônica','8-28':'S. Agostinho','9-3':'S. Gregório Magno','9-5':'Madre Teresa','9-8':'Natividade de N.Sra.','9-14':'Exaltação da Santa Cruz','9-15':'N.Sra. das Dores','9-21':'S. Mateus','9-23':'S. Pio de Pietrelcina','9-27':'S. Vicente de Paulo','9-29':'S. Miguel, Gabriel e Rafael','9-30':'S. Jerónimo','10-1':'Sta. Teresa do Menino Jesus','10-2':'Santos Anjos da Guarda','10-4':'S. Francisco de Assis','10-7':'N.Sra. do Rosário','10-15':'Sta. Teresa de Ávila','10-18':'S. Lucas','10-22':'S. João Paulo II','10-28':'S. Simão e Judas','11-1':'Todos os Santos','11-2':'Fiéis Defuntos','11-4':'S. Carlos Borromeu','11-9':'Dedicação Basílica Latrão','11-10':'S. Leão Magno','11-11':'S. Martinho de Tours','11-17':'Sta. Isabel da Hungria','11-21':'Apresentação de N.Sra.','11-22':'Sta. Cecília','11-30':'S. André Apóstolo','12-3':'S. Francisco Xavier','12-6':'S. Nicolau de Mira','12-7':'S. Ambrósio','12-8':'Imaculada Conceição','12-13':'Sta. Lúcia','12-14':'S. João da Cruz','12-25':'Natal','12-26':'S. Estêvão','12-27':'S. João Evangelista','12-28':'Santos Inocentes','12-31':'S. Silvestre'};
+
+async function loadEfemérides(){
+  const now=new Date(),d=now.getDate(),m=now.getMonth()+1,year=now.getFullYear();
+  document.getElementById('efem-date').textContent=`${DIAS_PT[now.getDay()]}, ${d} de ${MESES_PT[m-1]} de ${year}`;
+  const body=document.getElementById('efem-body');
+  let cards=[];
+  const feriado=FERIADOS.find(f=>f.dia===d&&f.mes===m);
+  if(feriado)cards.push(`<div class="efem-card hl"><div class="efem-ei">${feriado.icon}</div><div><div class="efem-tag">Feriado Nacional</div><div class="efem-title">${feriado.nome}</div></div></div>`);
+  const santo=SANTOS[`${m}-${d}`];
+  if(santo)cards.push(`<div class="efem-card hl"><div class="efem-ei">✝️</div><div><div class="efem-tag">Santo do Dia</div><div class="efem-title">${santo}</div></div></div>`);
+  try{
+    const pad=n=>String(n).padStart(2,'0');
+    const data=await fetch(`https://pt.wikipedia.org/api/rest_v1/feed/onthisday/all/${pad(m)}/${pad(d)}`).then(r=>r.json());
+    (data.births||[]).filter(e=>e.year&&e.pages?.length).slice(0,2).forEach(e=>{const nome=e.pages[0]?.titles?.normalized||e.text;const desc=(e.pages[0]?.description||'').slice(0,60);cards.push(`<div class="efem-card"><div class="efem-ei">🎂</div><div><div class="efem-tag">Nasceu em ${e.year}</div><div class="efem-title">${nome}</div>${desc?`<div class="efem-sub">${desc}</div>`:''}</div></div>`);});
+    (data.deaths||[]).filter(e=>e.year&&e.pages?.length).slice(0,2).forEach(e=>{const nome=e.pages[0]?.titles?.normalized||e.text;const desc=(e.pages[0]?.description||'').slice(0,60);cards.push(`<div class="efem-card"><div class="efem-ei">🕯️</div><div><div class="efem-tag">Faleceu em ${e.year}</div><div class="efem-title">${nome}</div>${desc?`<div class="efem-sub">${desc}</div>`:''}</div></div>`);});
+    (data.events||[]).filter(e=>e.year&&e.pages?.length).sort((a,b)=>a.year-b.year).slice(0,2).forEach(e=>{const titulo=e.pages[0]?.titles?.normalized||e.text.slice(0,60);const desc=(e.pages[0]?.description||e.text||'').slice(0,80);cards.push(`<div class="efem-card"><div class="efem-ei">📜</div><div><div class="efem-tag">Aconteceu em ${e.year}</div><div class="efem-title">${titulo}</div>${desc&&desc!==titulo?`<div class="efem-sub">${desc}</div>`:''}</div></div>`);});
+  }catch{}
+  body.innerHTML=cards.length?cards.join(''):'<div style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">Sem efemérides disponíveis.</div>';
+}
+
+// APPS
+function render(){
+  const grid=document.getElementById('grid');grid.innerHTML='';
+  apps.forEach((app,i)=>{
+    const pal=PALETTES.find(p=>p.id===app.palette)||PALETTES[0];
+    const card=document.createElement('a');card.className='app-card';card.href=app.url||'#';card.target='_blank';card.rel='noopener noreferrer';card.style.animationDelay=`${i*.06}s`;
+    card.innerHTML=`<div class="card-inner" style="background:${pal.bg}"><div class="card-top"><span class="card-badge">${app.badge}</span><div class="card-arrow"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H5M11 3V9" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div><div class="card-title">${app.name}</div><div class="card-desc">${app.desc}</div></div></div><div class="card-edit"><button class="edit-btn" onclick="event.preventDefault();openModal(${app.id})">Editar</button></div>`;
+    grid.appendChild(card);
+  });
+  const add=document.createElement('div');add.className='add-card';add.style.animationDelay=`${apps.length*.06}s`;add.onclick=()=>openModal();
+  add.innerHTML='<div style="text-align:center;color:var(--muted);"><div style="width:38px;height:38px;background:rgba(255,255,255,.06);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto .5rem;font-size:1.1rem;">＋</div><div style="font-size:.8rem;">Adicionar aplicação</div></div>';
+  grid.appendChild(add);
+}
+
+function renderSwatches(){
+  const cg=document.getElementById('color-grid');cg.innerHTML='';
+  PALETTES.forEach(pal=>{const sw=document.createElement('div');sw.className='color-swatch'+(selectedPalette===pal.id?' selected':'');sw.style.background=pal.bg;sw.title=pal.id;sw.onclick=()=>{selectedPalette=pal.id;renderSwatches();};cg.appendChild(sw);});
+}
+
+function openModal(id){
+  editingId=id||null;selectedPalette=PALETTES[0].id;
+  document.getElementById('modal-title').textContent=id?'Editar Aplicação':'Nova Aplicação';
+  document.getElementById('btn-delete').style.display=id?'block':'none';
+  if(id){const app=apps.find(a=>a.id===id);document.getElementById('f-name').value=app.name;document.getElementById('f-desc').value=app.desc;document.getElementById('f-url').value=app.url;document.getElementById('f-badge').value=app.badge;selectedPalette=app.palette||PALETTES[0].id;}
+  else{['f-name','f-desc','f-url'].forEach(id=>document.getElementById(id).value='');document.getElementById('f-badge').value='Gestão';}
+  renderSwatches();document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function closeIfOverlay(e){if(e.target===document.getElementById('modal'))closeModal();}
+function saveApp(){
+  const name=document.getElementById('f-name').value.trim(),desc=document.getElementById('f-desc').value.trim(),url=document.getElementById('f-url').value.trim(),badge=document.getElementById('f-badge').value;
+  if(!name||!url){alert('Nome e URL são obrigatórios.');return;}
+  if(editingId){const idx=apps.findIndex(a=>a.id===editingId);apps[idx]={...apps[idx],name,desc,url,badge,palette:selectedPalette};}
+  else{apps.push({id:Date.now(),name,desc,url,badge,palette:selectedPalette});}
+  saveApps();closeModal();render();
+}
+function deleteApp(){if(!confirm('Eliminar esta aplicação?'))return;apps=apps.filter(a=>a.id!==editingId);saveApps();closeModal();render();}
+
+render();loadWeather();loadBirthdays();loadFeriados();loadNews();loadEfemérides();
+</script>
+</body>
+</html>
