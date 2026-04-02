@@ -161,10 +161,11 @@
         <button class="news-cat active" data-q="Portugal">🇵🇹 Portugal</button>
         <button class="news-cat" data-q="Economia Portugal">💼 Economia</button>
         <button class="news-cat" data-q="Construção obras Portugal">🏗️ Construção</button>
+        <button class="news-cat" data-q="Inteligência Artificial Claude ChatGPT Gemini">🤖 IA</button>
         <button class="news-cat" data-q="Tecnologia">💡 Tecnologia</button>
         <button class="news-cat" data-q="Desporto Portugal">⚽ Desporto</button>
       </div>
-      <div class="news-list" id="news-list"><div class="news-loading">A carregar notícias⋯</div></div>
+      <div class="news-list" id="news-list" style="max-height:320px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent;"><div class="news-loading">A carregar notícias⋯</div></div>
     </div>
     <div class="panel" id="efem-panel">
       <div class="panel-label">📅 Efemérides</div>
@@ -313,7 +314,7 @@ async function loadNews(query='Portugal'){
     const res=await fetch(`/api/noticias?q=${encodeURIComponent(query)}`,{signal:AbortSignal.timeout(8000)});
     if(!res.ok)throw new Error();
     const xml=new DOMParser().parseFromString(await res.text(),'application/xml');
-    const items=Array.from(xml.querySelectorAll('item')).slice(0,8);
+    const items=Array.from(xml.querySelectorAll('item')).slice(0,12);
     if(!items.length)throw new Error();
     list.innerHTML=items.map((item,i)=>{
       const title=(item.querySelector('title')?.textContent||'').replace(/ - [^-]+$/,'');
