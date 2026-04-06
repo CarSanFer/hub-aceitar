@@ -6,207 +6,229 @@
 <title>Aceitar Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#112240; --surface:#0d1b35; --panel:rgba(255,255,255,0.05); --border:rgba(255,255,255,0.09); --text:#e8eaf0; --muted:rgba(255,255,255,0.38); --gold:#f0a040; }
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:Calibri,sans-serif;font-size:14px;min-height:100vh;}
-  header{background:var(--surface);border-bottom:1px solid var(--border);position:relative;z-index:10;}
-  .header-inner{max-width:1600px;margin:0 auto;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;}
-  .logo{display:flex;align-items:center;gap:.7rem;}
-  .logo-mark{width:40px;height:40px;display:flex;align-items:center;justify-content:center;}
-  .logo-text{font-family:'Righteous',cursive;font-size:1.2rem;font-weight:700;letter-spacing:.04em;color:var(--text);}
-  .logo-sub{font-size:.68rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:1px;}
-  .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;}
-  .clock-digital{text-align:right;line-height:1.3;}
-  .clock-day{font-size:.72rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
-  .clock-time{font-size:1.6rem;font-weight:300;color:white;letter-spacing:.06em;font-variant-numeric:tabular-nums;}
-  .clock-date{font-size:.72rem;color:var(--muted);}
-  .wx-location-sel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--text);font-family:Calibri,sans-serif;font-size:.75rem;padding:.25rem .6rem;cursor:pointer;outline:none;}
-  .wx-location-sel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--text);font-family:Calibri,sans-serif;font-size:.75rem;padding:.25rem .6rem;cursor:pointer;outline:none;}
-  .wx-location-sel option{background:#0d1b35;}
-  .search-bar{flex:1;max-width:600px;margin:0 2rem;}
-  .search-form{display:flex;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:.45rem 1rem .45rem 1.2rem;gap:.6rem;transition:background .2s,border-color .2s;}
-  .search-form:focus-within{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.3);}
-  .search-icon{color:var(--muted);flex-shrink:0;font-size:1rem;}
-  .search-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:Calibri,sans-serif;font-size:.9rem;}
-  .search-input::placeholder{color:var(--muted);}
-  .search-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:100px;color:var(--text);font-family:Calibri,sans-serif;font-size:.75rem;padding:.25rem .8rem;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:.3rem;transition:background .2s;}
-  .search-btn:hover{background:rgba(255,255,255,.18);}
-  .search-divider{width:1px;height:16px;background:rgba(255,255,255,.2);flex-shrink:0;}
-  main{max-width:1600px;margin:0 auto;padding:1.5rem 2rem;display:flex;flex-direction:column;gap:1rem;}
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;}
-  .panel-label{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
-  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
-  .row-2.fixed-height{height:330px;}
-  .row-2.fixed-height > .panel{overflow:hidden;display:flex;flex-direction:column;height:100%;}
-  /* Meteo */
-  .wx-current{display:flex;align-items:center;gap:1rem;margin-bottom:.8rem;}
-  .wx-icon{font-size:2.6rem;line-height:1;}
-  .wx-temp{font-size:2rem;font-weight:300;color:white;line-height:1;}
-  .wx-desc{font-size:.8rem;color:rgba(255,255,255,.55);}
-  .wx-wind{font-size:.75rem;color:var(--muted);margin-top:2px;}
-  .wx-week{display:flex;gap:5px;}
-  .wx-day{flex:1;text-align:center;background:rgba(255,255,255,.04);border-radius:8px;padding:5px 3px;}
-  .wx-day.today{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);}
-  .wx-dn{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
-  .wx-di{font-size:1rem;margin:2px 0;}
-  .wx-dt{font-size:.75rem;color:white;font-weight:500;}
-  .wx-dm{font-size:.65rem;color:var(--muted);}
-  /* Aniversários */
-  .bday-item{display:flex;align-items:center;gap:.7rem;padding:.45rem 0;border-bottom:1px solid rgba(255,255,255,.05);}
-  .bday-item:last-child{border-bottom:none;}
-  .bday-avatar{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;color:rgba(255,255,255,.6);flex-shrink:0;}
-  .bday-avatar.hoje{background:rgba(240,160,64,.2);border-color:rgba(240,160,64,.5);color:var(--gold);}
-  .bday-name{font-size:.82rem;color:rgba(255,255,255,.85);font-weight:400;}
-  .bday-date{font-size:.78rem;color:var(--muted);}
-  .bday-badge{margin-left:auto;flex-shrink:0;font-size:.68rem;background:rgba(240,160,64,.15);color:var(--gold);border:1px solid rgba(240,160,64,.3);border-radius:100px;padding:2px 8px;}
-  .bday-badge.soon{background:rgba(255,255,255,.06);color:var(--muted);border-color:rgba(255,255,255,.1);}
-  /* Notícias */
-  .news-cats{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem;}
-  .news-cat{background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--muted);padding:.25rem .75rem;border-radius:100px;font-size:.75rem;font-family:Calibri,sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap;}
-  .news-cat:hover{border-color:rgba(255,255,255,.25);color:var(--text);}
-  .news-cat.active{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:white;}
-  .news-list{display:flex;flex-direction:column;gap:2px;}
-  .news-item{display:flex;gap:.6rem;padding:.45rem .5rem;border-radius:7px;text-decoration:none;transition:background .15s;align-items:flex-start;}
-  .news-item:hover{background:rgba(255,255,255,.06);}
-  .news-num{font-size:.85rem;font-weight:700;color:rgba(255,255,255,.1);flex-shrink:0;min-width:18px;}
-  .news-headline{font-size:.82rem;color:var(--text);line-height:1.35;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-  .news-meta{font-size:.7rem;color:var(--muted);margin-top:2px;display:flex;gap:.4rem;}
-  .news-loading{font-size:.82rem;color:var(--muted);padding:.5rem 0;}
-  /* Efemérides */
-  .efem-date{font-size:.75rem;color:rgba(255,255,255,.45);margin-bottom:.7rem;}
-  .efem-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
-  .efem-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:.6rem .8rem;display:flex;gap:.6rem;align-items:flex-start;transition:background .15s,border-color .15s;}
-  .efem-card:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18);}
-  .efem-card.hl{border-color:rgba(240,160,64,.3);background:rgba(240,160,64,.05);}
-  .efem-card.hl:hover{background:rgba(240,160,64,.1);}
-  .efem-ei{font-size:1.2rem;line-height:1;flex-shrink:0;margin-top:1px;}
-  .efem-tag{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
-  .efem-title{font-size:.82rem;color:rgba(255,255,255,.85);line-height:1.35;margin-top:2px;font-weight:400;}
-  .efem-sub{font-size:.75rem;color:var(--muted);margin-top:2px;}
-  /* Apps */
-  .apps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;}
-  .app-card{border-radius:14px;overflow:hidden;cursor:pointer;text-decoration:none;display:block;position:relative;transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s;animation:cardIn .5s ease both;}
-  .app-card:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 20px 50px rgba(0,0,0,.45);}
-  .app-card:hover .card-arrow{transform:translate(3px,-3px);opacity:1;}
-  .card-inner{padding:1.3rem;min-height:140px;display:flex;flex-direction:column;justify-content:space-between;}
-  .card-top{display:flex;justify-content:space-between;align-items:flex-start;}
-  .card-badge{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;padding:.22rem .6rem;border-radius:100px;background:rgba(0,0,0,.22);color:rgba(255,255,255,.65);}
-  .card-arrow{width:26px;height:26px;background:rgba(0,0,0,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:.4;transition:transform .25s,opacity .25s;}
-  .card-title{font-family:'Righteous',cursive;font-size:2.4rem;color:white;line-height:1;margin-bottom:.25rem;}
-  .card-desc{font-size:.78rem;color:rgba(255,255,255,.6);}
-  .card-edit{position:absolute;top:.6rem;right:2rem;z-index:10;opacity:0;transition:opacity .2s;}
-  .app-card:hover .card-edit{opacity:1;}
-  .edit-btn{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);color:white;border-radius:5px;padding:.22rem .5rem;font-size:.7rem;cursor:pointer;font-family:Calibri,sans-serif;}
-  .add-card{border-radius:14px;border:2px dashed rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:140px;transition:border-color .2s,background .2s;background:rgba(255,255,255,.02);}
-  .add-card:hover{border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.04);}
-  /* Modal */
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;}
-  .modal-overlay.open{display:flex;}
-  .modal{background:#0f1e38;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:2rem;width:90%;max-width:460px;animation:modalIn .3s cubic-bezier(.34,1.56,.64,1);}
-  @keyframes modalIn{from{transform:scale(.92) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
-  @keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-  .modal-title{font-size:1.2rem;font-weight:600;margin-bottom:1.5rem;}
-  .form-group{margin-bottom:1rem;}
-  label{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;}
-  input,select{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:.65rem .9rem;color:var(--text);font-family:Calibri,sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;}
-  input:focus,select:focus{border-color:rgba(255,255,255,.3);}
-  select option{background:#0f1e38;}
-  .color-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem;}
-  .color-swatch{height:30px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;}
-  .color-swatch:hover{transform:scale(1.1);}
-  .color-swatch.selected{border-color:white;transform:scale(1.1);}
-  .modal-actions{display:flex;gap:.6rem;margin-top:1.5rem;justify-content:flex-end;}
-  .btn-cancel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted);padding:.5rem 1.2rem;border-radius:9px;font-family:Calibri,sans-serif;font-size:.85rem;cursor:pointer;}
-  .btn-save{background:white;border:none;color:#112240;padding:.5rem 1.4rem;border-radius:9px;font-family:Calibri,sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;}
-  .btn-save:hover{opacity:.85;}
-  .btn-delete{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444;padding:.5rem 1rem;border-radius:9px;font-family:Calibri,sans-serif;font-size:.85rem;cursor:pointer;margin-right:auto;}
-  @media(max-width:800px){.row-2{grid-template-columns:1fr;}header{padding:1rem;}main{padding:1rem;}}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Calibri,sans-serif;}
+body{background:#112240;color:#e8eaf0;min-height:100vh;font-size:12px;}
+.hdr{background:#0d1b35;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.09);gap:12px;position:sticky;top:0;z-index:50;}
+.logo{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.logo-mark{width:36px;height:36px;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo-text{font-family:'Righteous',cursive;font-size:1rem;font-weight:700;color:white;}
+.logo-sub{font-size:.58rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;display:block;margin-top:1px;}
+.search-bar{flex:1;max-width:500px;}
+.search-form{display:flex;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:5px 12px;gap:6px;transition:background .2s,border-color .2s;}
+.search-form:focus-within{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28);}
+.search-input{flex:1;background:none;border:none;outline:none;color:#e8eaf0;font-family:Calibri,sans-serif;font-size:.85rem;}
+.search-input::placeholder{color:rgba(255,255,255,.3);}
+.search-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:100px;color:#e8eaf0;font-family:Calibri,sans-serif;font-size:.7rem;padding:.2rem .7rem;cursor:pointer;white-space:nowrap;}
+.search-btn:hover{background:rgba(255,255,255,.18);}
+.hdr-right{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.sep{width:1px;height:32px;background:rgba(255,255,255,.1);}
+.wx-btn{display:flex;align-items:center;gap:8px;cursor:pointer;padding:0 4px;}
+.wx-btn:hover .wx-temp{opacity:.8;}
+.wx-icon{font-size:1.4rem;line-height:1;}
+.wx-info{line-height:1.3;}
+.wx-temp{font-size:.95rem;font-weight:600;color:white;transition:opacity .2s;}
+.wx-desc{font-size:.6rem;color:rgba(255,255,255,.45);}
+.loc-select{background:transparent;border:none;color:rgba(255,255,255,.55);font-family:Calibri,sans-serif;font-size:.72rem;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;text-align:center;}
+.loc-select option{background:#0d1b35;color:white;}
+.clock-d{text-align:right;line-height:1.3;}
+.clock-day{font-size:.58rem;color:rgba(255,255,255,.38);text-transform:uppercase;}
+.clock-time{font-size:1.05rem;font-weight:300;color:white;font-variant-numeric:tabular-nums;}
+.clock-date{font-size:.58rem;color:rgba(255,255,255,.38);}
+.main{padding:12px 16px;display:flex;flex-direction:column;gap:10px;}
+.panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:10px 14px;}
+.plabel{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.38);font-weight:600;margin-bottom:8px;}
+/* APPS */
+.apps-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+.apps-row::-webkit-scrollbar{display:none;}
+.app-card{border-radius:10px;padding:8px 12px;min-width:110px;max-width:140px;flex-shrink:0;display:flex;flex-direction:column;justify-content:space-between;min-height:65px;cursor:pointer;transition:transform .25s;text-decoration:none;animation:cardIn .4s ease both;}
+.app-card:hover{transform:translateY(-3px);}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.app-badge{font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;background:rgba(0,0,0,.22);color:rgba(255,255,255,.6);border-radius:100px;padding:1px 5px;display:inline-block;}
+.app-name{font-family:'Righteous',cursive;font-size:1.1rem;color:white;margin-top:2px;}
+.app-desc{font-size:.55rem;color:rgba(255,255,255,.55);}
+.app-card.blue{background:linear-gradient(135deg,#1a3a6b,#1e8fd4);}
+.app-card.teal{background:linear-gradient(135deg,#0d4a4a,#1ab39a);}
+.app-card.amber{background:linear-gradient(135deg,#5a3a00,#e8b800);}
+.app-card.orange{background:linear-gradient(135deg,#6b2d0d,#f0882a);}
+.app-card.green{background:linear-gradient(135deg,#1a4a1a,#48c048);}
+.app-card.sand{background:linear-gradient(135deg,#3a2a10,#c09050);}
+.app-card.crimson{background:linear-gradient(135deg,#5a1010,#d84040);}
+.app-card.dark{background:linear-gradient(135deg,#1a1a2a,#3a3a6a);}
+.app-card.violet{background:linear-gradient(135deg,#2d1a6b,#8c52e8);}
+.app-card.rose{background:linear-gradient(135deg,#6b1a3a,#e84080);}
+.app-card.cyan{background:linear-gradient(135deg,#0a2a4a,#20b0e0);}
+.app-add{border-radius:10px;border:1.5px dashed rgba(255,255,255,.15);min-width:65px;flex-shrink:0;display:flex;align-items:center;justify-content:center;min-height:65px;cursor:pointer;background:rgba(255,255,255,.02);transition:border-color .2s,background .2s;}
+.app-add:hover{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.05);}
+/* TAREFAS */
+.tasks-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;}
+.task-item{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 10px;white-space:nowrap;flex-shrink:0;cursor:pointer;transition:background .15s;}
+.task-item:hover{background:rgba(255,255,255,.1);}
+.task-item.hoje{border-color:rgba(255,200,80,.4);background:rgba(255,200,80,.06);}
+.task-item.vencida .task-title{color:rgba(255,100,100,.8);}
+.task-day{font-size:.58rem;color:rgba(255,255,255,.38);margin-bottom:2px;}
+.task-title{font-size:.72rem;color:rgba(255,255,255,.85);}
+.task-prio{display:inline-block;font-size:.55rem;border-radius:3px;padding:1px 5px;margin-top:2px;}
+.task-prio.alta{background:rgba(220,50,50,.25);color:#ff8888;}
+.task-prio.media{background:rgba(80,160,255,.2);color:#88bbff;}
+.task-prio.baixa{background:rgba(80,200,120,.2);color:#80e080;}
+/* CALENDÁRIO */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+.cal-title{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.38);font-weight:600;}
+.legend{display:flex;gap:10px;}
+.leg{display:flex;align-items:center;gap:4px;font-size:.62rem;color:rgba(255,255,255,.5);}
+.leg-dot{width:10px;height:10px;border-radius:2px;}
+.leg-cnt{font-size:.55rem;background:rgba(0,0,0,.3);border-radius:3px;padding:0 3px;margin-left:2px;}
+.fil-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:Calibri,sans-serif;font-size:.62rem;padding:2px 7px;border-radius:100px;cursor:pointer;transition:all .15s;}
+.fil-btn:hover{background:rgba(255,255,255,.1);color:white;}
+.fil-btn.active{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);color:white;font-weight:600;}
+.months-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
+.month{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px 8px;}
+.month-name{font-size:.62rem;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;text-align:center;}
+.month-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:2px;}
+.dow{text-align:center;font-size:.46rem;color:rgba(255,255,255,.25);font-weight:600;}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}
+.day{text-align:center;font-size:.55rem;padding:2px 1px;border-radius:3px;min-height:14px;color:rgba(255,255,255,.6);cursor:pointer;transition:opacity .15s;}
+.day:hover:not(.empty){opacity:.8;outline:1px solid rgba(255,255,255,.3);}
+.day.empty{visibility:hidden;pointer-events:none;}
+.day.today{background:white;color:#112240;font-weight:700;border-radius:50%;}
+.day.weekend{color:rgba(255,255,255,.3);}
+.day.has-fer{background:rgba(220,50,50,.55);color:white;font-weight:600;}
+.day.has-pont{background:rgba(40,100,255,.5);color:white;font-weight:600;}
+.day.has-ferias{background:rgba(30,160,70,.45);color:white;}
+.day.has-aniv{background:rgba(240,130,0,.55);color:white;font-weight:700;}
+/* BOTTOM */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.news-preview,.efem-preview{display:flex;flex-direction:column;gap:3px;}
+.ni{display:flex;gap:6px;padding:4px 5px;border-radius:7px;cursor:pointer;transition:background .15s;align-items:flex-start;text-decoration:none;}
+.ni:hover{background:rgba(255,255,255,.07);}
+.ni-n{font-size:.65rem;font-weight:700;color:rgba(255,255,255,.12);min-width:16px;flex-shrink:0;}
+.ni-t{font-size:.72rem;color:rgba(255,255,255,.78);line-height:1.35;}
+.ni-s{font-size:.6rem;color:rgba(255,255,255,.3);}
+.more-btn{font-size:.65rem;color:rgba(80,160,255,.7);text-align:center;padding:4px;cursor:pointer;border:1px solid rgba(80,160,255,.2);border-radius:6px;margin-top:4px;transition:background .15s;}
+.more-btn:hover{background:rgba(80,160,255,.08);}
+.ec{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:5px 7px;display:flex;gap:5px;align-items:flex-start;cursor:pointer;text-decoration:none;transition:background .15s;}
+.ec:hover{background:rgba(255,255,255,.1);}
+.ec-i{font-size:.9rem;flex-shrink:0;}
+.ec-tag{font-size:.55rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.07em;}
+.ec-t{font-size:.68rem;color:rgba(255,255,255,.82);margin-top:1px;}
+.efem-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+/* POPUPS */
+.popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;}
+.popup-overlay.open{display:flex;}
+.popup{background:#0f1e38;border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:20px;width:90%;max-width:640px;max-height:85vh;overflow-y:auto;animation:popIn .25s ease;}
+@keyframes popIn{from{transform:scale(.94) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.popup-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.popup-title{font-size:.88rem;font-weight:600;color:white;}
+.popup-close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);border-radius:6px;padding:3px 10px;cursor:pointer;font-size:.75rem;font-family:Calibri;}
+.popup-close:hover{background:rgba(255,255,255,.15);}
+/* Popup meteo */
+.wx-week-popup{display:flex;gap:8px;}
+.wx-pw{flex:1;text-align:center;background:rgba(255,255,255,.05);border-radius:10px;padding:8px 4px;}
+.wx-pw.today{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);}
+.wx-pw-dn{font-size:.58rem;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:4px;}
+.wx-pw-i{font-size:1.5rem;margin:4px 0;}
+.wx-pw-t{font-size:.82rem;color:white;font-weight:600;}
+.wx-pw-m{font-size:.7rem;color:rgba(255,255,255,.4);}
+.wx-pw-w{font-size:.6rem;color:rgba(255,255,255,.3);margin-top:3px;}
+/* Popup dia calendário */
+.day-popup-items{display:flex;flex-direction:column;gap:8px;}
+.day-popup-item{display:flex;gap:10px;align-items:flex-start;padding:8px;background:rgba(255,255,255,.04);border-radius:8px;}
+.day-popup-icon{font-size:1.1rem;flex-shrink:0;}
+.day-popup-label{font-size:.62rem;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.08em;}
+.day-popup-text{font-size:.82rem;color:rgba(255,255,255,.9);margin-top:2px;}
+/* Modal apps */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#0f1e38;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:2rem;width:90%;max-width:460px;animation:popIn .3s ease;}
+.modal-title{font-size:1.1rem;font-weight:600;margin-bottom:1.5rem;}
+.form-group{margin-bottom:1rem;}
+label{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:.4rem;}
+input,select.form-sel{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:.6rem .9rem;color:#e8eaf0;font-family:Calibri,sans-serif;font-size:.9rem;outline:none;}
+input:focus,select.form-sel:focus{border-color:rgba(255,255,255,.3);}
+select.form-sel option{background:#0f1e38;}
+.color-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem;}
+.color-swatch{height:28px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;}
+.color-swatch:hover{transform:scale(1.1);}
+.color-swatch.selected{border-color:white;transform:scale(1.1);}
+.modal-actions{display:flex;gap:.6rem;margin-top:1.5rem;justify-content:flex-end;}
+.btn-cancel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);padding:.5rem 1.2rem;border-radius:9px;font-family:Calibri,sans-serif;font-size:.85rem;cursor:pointer;}
+.btn-save{background:white;border:none;color:#112240;padding:.5rem 1.4rem;border-radius:9px;font-family:Calibri,sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;}
+.btn-save:hover{opacity:.85;}
+.btn-delete{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444;padding:.5rem 1rem;border-radius:9px;font-family:Calibri,sans-serif;font-size:.85rem;cursor:pointer;margin-right:auto;}
+/* Tooltip */
+#tooltip{position:fixed;background:#0d1b35;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 10px;font-size:.72rem;color:#e8eaf0;z-index:500;pointer-events:none;display:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.6);line-height:1.6;}
+/* Popup notícias cats */
+.news-cats-popup{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;}
+.nc-popup{font-size:.68rem;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);border-radius:100px;padding:2px 8px;cursor:pointer;background:transparent;font-family:Calibri;transition:all .15s;}
+.nc-popup:hover{border-color:rgba(255,255,255,.25);color:white;}
+.nc-popup.active{background:rgba(255,255,255,.15);color:white;border-color:rgba(255,255,255,.3);}
+@media(max-width:800px){.months-grid{grid-template-columns:repeat(3,1fr);}.bottom-row{grid-template-columns:1fr;}header{padding:8px 12px;}.main{padding:8px;}}
 </style>
 </head>
 <body>
-<header>
-  <div class="header-inner">
-    <div class="logo">
-      <div class="logo-mark"><img src="data:image/png;base64,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" width="40" height="40" style="display:block;"></div>
-      <div><span class="logo-text">Aceitar Hub</span><span class="logo-sub">Aceitar Sucessos, Lda</span></div>
-    </div>
-    <div class="search-bar">
-      <form class="search-form" onsubmit="doSearch(event)">
-        <span class="search-icon">🔍</span>
-        <input class="search-input" id="search-input" type="text" placeholder="Pesquise no Google ou escreva um URL" autocomplete="off">
-        <div class="search-divider"></div>
-        <button type="button" class="search-btn" onclick="doVoice()" title="Pesquisa por voz">🎤</button>
-        <button type="button" class="search-btn" onclick="doIA()" title="Modo IA">✦ IA</button>
-      </form>
-    </div>
-    <div class="header-right">
-      <div class="clock-digital">
-        <div class="clock-day" id="clk-day"></div>
-        <div class="clock-time" id="clk-time"></div>
-        <div class="clock-date" id="clk-date"></div>
-      </div>
-      <select class="wx-location-sel" id="wx-location" onchange="loadWeather()">
-        <option value="41.15|-8.61|Porto">📍 Porto</option>
-        <option value="41.33|-8.74|Matosinhos">📍 Matosinhos</option>
-        <option value="41.18|-8.70|Maia">📍 Maia</option>
-        <option value="41.13|-8.61|Vila Nova de Gaia">📍 Vila Nova de Gaia</option>
-        <option value="41.20|-8.52|Gondomar">📍 Gondomar</option>
-        <option value="41.30|-8.64|Valongo">📍 Valongo</option>
-        <option value="41.37|-8.55|Paredes">📍 Paredes</option>
-        <option value="41.46|-8.29|Amarante">📍 Amarante</option>
-        <option value="41.54|-8.43|Braga">📍 Braga</option>
-        <option value="38.72|-9.14|Lisboa">📍 Lisboa</option>
-      </select>
-    </div>
-  </div>
-</header>
+<div id="tooltip"></div>
 
-<main>
-  <div class="row-2">
-    <div class="panel" id="weather-panel"><div class="panel-label">Meteorologia</div><div style="color:var(--muted);font-size:.82rem;">A carregar⋯</div></div>
-    <div class="panel" style="display:flex;flex-direction:column;gap:.8rem;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;flex:1;">
-        <div>
-          <div class="panel-label">🎂 Aniversários do mês</div>
-          <div id="bday-list"><div style="color:var(--muted);font-size:.82rem;">A carregar⋯</div></div>
-        </div>
-        <div style="border-left:1px solid var(--border);padding-left:.8rem;">
-          <div class="panel-label">🇵🇹 Feriados do mês</div>
-          <div id="feriados-list"><div style="color:var(--muted);font-size:.82rem;">A carregar⋯</div></div>
-        </div>
-      </div>
+<!-- POPUP METEO -->
+<div class="popup-overlay" id="popup-wx" onclick="if(event.target===this)closePopup('popup-wx')">
+  <div class="popup">
+    <div class="popup-hdr">
+      <div class="popup-title" id="wx-popup-title">🌤️ Previsão semanal</div>
+      <button class="popup-close" onclick="closePopup('popup-wx')">✕ Fechar</button>
     </div>
+    <div class="wx-week-popup" id="wx-week-popup"><div style="color:rgba(255,255,255,.4);font-size:.8rem;">A carregar⋯</div></div>
   </div>
-  <div class="row-2 fixed-height">
-    <div class="panel" style="display:flex;flex-direction:column;min-height:0;">
-      <div class="panel-label">📰 Notícias</div>
-      <div class="news-cats" id="news-cats">
-        <button class="news-cat active" data-q="Portugal">🇵🇹 Portugal</button>
-        <button class="news-cat" data-q="Economia Portugal">💼 Economia</button>
-        <button class="news-cat" data-q="Construção obras Portugal">🏗️ Construção</button>
-        <button class="news-cat" data-q="Inteligência Artificial Claude ChatGPT Gemini">🤖 IA</button>
-        <button class="news-cat" data-q="Tecnologia">💡 Tecnologia</button>
-        <button class="news-cat" data-q="Desporto Portugal">⚽ Desporto</button>
-      </div>
-      <div class="news-list" id="news-list" style="flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent;min-height:0;"><div class="news-loading">A carregar notícias⋯</div></div>
-    </div>
-    <div class="panel" id="efem-panel">
-      <div class="panel-label">📅 Efemérides</div>
-      <div class="efem-date" id="efem-date"></div>
-      <div class="efem-grid" id="efem-body"><div style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">A carregar⋯</div></div>
-    </div>
-  </div>
-  <div class="apps-grid" id="grid"></div>
-</main>
+</div>
 
-<div class="modal-overlay" id="modal" onmousedown="closeIfOverlay(event)">
+<!-- POPUP NOTÍCIAS -->
+<div class="popup-overlay" id="popup-news" onclick="if(event.target===this)closePopup('popup-news')">
+  <div class="popup">
+    <div class="popup-hdr">
+      <div class="popup-title">📰 Notícias</div>
+      <button class="popup-close" onclick="closePopup('popup-news')">✕ Fechar</button>
+    </div>
+    <div class="news-cats-popup" id="popup-news-cats">
+      <button class="nc-popup active" data-q="Portugal">🇵🇹 Portugal</button>
+      <button class="nc-popup" data-q="Economia Portugal">💼 Economia</button>
+      <button class="nc-popup" data-q="Construção obras Portugal">🏗️ Construção</button>
+      <button class="nc-popup" data-q="Inteligência Artificial Claude ChatGPT Gemini">🤖 IA</button>
+      <button class="nc-popup" data-q="Tecnologia">💡 Tecnologia</button>
+      <button class="nc-popup" data-q="Desporto Portugal">⚽ Desporto</button>
+    </div>
+    <div id="popup-news-list" style="display:flex;flex-direction:column;gap:4px;"><div style="color:rgba(255,255,255,.4);font-size:.8rem;">A carregar⋯</div></div>
+  </div>
+</div>
+
+<!-- POPUP EFEMÉRIDES -->
+<div class="popup-overlay" id="popup-efem" onclick="if(event.target===this)closePopup('popup-efem')">
+  <div class="popup">
+    <div class="popup-hdr">
+      <div class="popup-title" id="efem-popup-title">📅 Efemérides</div>
+      <button class="popup-close" onclick="closePopup('popup-efem')">✕ Fechar</button>
+    </div>
+    <div class="efem-grid" id="popup-efem-body"><div style="color:rgba(255,255,255,.4);font-size:.8rem;">A carregar⋯</div></div>
+  </div>
+</div>
+
+<!-- POPUP DIA CALENDÁRIO -->
+<div class="popup-overlay" id="popup-day" onclick="if(event.target===this)closePopup('popup-day')">
+  <div class="popup" style="max-width:420px;">
+    <div class="popup-hdr">
+      <div class="popup-title" id="day-popup-title">📅 Dia</div>
+      <button class="popup-close" onclick="closePopup('popup-day')">✕ Fechar</button>
+    </div>
+    <div class="day-popup-items" id="day-popup-body"></div>
+  </div>
+</div>
+
+<!-- MODAL APPS -->
+<div class="modal-overlay" id="modal" onmousedown="if(event.target===this)closeModal()">
   <div class="modal">
     <div class="modal-title" id="modal-title">Nova Aplicação</div>
-    <div class="form-group"><label>Sigla / Nome curto</label><input type="text" id="f-name" placeholder="ex: SIGO" maxlength="10"></div>
+    <div class="form-group"><label>Sigla / Nome curto</label><input type="text" id="f-name" placeholder="ex: SIGO" maxlength="12"></div>
     <div class="form-group"><label>Descrição</label><input type="text" id="f-desc" placeholder="ex: Gestão de Obras e Projetos"></div>
     <div class="form-group"><label>URL</label><input type="url" id="f-url" placeholder="https://..."></div>
-    <div class="form-group"><label>Categoria</label><select id="f-badge"><option>Gestão</option><option>Fiscalização</option><option>Segurança</option><option>Documentação</option><option>Relatórios</option><option>Interno</option></select></div>
-    <div class="form-group"><label>Cor do cartão</label><div class="color-grid" id="color-grid"></div></div>
+    <div class="form-group"><label>Categoria</label><select class="form-sel" id="f-badge"><option>Gestão</option><option>Fiscalização</option><option>Segurança</option><option>Documentação</option><option>Relatórios</option><option>Interno</option></select></div>
+    <div class="form-group"><label>Cor</label><div class="color-grid" id="color-grid"></div></div>
     <div class="modal-actions">
       <button class="btn-delete" id="btn-delete" style="display:none" onclick="deleteApp()">Eliminar</button>
       <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
@@ -215,47 +237,220 @@
   </div>
 </div>
 
-<script>
-const PALETTES=[
-  {id:'blue',bg:'linear-gradient(135deg,#1a3a6b,#0f5fa8,#1e8fd4)',glow:'rgba(14,95,168,.6)'},
-  {id:'teal',bg:'linear-gradient(135deg,#0d4a4a,#0a7a6a,#1ab39a)',glow:'rgba(10,122,106,.6)'},
-  {id:'orange',bg:'linear-gradient(135deg,#6b2d0d,#c05a1a,#f0882a)',glow:'rgba(192,90,26,.6)'},
-  {id:'violet',bg:'linear-gradient(135deg,#2d1a6b,#5a2db0,#8c52e8)',glow:'rgba(90,45,176,.6)'},
-  {id:'rose',bg:'linear-gradient(135deg,#6b1a3a,#b02060,#e84080)',glow:'rgba(176,32,96,.6)'},
-  {id:'green',bg:'linear-gradient(135deg,#1a4a1a,#2a8a2a,#48c048)',glow:'rgba(42,138,42,.6)'},
-  {id:'slate',bg:'linear-gradient(135deg,#1a2040,#2a3a6a,#4a5a9a)',glow:'rgba(42,58,106,.6)'},
-  {id:'amber',bg:'linear-gradient(135deg,#5a3a00,#b07800,#e8b800)',glow:'rgba(176,120,0,.6)'},
-  {id:'crimson',bg:'linear-gradient(135deg,#5a1010,#a02020,#d84040)',glow:'rgba(160,32,32,.6)'},
-  {id:'cyan',bg:'linear-gradient(135deg,#0a2a4a,#0a6a9a,#20b0e0)',glow:'rgba(10,106,154,.6)'},
-  {id:'sand',bg:'linear-gradient(135deg,#3a2a10,#7a5a20,#c09050)',glow:'rgba(122,90,32,.6)'},
-  {id:'dark',bg:'linear-gradient(135deg,#1a1a2a,#2a2a4a,#3a3a6a)',glow:'rgba(42,42,74,.6)'},
-];
+<!-- HEADER -->
+<header class="hdr">
+  <div class="logo">
+    <div class="logo-mark" id="logo-img">
+      <svg viewBox="0 0 20 20" fill="none" width="22" height="22"><defs><linearGradient id="bolt" x1="10" y1="1" x2="10" y2="19" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f9d923"/><stop offset="50%" stop-color="#f0882a"/><stop offset="100%" stop-color="#e8304a"/></linearGradient></defs><path d="M12 1L4 11h6l-2 8 8-10h-6l2-8z" fill="url(#bolt)"/></svg>
+    </div>
+    <div><span class="logo-text">Aceitar Hub</span><span class="logo-sub">Aceitar Sucessos, Lda</span></div>
+  </div>
+  <div class="search-bar">
+    <form class="search-form" onsubmit="doSearch(event)">
+      <span style="color:rgba(255,255,255,.3);font-size:.9rem;">🔍</span>
+      <input class="search-input" id="search-input" type="text" placeholder="Pesquise no Google ou escreva um URL" autocomplete="off">
+      <div style="width:1px;height:16px;background:rgba(255,255,255,.15);"></div>
+      <button type="button" class="search-btn" onclick="doVoice()">🎤</button>
+      <button type="button" class="search-btn" onclick="window.open('https://claude.ai','_blank')">✦ IA</button>
+    </form>
+  </div>
+  <div class="hdr-right">
+    <div class="wx-btn" id="wx-btn" onclick="openWxPopup()" title="Clica para ver previsão semanal">
+      <div class="wx-icon" id="wx-icon">⋯</div>
+      <div class="wx-info">
+        <div class="wx-temp" id="wx-temp">—°C</div>
+        <div class="wx-desc" id="wx-desc">A carregar⋯</div>
+      </div>
+    </div>
+    <div class="sep"></div>
+    <select class="loc-select" id="wx-location" onchange="loadWeather()">
+      <option value="41.15|-8.61|Porto">📍 Porto</option>
+      <option value="41.33|-8.74|Matosinhos">📍 Matosinhos</option>
+      <option value="41.18|-8.70|Maia">📍 Maia</option>
+      <option value="41.13|-8.61|Vila Nova de Gaia">📍 Vila Nova de Gaia</option>
+      <option value="41.20|-8.52|Gondomar">📍 Gondomar</option>
+      <option value="41.30|-8.64|Valongo">📍 Valongo</option>
+      <option value="41.37|-8.55|Paredes">📍 Paredes</option>
+      <option value="41.46|-8.29|Amarante">📍 Amarante</option>
+      <option value="41.54|-8.43|Braga">📍 Braga</option>
+      <option value="38.72|-9.14|Lisboa">📍 Lisboa</option>
+    </select>
+    <div class="sep"></div>
+    <div class="clock-d">
+      <div class="clock-day" id="clk-day"></div>
+      <div class="clock-time" id="clk-time"></div>
+      <div class="clock-date" id="clk-date"></div>
+    </div>
+  </div>
+</header>
 
-// ── SUPABASE ──────────────────────────────────────────────────────────────────
+<div class="main">
+  <!-- APPS -->
+  <div class="panel" style="padding:8px 14px;">
+    <div class="apps-row" id="apps-row"><div style="color:rgba(255,255,255,.3);font-size:.75rem;padding:4px 0;">A carregar⋯</div></div>
+  </div>
+
+  <!-- TAREFAS -->
+  <div class="panel" style="padding:8px 14px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+      <div class="plabel" style="margin:0;">✅ Tarefas pendentes</div>
+      <a href="https://todo.aceitar.pt" target="_blank" style="font-size:.62rem;color:rgba(80,160,255,.7);text-decoration:none;">Abrir TODO →</a>
+    </div>
+    <div class="tasks-row" id="tasks-row"><div style="color:rgba(255,255,255,.3);font-size:.75rem;">A carregar⋯</div></div>
+  </div>
+
+  <!-- CALENDÁRIO -->
+  <div class="panel" style="padding:10px 14px;">
+    <div class="cal-header">
+      <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+        <div class="cal-title" style="margin-right:4px;">📅 Calendário 2026</div>
+        <button class="fil-btn active" data-p="ALL">Todos</button>
+        <button class="fil-btn" data-p="TF">TF</button>
+        <button class="fil-btn" data-p="SF">SF</button>
+        <button class="fil-btn" data-p="CF">CF</button>
+        <button class="fil-btn" data-p="JPP">JPP</button>
+        <button class="fil-btn" data-p="PS">PS</button>
+        <button class="fil-btn" data-p="MS">MS</button>
+        <button class="fil-btn" data-p="PD">PD</button>
+        <button class="fil-btn" data-p="HH">HH</button>
+        <button class="fil-btn" data-p="CLF">CLF</button>
+        <button class="fil-btn" data-p="TBF">TBF</button>
+      </div>
+      <div class="legend">
+        <div class="leg"><div class="leg-dot" style="background:rgba(220,50,50,.8);"></div>Feriado<span class="leg-cnt" id="cnt-fer">—</span></div>
+        <div class="leg"><div class="leg-dot" style="background:rgba(40,100,255,.8);"></div>Ponte<span class="leg-cnt" id="cnt-pont">—</span></div>
+        <div class="leg"><div class="leg-dot" style="background:rgba(30,160,70,.8);"></div>Férias<span class="leg-cnt" id="cnt-ferias">—</span></div>
+        <div class="leg"><div class="leg-dot" style="background:rgba(240,130,0,.8);"></div>Aniversário<span class="leg-cnt" id="cnt-aniv">—</span></div>
+      </div>
+    </div>
+    <div class="months-grid" id="cal"></div>
+  </div>
+
+  <!-- NOTÍCIAS + EFEMÉRIDES -->
+  <div class="bottom-row">
+    <div class="panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="plabel" style="margin:0;">📰 Notícias</div>
+        <span class="more-btn" style="padding:2px 8px;margin:0;" onclick="openNewsPopup()">Ver todas →</span>
+      </div>
+      <div class="news-preview" id="news-preview"><div style="color:rgba(255,255,255,.3);font-size:.75rem;">A carregar⋯</div></div>
+    </div>
+    <div class="panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="plabel" style="margin:0;">📅 Efemérides</div>
+        <span class="more-btn" style="padding:2px 8px;margin:0;" onclick="openPopup('popup-efem')">Ver todas →</span>
+      </div>
+      <div class="efem-grid" id="efem-preview"><div style="color:rgba(255,255,255,.3);font-size:.75rem;grid-column:1/-1;">A carregar⋯</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTES ────────────────────────────────────────────────────────────────
+const PALETTES=[
+  {id:'blue',bg:'linear-gradient(135deg,#1a3a6b,#1e8fd4)'},{id:'teal',bg:'linear-gradient(135deg,#0d4a4a,#1ab39a)'},
+  {id:'orange',bg:'linear-gradient(135deg,#6b2d0d,#f0882a)'},{id:'violet',bg:'linear-gradient(135deg,#2d1a6b,#8c52e8)'},
+  {id:'rose',bg:'linear-gradient(135deg,#6b1a3a,#e84080)'},{id:'green',bg:'linear-gradient(135deg,#1a4a1a,#48c048)'},
+  {id:'slate',bg:'linear-gradient(135deg,#1a2040,#4a5a9a)'},{id:'amber',bg:'linear-gradient(135deg,#5a3a00,#e8b800)'},
+  {id:'crimson',bg:'linear-gradient(135deg,#5a1010,#d84040)'},{id:'cyan',bg:'linear-gradient(135deg,#0a2a4a,#20b0e0)'},
+  {id:'sand',bg:'linear-gradient(135deg,#3a2a10,#c09050)'},{id:'dark',bg:'linear-gradient(135deg,#1a1a2a,#3a3a6a)'},
+];
 const SB_URL='https://kofgzhavulclnywhzmoc.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmd6aGF2dWxjbG55d2h6bW9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwOTYxMTEsImV4cCI6MjA5MDY3MjExMX0.iuEQlvE2YpoMLRUK7VCZiKBxkYgY4GRDlFaQkmbO4pI';
+const TODO_URL='https://jxnveohbgdyowadccsm.supabase.co';
+const TODO_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4bnZlb2hiZ3lkeW93YWRjY3NtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDAxMDksImV4cCI6MjA5MDY3NjEwOX0.9CRv8flc_-A5PLv0HQXzN7CTBZVSApYMMk-JL5LMw2E';
 
-async function sbFetch(path, opts={}){
-  const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
-    headers:{ 'apikey':SB_KEY, 'Authorization':`Bearer ${SB_KEY}`, 'Content-Type':'application/json', 'Prefer':'return=representation', ...opts.headers },
-    ...opts
-  });
-  if(!res.ok) throw new Error(await res.text());
-  return res.status===204 ? null : res.json();
+// ── SUPABASE HELPER ───────────────────────────────────────────────────────────
+async function sbFetch(base,url,key,opts={}){
+  const res=await fetch(`${base}/rest/v1/${url}`,{headers:{'apikey':key,'Authorization':`Bearer ${key}`,'Content-Type':'application/json','Prefer':'return=representation',...opts.headers},...opts});
+  if(!res.ok)throw new Error(await res.text());
+  return res.status===204?null:res.json();
 }
 
-let apps=[], editingId=null, selectedPalette=PALETTES[0].id;
+// ── CLOCK ─────────────────────────────────────────────────────────────────────
+const DIAS_PT=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+const MESES_PT=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MESES_C=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const DIAS_C=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+function updateClock(){
+  const now=new Date(),pad=n=>String(n).padStart(2,'0');
+  document.getElementById('clk-day').textContent=DIAS_PT[now.getDay()];
+  document.getElementById('clk-time').textContent=`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('clk-date').textContent=`${now.getDate()} ${MESES_C[now.getMonth()]} ${now.getFullYear()}`;
+}
+setInterval(updateClock,1000);updateClock();
 
+// ── PESQUISA ──────────────────────────────────────────────────────────────────
+function doSearch(e){
+  if(e)e.preventDefault();
+  const q=document.getElementById('search-input').value.trim();
+  if(!q)return;
+  const isUrl=/^(https?:\/\/|www\.)/i.test(q)||(/\.[a-z]{2,}$/i.test(q)&&!q.includes(' '));
+  window.open(isUrl?(q.startsWith('http')?q:'https://'+q):`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');
+}
+function doVoice(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Browser não suporta pesquisa por voz.');return;}
+  const r=new SR();r.lang='pt-PT';r.start();
+  r.onresult=e=>{document.getElementById('search-input').value=e.results[0][0].transcript;doSearch();};
+}
+document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch(e);});
+
+// ── POPUPS ────────────────────────────────────────────────────────────────────
+function openPopup(id){document.getElementById(id).classList.add('open');}
+function closePopup(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.popup-overlay.open,.modal-overlay.open').forEach(el=>el.classList.remove('open'));});
+
+// ── METEOROLOGIA ──────────────────────────────────────────────────────────────
+const WX_ICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+const WX_DESC={0:'Céu limpo',1:'Maioritariamente limpo',2:'Parcialmente nublado',3:'Nublado',45:'Névoa',51:'Chuvisco leve',55:'Chuvisco intenso',61:'Chuva leve',63:'Chuva moderada',65:'Chuva intensa',71:'Neve leve',75:'Neve intensa',80:'Aguaceiros',82:'Aguaceiros intensos',95:'Trovoada'};
+let wxData=null;
+async function loadWeather(){
+  const sel=document.getElementById('wx-location');
+  const parts=(sel?.value||'41.15|-8.61|Porto').split('|');
+  const [lat,lon,city]=[parseFloat(parts[0]),parseFloat(parts[1]),parts[2]];
+  try{
+    const wx=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,windspeed_10m_max&timezone=auto&forecast_days=7`).then(r=>r.json());
+    wxData={wx,city};
+    const cur=wx.current_weather;
+    document.getElementById('wx-icon').textContent=WX_ICONS[cur.weathercode]||'🌡️';
+    document.getElementById('wx-temp').textContent=`${Math.round(cur.temperature)}°C`;
+    document.getElementById('wx-desc').textContent=`${WX_DESC[cur.weathercode]||''} · 💨${Math.round(cur.windspeed)}km/h`;
+    document.getElementById('wx-popup-title').textContent=`🌤️ Previsão semanal — ${city}`;
+  }catch{}
+}
+function openWxPopup(){
+  openPopup('popup-wx');
+  if(!wxData){document.getElementById('wx-week-popup').innerHTML='<div style="color:rgba(255,255,255,.4);">Dados indisponíveis</div>';return;}
+  const d=wxData.wx.daily;
+  document.getElementById('wx-week-popup').innerHTML=d.time.map((dt,i)=>{
+    const day=new Date(dt+'T12:00:00');
+    const name=i===0?'Hoje':DIAS_C[day.getDay()];
+    return `<div class="wx-pw${i===0?' today':''}"><div class="wx-pw-dn">${name}</div><div class="wx-pw-i">${WX_ICONS[d.weathercode[i]]||'🌡️'}</div><div class="wx-pw-t">${Math.round(d.temperature_2m_max[i])}°</div><div class="wx-pw-m">${Math.round(d.temperature_2m_min[i])}°</div><div class="wx-pw-w">💨${Math.round(d.windspeed_10m_max[i])}km/h</div></div>`;
+  }).join('');
+}
+
+// ── APPS ──────────────────────────────────────────────────────────────────────
+let apps=[],editingId=null,selectedPalette=PALETTES[0].id;
 async function loadApps(){
   try{
-    apps = await sbFetch('hub_apps?select=*&order=ordem.asc,created_at.asc');
-    render();
-  }catch(e){
-    console.error('Erro a carregar apps:',e);
-    render();
-  }
+    apps=await sbFetch(SB_URL,'hub_apps?select=*&order=ordem.asc,created_at.asc',SB_KEY);
+    renderApps();
+  }catch(e){console.error(e);renderApps();}
 }
-
+function renderApps(){
+  const row=document.getElementById('apps-row');
+  row.innerHTML=apps.map((app,i)=>{
+    const pal=PALETTES.find(p=>p.id===app.palette)||PALETTES[0];
+    return `<a class="app-card" href="${app.url||'#'}" target="_blank" rel="noopener" style="background:${pal.bg};animation-delay:${i*.05}s" oncontextmenu="event.preventDefault();openModal('${app.id}')">
+      <span class="app-badge">${app.badge}</span>
+      <div><div class="app-name">${app.name}</div><div class="app-desc">${app.descricao||''}</div></div>
+    </a>`;
+  }).join('');
+  const add=document.createElement('div');add.className='app-add';add.onclick=()=>openModal();
+  add.innerHTML='<span style="font-size:1.2rem;color:rgba(255,255,255,.25);">＋</span>';
+  row.appendChild(add);
+}
 async function saveApp(){
   const name=document.getElementById('f-name').value.trim();
   const descricao=document.getElementById('f-desc').value.trim();
@@ -263,370 +458,266 @@ async function saveApp(){
   const badge=document.getElementById('f-badge').value;
   if(!name||!url){alert('Nome e URL são obrigatórios.');return;}
   try{
-    if(editingId){
-      await sbFetch(`hub_apps?id=eq.${editingId}`,{method:'PATCH',body:JSON.stringify({name,descricao,url,badge,palette:selectedPalette})});
-    }else{
-      const maxOrdem = apps.length ? Math.max(...apps.map(a=>a.ordem||0))+1 : 1;
-      await sbFetch('hub_apps',{method:'POST',body:JSON.stringify({name,descricao,url,badge,palette:selectedPalette,ordem:maxOrdem})});
-    }
-    await loadApps();
-    closeModal();
-  }catch(e){alert('Erro ao guardar: '+e.message);}
+    if(editingId){await sbFetch(SB_URL,`hub_apps?id=eq.${editingId}`,SB_KEY,{method:'PATCH',body:JSON.stringify({name,descricao,url,badge,palette:selectedPalette})});}
+    else{const maxOrdem=apps.length?Math.max(...apps.map(a=>a.ordem||0))+1:1;await sbFetch(SB_URL,'hub_apps',SB_KEY,{method:'POST',body:JSON.stringify({name,descricao,url,badge,palette:selectedPalette,ordem:maxOrdem})});}
+    await loadApps();closeModal();
+  }catch(e){alert('Erro: '+e.message);}
 }
-
 async function deleteApp(){
-  if(!confirm('Eliminar esta aplicação?'))return;
-  try{
-    await sbFetch(`hub_apps?id=eq.${editingId}`,{method:'DELETE'});
-    await loadApps();
-    closeModal();
-  }catch(e){alert('Erro ao eliminar: '+e.message);}
+  if(!confirm('Eliminar?'))return;
+  try{await sbFetch(SB_URL,`hub_apps?id=eq.${editingId}`,SB_KEY,{method:'DELETE'});await loadApps();closeModal();}
+  catch(e){alert('Erro: '+e.message);}
 }
-
-// ANIVERSÁRIOS via Supabase
-async function loadBirthdays(){
-  const list=document.getElementById('bday-list');
-  const now=new Date();
-  const mesAtual=now.getMonth()+1;
-  const diaAtual=now.getDate();
-
-  try{
-    const data = await sbFetch(`hub_aniversarios?select=*&mes=eq.${mesAtual}&order=dia.asc`);
-
-    function daysUntil(dia,mes){
-      const yr=now.getFullYear();
-      let next=new Date(yr,mes-1,dia);
-      const today=new Date(yr,now.getMonth(),diaAtual);
-      if(next<today)next=new Date(yr+1,mes-1,dia);
-      return Math.round((next-today)/86400000);
-    }
-
-    if(!data||!data.length){
-      list.innerHTML=`<div style="color:var(--muted);font-size:.82rem;padding:.3rem 0;">Nenhum aniversário este mês.</div>`;
-      return;
-    }
-    list.innerHTML=data.map(p=>{
-      const dias=daysUntil(p.dia,p.mes);
-      const isHoje=dias===0;
-      const label=isHoje?'🎉 Hoje!':`${p.dia} ${MESES_C[p.mes-1]}`;
-      return `<div class="bday-item"><div class="bday-avatar${isHoje?' hoje':''}">${p.iniciais||'?'}</div><div style="flex:1;min-width:0;"><div class="bday-name">${p.nome}</div><div class="bday-date">${label}</div></div>${isHoje?`<div class="bday-badge">🎉 Hoje!</div>`:''}</div>`;
-    }).join('');
-  }catch(e){
-    list.innerHTML=`<div style="color:var(--muted);font-size:.82rem;">Erro ao carregar aniversários.</div>`;
-  }
-}
-
-const DIAS_PT=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-const MESES_PT=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const MESES_C=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const DIAS_C=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-
-// RELÓGIO
-function updateClock(){
-  const now=new Date(),pad=n=>String(n).padStart(2,'0');
-  document.getElementById('clk-day').textContent=DIAS_PT[now.getDay()];
-  document.getElementById('clk-time').textContent=`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-  document.getElementById('clk-date').textContent=`${now.getDate()} ${MESES_C[now.getMonth()]} ${now.getFullYear()}`;
-}
-setInterval(updateClock,1000);
-
-// FERIADOS DO MÊS
-function loadFeriados(){
-  const list=document.getElementById('feriados-list');
-  const now=new Date();
-  const mesAtual=now.getMonth()+1;
-  const diaAtual=now.getDate();
-
-  const feriados=FERIADOS.filter(f=>f.mes===mesAtual).sort((a,b)=>a.dia-b.dia);
-  const feriasMes=FERIAS.filter(f=>f.mes===mesAtual);
-
-  // Agrupar férias por dia
-  const feriasPorDia={};
-  feriasMes.forEach(f=>{
-    if(!feriasPorDia[f.dia]) feriasPorDia[f.dia]=[];
-    if(!feriasPorDia[f.dia].includes(f.pessoa)) feriasPorDia[f.dia].push(f.pessoa);
-  });
-
-  // Juntar feriados e dias de férias num único array ordenado por dia
-  const todosDias=[];
-  feriados.forEach(f=>todosDias.push({dia:f.dia,tipo:f.tipo,dados:f}));
-  Object.keys(feriasPorDia).forEach(dia=>todosDias.push({dia:parseInt(dia),tipo:'ferias',dados:feriasPorDia[dia]}));
-  todosDias.sort((a,b)=>a.dia-b.dia);
-
-  if(!todosDias.length){list.innerHTML=`<div style="color:var(--muted);font-size:.82rem;padding:.3rem 0;">Nenhum feriado ou férias este mês.</div>`;return;}
-
-  list.innerHTML=todosDias.map(item=>{
-    const isHoje=item.dia===diaAtual;
-    if(item.tipo==='ferias'){
-      const pessoas=item.dados;
-      return `<div class="bday-item" style="${isHoje?'border-color:rgba(240,160,64,.3);':''}">
-        <div style="width:28px;height:28px;border-radius:7px;background:rgba(80,200,120,.12);border:1px solid rgba(80,200,120,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;">🌴</div>
-        <div style="flex:1;min-width:0;">
-          <div class="bday-name" style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">
-            ${pessoas.map(p=>`<span style="font-size:.65rem;background:rgba(80,200,120,.15);color:#50c878;border:1px solid rgba(80,200,120,.3);border-radius:3px;padding:1px 5px;">${p}</span>`).join('')}
-            <span style="font-size:.72rem;color:var(--muted);">Férias</span>
-          </div>
-          <div class="bday-date">${item.dia} ${MESES_C[mesAtual-1]}${isHoje?' · Hoje!':''}</div>
-        </div>
-      </div>`;
-    }else{
-      const f=item.dados;
-      const isPonte=f.tipo==='ponte';
-      const cor=isPonte?'rgba(96,160,255,.15)':'rgba(255,255,255,.06)';
-      const borderCor=isPonte?'rgba(96,160,255,.3)':'rgba(255,255,255,.1)';
-      const badge=isPonte?`<span style="font-size:.6rem;background:rgba(96,160,255,.2);color:#60a0ff;border:1px solid rgba(96,160,255,.3);border-radius:3px;padding:1px 5px;margin-left:4px;">PONTE</span>`:'';
-      return `<div class="bday-item" style="${isHoje?'border-color:rgba(240,160,64,.3);':''}">
-        <div style="width:28px;height:28px;border-radius:7px;background:${cor};border:1px solid ${borderCor};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;">${f.icon}</div>
-        <div style="flex:1;min-width:0;"><div class="bday-name">${f.nome}${badge}</div><div class="bday-date">${f.dia} ${MESES_C[f.mes-1]}${isHoje?' · Hoje!':''}</div></div>
-      </div>`;
-    }
-  }).join('');
-}
-
-// METEOROLOGIA
-const WX_ICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
-const WX_DESC={0:'Céu limpo',1:'Maioritariamente limpo',2:'Parcialmente nublado',3:'Nublado',45:'Névoa',51:'Chuvisco leve',55:'Chuvisco intenso',61:'Chuva leve',63:'Chuva moderada',65:'Chuva intensa',71:'Neve leve',75:'Neve intensa',80:'Aguaceiros',82:'Aguaceiros intensos',95:'Trovoada'};
-
-async function loadWeather(){
-  const panel=document.getElementById('weather-panel');
-  const sel=document.getElementById('wx-location');
-  const parts=(sel?.value||'41.15|-8.61|Porto').split('|');
-  const lat=parseFloat(parts[0]),lon=parseFloat(parts[1]),city=parts[2];
-  try{
-    const wx=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`).then(r=>r.json());
-    const cur=wx.current_weather,d=wx.daily;
-    const weekHtml=d.time.map((dt,i)=>{const day=new Date(dt+'T12:00:00');return `<div class="wx-day${i===0?' today':''}"><div class="wx-dn">${i===0?'Hoje':DIAS_C[day.getDay()]}</div><div class="wx-di">${WX_ICONS[d.weathercode[i]]||'🌡️'}</div><div class="wx-dt">${Math.round(d.temperature_2m_max[i])}°</div><div class="wx-dm">${Math.round(d.temperature_2m_min[i])}°</div></div>`;}).join('');
-    panel.innerHTML=`<div class="panel-label">🌤️ Meteorologia</div><div class="wx-current"><div class="wx-icon">${WX_ICONS[cur.weathercode]||'🌡️'}</div><div><div class="wx-temp">${Math.round(cur.temperature)}°C</div><div class="wx-desc">${WX_DESC[cur.weathercode]||''}</div><div class="wx-wind">💨 ${Math.round(cur.windspeed)} km/h &nbsp;·&nbsp; 📍 ${city}</div></div></div><div class="wx-week">${weekHtml}</div>`;
-  }catch{panel.innerHTML='<div class="panel-label">🌤️ Meteorologia</div><div style="color:var(--muted);font-size:.82rem;">Indisponível</div>';}
-}
-
-// NOTÍCIAS
-async function loadNews(query='Portugal'){
-  const list=document.getElementById('news-list');
-  list.innerHTML='<div class="news-loading">A carregar notícias⋯</div>';
-  try{
-    const res=await fetch(`/api/noticias?q=${encodeURIComponent(query)}`,{signal:AbortSignal.timeout(8000)});
-    if(!res.ok)throw new Error();
-    const xml=new DOMParser().parseFromString(await res.text(),'application/xml');
-    const items=Array.from(xml.querySelectorAll('item')).slice(0,12);
-    if(!items.length)throw new Error();
-    list.innerHTML=items.map((item,i)=>{
-      const title=(item.querySelector('title')?.textContent||'').replace(/ - [^-]+$/,'');
-      const link=item.querySelector('link')?.textContent||'#';
-      const source=item.querySelector('source')?.textContent||'';
-      const pub=item.querySelector('pubDate')?.textContent||'';
-      const date=pub?new Date(pub).toLocaleDateString('pt-PT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
-      return `<a class="news-item" href="${link}" target="_blank" rel="noopener"><div class="news-num">${String(i+1).padStart(2,'0')}</div><div><div class="news-headline">${title}</div><div class="news-meta"><span style="color:rgba(255,255,255,.28)">${source}</span>${date?`<span>·</span><span>${date}</span>`:''}</div></div></a>`;
-    }).join('');
-  }catch{list.innerHTML='<div class="news-loading">⚠️ Notícias indisponíveis — funciona após deploy no Vercel.</div>';}
-}
-document.getElementById('news-cats').addEventListener('click',e=>{
-  const btn=e.target.closest('.news-cat');if(!btn)return;
-  document.querySelectorAll('.news-cat').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');loadNews(btn.dataset.q);
-});
-
-// EFEMÉRIDES
-const FERIADOS=[
-  // Feriados nacionais fixos
-  {dia:1, mes:1,  nome:'Ano Novo',                    icon:'🎆', tipo:'feriado'},
-  {dia:25,mes:4,  nome:'Dia da Liberdade',             icon:'🌹', tipo:'feriado'},
-  {dia:1, mes:5,  nome:'Dia do Trabalhador',           icon:'✊', tipo:'feriado'},
-  {dia:10,mes:6,  nome:'Dia de Portugal',              icon:'🇵🇹', tipo:'feriado'},
-  {dia:15,mes:8,  nome:'Assunção de N.Sra.',           icon:'⛪', tipo:'feriado'},
-  {dia:5, mes:10, nome:'Implantação da República',     icon:'🏛️', tipo:'feriado'},
-  {dia:1, mes:11, nome:'Todos os Santos',              icon:'🕯️', tipo:'feriado'},
-  {dia:1, mes:12, nome:'Restauração da Independência', icon:'⚔️', tipo:'feriado'},
-  {dia:8, mes:12, nome:'Imaculada Conceição',          icon:'⛪', tipo:'feriado'},
-  {dia:25,mes:12, nome:'Natal',                        icon:'🎄', tipo:'feriado'},
-  // Feriados móveis (2026)
-  {dia:17,mes:2,  nome:'Carnaval',                     icon:'🎭', tipo:'feriado'},
-  {dia:3, mes:4,  nome:'Sexta-feira Santa',            icon:'✝️', tipo:'feriado'},
-  {dia:5, mes:4,  nome:'Páscoa',                       icon:'🐣', tipo:'feriado'},
-  {dia:4, mes:6,  nome:'Corpo de Deus',                icon:'⛪', tipo:'feriado'},
-  {dia:24,mes:6,  nome:'S. João',                      icon:'🔥', tipo:'feriado'},
-  // Pontes
-  {dia:2, mes:1,  nome:'Ponte (Ano Novo)',             icon:'🌉', tipo:'ponte'},
-  {dia:16,mes:2,  nome:'Ponte (Carnaval)',             icon:'🌉', tipo:'ponte'},
-  {dia:30,mes:11, nome:'Ponte (Restauração)',          icon:'🌉', tipo:'ponte'},
-];
-// FÉRIAS INDIVIDUAIS (2026)
-function expandRange(dias, mes, pessoa){
-  // dias pode ser array de dias ou [diaInicio, diaFim] range
-  return dias.map(dia=>({dia, mes, pessoa, tipo:'ferias'}));
-}
-const FERIAS=[
-  // CLF — Fevereiro
-  ...[ 3,4,18,19,20].map(d=>({dia:d,mes:2, pessoa:'CLF',tipo:'ferias'})),
-  // CLF — Abril/Maio
-  ...[6,7,8,9,10].map(d=>({dia:d,mes:4, pessoa:'CLF',tipo:'ferias'})),
-  // CLF — Agosto/Setembro
-  ...[24,25,26,27,28,29,30,31].map(d=>({dia:d,mes:8, pessoa:'CLF',tipo:'ferias'})),
-  ...[1,2,3,4].map(d=>({dia:d,mes:9, pessoa:'CLF',tipo:'ferias'})),
-  // CLF — Dezembro
-  ...[21,22,23,24].map(d=>({dia:d,mes:12,pessoa:'CLF',tipo:'ferias'})),
-  // PS — Abril
-  ...[9,10].map(d=>({dia:d,mes:4, pessoa:'PS', tipo:'ferias'})),
-  // PS — Junho
-  ...[5,8,9,22,23].map(d=>({dia:d,mes:6, pessoa:'PS', tipo:'ferias'})),
-  // PS — Agosto/Setembro
-  ...[31].map(d=>({dia:d,mes:8, pessoa:'PS', tipo:'ferias'})),
-  ...[1,2,3,4,5,6,7,8,9,10,11].map(d=>({dia:d,mes:9, pessoa:'PS', tipo:'ferias'})),
-  // PS — Dezembro
-  {dia:7,mes:12,pessoa:'PS',tipo:'ferias'},
-  // TBF — Março
-  {dia:20,mes:3,pessoa:'TBF',tipo:'ferias'},
-  ...[13,14,15,16,17].map(d=>({dia:d,mes:3, pessoa:'TBF',tipo:'ferias'})),
-  // TBF — Abril
-  {dia:24,mes:4,pessoa:'TBF',tipo:'ferias'},
-  // TBF — Maio
-  ...[20,21,22].map(d=>({dia:d,mes:5, pessoa:'TBF',tipo:'ferias'})),
-  // TBF — Junho
-  ...[5,22,23,25,26].map(d=>({dia:d,mes:6, pessoa:'TBF',tipo:'ferias'})),
-  // TBF — Dezembro
-  {dia:7,mes:12,pessoa:'TBF',tipo:'ferias'},
-  ...[28,29,30,31].map(d=>({dia:d,mes:12,pessoa:'TBF',tipo:'ferias'})),
-  // TF — Junho
-  ...[11,12].map(d=>({dia:d,mes:6, pessoa:'TF', tipo:'ferias'})),
-  // TF — Agosto
-  ...[10,11,12,13,14].map(d=>({dia:d,mes:8, pessoa:'TF', tipo:'ferias'})),
-  // TF — Agosto/2ª semana
-  ...[17,18,19,20,21].map(d=>({dia:d,mes:8, pessoa:'TF', tipo:'ferias'})),
-  // TF — Dezembro
-  ...[28,29,30,31].map(d=>({dia:d,mes:12,pessoa:'TF', tipo:'ferias'})),
-  // SF — Junho
-  ...[11,12].map(d=>({dia:d,mes:6, pessoa:'SF', tipo:'ferias'})),
-  // SF — Agosto
-  ...[10,11,12,13,14].map(d=>({dia:d,mes:8, pessoa:'SF', tipo:'ferias'})),
-  ...[17,18,19,20,21].map(d=>({dia:d,mes:8, pessoa:'SF', tipo:'ferias'})),
-  // SF — Dezembro
-  ...[28,29,30,31].map(d=>({dia:d,mes:12,pessoa:'SF', tipo:'ferias'})),
-  // JPP — Agosto
-  ...[7,8,9,10,11,12,13,14].map(d=>({dia:d,mes:8, pessoa:'JPP',tipo:'ferias'})),
-];
-const SANTOS={'1-1':'Maria, Mãe de Deus','1-6':'Epifania','1-17':'S. António Abade','1-20':'S. Sebastião','1-21':'S. Inês','1-25':'Conv. de S. Paulo','1-28':'S. Tomás de Aquino','2-2':'Apresentação do Senhor','2-3':'S. Brás','2-5':'Sta. Águeda','2-11':'N.Sra. de Lourdes','2-14':'S. Valentim','2-22':'Cátedra de S. Pedro','3-4':'S. Casimiro','3-17':'S. Patrício','3-19':'S. José','3-25':'Anunciação do Senhor','4-5':'S. Vicente Ferrer','4-23':'S. Jorge','4-25':'S. Marcos','4-29':'Sta. Catarina de Sena','5-1':'S. José Operário','5-13':'N.Sra. de Fátima','5-22':'Sta. Rita de Cássia','5-31':'Visitação de N.Sra.','6-5':'S. Bonifácio','6-13':'S. António de Lisboa','6-24':'S. João Batista','6-29':'S. Pedro e S. Paulo','7-3':'S. Tomé Apóstolo','7-4':'Sta. Isabel de Portugal','7-11':'S. Bento','7-16':'N.Sra. do Carmo','7-22':'Sta. Maria Madalena','7-25':'S. Tiago Apóstolo','7-26':'S. Joaquim e Sta. Ana','7-29':'Sta. Marta','7-31':'S. Inácio de Loyola','8-4':'S. João M. Vianney','8-6':'Transfiguração','8-10':'S. Lourenço','8-11':'Sta. Clara','8-15':'Assunção de N.Sra.','8-22':'Rainha de N.Sra.','8-24':'S. Bartolomeu','8-27':'Sta. Mônica','8-28':'S. Agostinho','9-3':'S. Gregório Magno','9-5':'Madre Teresa','9-8':'Natividade de N.Sra.','9-14':'Exaltação da Santa Cruz','9-15':'N.Sra. das Dores','9-21':'S. Mateus','9-23':'S. Pio de Pietrelcina','9-27':'S. Vicente de Paulo','9-29':'S. Miguel, Gabriel e Rafael','9-30':'S. Jerónimo','10-1':'Sta. Teresa do Menino Jesus','10-2':'Santos Anjos da Guarda','10-4':'S. Francisco de Assis','10-7':'N.Sra. do Rosário','10-15':'Sta. Teresa de Ávila','10-18':'S. Lucas','10-22':'S. João Paulo II','10-28':'S. Simão e Judas','11-1':'Todos os Santos','11-2':'Fiéis Defuntos','11-4':'S. Carlos Borromeu','11-9':'Dedicação Basílica Latrão','11-10':'S. Leão Magno','11-11':'S. Martinho de Tours','11-17':'Sta. Isabel da Hungria','11-21':'Apresentação de N.Sra.','11-22':'Sta. Cecília','11-30':'S. André Apóstolo','12-3':'S. Francisco Xavier','12-6':'S. Nicolau de Mira','12-7':'S. Ambrósio','12-8':'Imaculada Conceição','12-13':'Sta. Lúcia','12-14':'S. João da Cruz','12-25':'Natal','12-26':'S. Estêvão','12-27':'S. João Evangelista','12-28':'Santos Inocentes','12-31':'S. Silvestre'};
-
-async function loadEfemérides(){
-  const now=new Date(),d=now.getDate(),m=now.getMonth()+1,year=now.getFullYear();
-  document.getElementById('efem-date').textContent=`${DIAS_PT[now.getDay()]}, ${d} de ${MESES_PT[m-1]} de ${year}`;
-  const body=document.getElementById('efem-body');
-  let cards=[];
-  const feriado=FERIADOS.find(f=>f.dia===d&&f.mes===m);
-  if(feriado){
-    const label=feriado.tipo==='ponte'?'Ponte':'Feriado Nacional';
-    cards.push(`<div class="efem-card hl"><div class="efem-ei">${feriado.icon}</div><div><div class="efem-tag">${label}</div><div class="efem-title">${feriado.nome}</div></div></div>`);
-  }
-  const santo=SANTOS[`${m}-${d}`];
-  if(santo)cards.push(`<div class="efem-card hl"><div class="efem-ei">✝️</div><div><div class="efem-tag">Santo do Dia</div><div class="efem-title">${santo}</div></div></div>`);
-
-  try{
-    const pad=n=>String(n).padStart(2,'0');
-    const [dataPT, dataEN] = await Promise.all([
-      fetch(`https://pt.wikipedia.org/api/rest_v1/feed/onthisday/all/${pad(m)}/${pad(d)}`).then(r=>r.json()),
-      fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/${pad(m)}/${pad(d)}`).then(r=>r.json())
-    ]);
-
-    function makeCard(e, icon, tag, lang){
-      const nome=e.pages[0]?.titles?.normalized||e.text.slice(0,60);
-      const desc=(e.pages[0]?.description||e.text||'').slice(0,65);
-      const url=e.pages[0]?.content_urls?.desktop?.page||`https://${lang}.wikipedia.org/wiki/${encodeURIComponent(nome)}`;
-      const badge=`<span style="font-size:.55rem;background:rgba(255,255,255,.1);border-radius:3px;padding:1px 4px;margin-left:4px;vertical-align:middle;opacity:.7;">${lang.toUpperCase()}</span>`;
-      return `<a class="efem-card" href="${url}" target="_blank" rel="noopener" style="text-decoration:none;cursor:pointer;">
-        <div class="efem-ei">${icon}</div>
-        <div><div class="efem-tag">${tag} ${e.year}${badge}</div>
-        <div class="efem-title">${nome}</div>
-        ${desc&&desc!==nome?`<div class="efem-sub">${desc}</div>`:''}</div>
-      </a>`;
-    }
-
-    // Nascimentos: 1 PT + 1 EN
-    const birthPT=(dataPT.births||[]).filter(e=>e.year&&e.pages?.length)[0];
-    const birthEN=(dataEN.births||[]).filter(e=>e.year&&e.pages?.length)[0];
-    if(birthPT) cards.push(makeCard(birthPT,'🎂','Nasceu em','pt'));
-    if(birthEN) cards.push(makeCard(birthEN,'🎂','Born in','en'));
-
-    // Falecimentos: 1 PT + 1 EN
-    const deathPT=(dataPT.deaths||[]).filter(e=>e.year&&e.pages?.length)[0];
-    const deathEN=(dataEN.deaths||[]).filter(e=>e.year&&e.pages?.length)[0];
-    if(deathPT) cards.push(makeCard(deathPT,'🕯️','Faleceu em','pt'));
-    if(deathEN) cards.push(makeCard(deathEN,'🕯️','Died in','en'));
-
-    // Factos históricos: 1 PT + 1 EN (mais antigos)
-    const eventPT=(dataPT.events||[]).filter(e=>e.year&&e.pages?.length).sort((a,b)=>a.year-b.year)[0];
-    const eventEN=(dataEN.events||[]).filter(e=>e.year&&e.pages?.length).sort((a,b)=>a.year-b.year)[0];
-    if(eventPT) cards.push(makeCard(eventPT,'📜','Aconteceu em','pt'));
-    if(eventEN) cards.push(makeCard(eventEN,'📜','Happened in','en'));
-
-  }catch{}
-  body.innerHTML=cards.length?cards.join(''):'<div style="color:var(--muted);font-size:.82rem;grid-column:1/-1;">Sem efemérides disponíveis.</div>';
-}
-
-// APPS RENDER
-function render(){
-  const grid=document.getElementById('grid');grid.innerHTML='';
-  apps.forEach((app,i)=>{
-    const pal=PALETTES.find(p=>p.id===app.palette)||PALETTES[0];
-    const card=document.createElement('a');card.className='app-card';card.href=app.url||'#';card.target='_blank';card.rel='noopener noreferrer';card.style.animationDelay=`${i*.06}s`;
-    card.innerHTML=`<div class="card-inner" style="background:${pal.bg}"><div class="card-top"><span class="card-badge">${app.badge}</span><div class="card-arrow"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H5M11 3V9" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div><div class="card-title">${app.name}</div><div class="card-desc">${app.descricao||''}</div></div></div><div class="card-edit"><button class="edit-btn" onclick="event.preventDefault();openModal('${app.id}')">Editar</button></div>`;
-    grid.appendChild(card);
-  });
-  const add=document.createElement('div');add.className='add-card';add.style.animationDelay=`${apps.length*.06}s`;add.onclick=()=>openModal();
-  add.innerHTML='<div style="text-align:center;color:var(--muted);"><div style="width:38px;height:38px;background:rgba(255,255,255,.06);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto .5rem;font-size:1.1rem;">＋</div><div style="font-size:.8rem;">Adicionar aplicação</div></div>';
-  grid.appendChild(add);
-}
-
 function renderSwatches(){
   const cg=document.getElementById('color-grid');cg.innerHTML='';
-  PALETTES.forEach(pal=>{const sw=document.createElement('div');sw.className='color-swatch'+(selectedPalette===pal.id?' selected':'');sw.style.background=pal.bg;sw.title=pal.id;sw.onclick=()=>{selectedPalette=pal.id;renderSwatches();};cg.appendChild(sw);});
+  PALETTES.forEach(pal=>{const sw=document.createElement('div');sw.className='color-swatch'+(selectedPalette===pal.id?' selected':'');sw.style.background=pal.bg;sw.onclick=()=>{selectedPalette=pal.id;renderSwatches();};cg.appendChild(sw);});
 }
-
 function openModal(id){
   editingId=id||null;selectedPalette=PALETTES[0].id;
   document.getElementById('modal-title').textContent=id?'Editar Aplicação':'Nova Aplicação';
   document.getElementById('btn-delete').style.display=id?'block':'none';
-  if(id){
-    const app=apps.find(a=>a.id===id);
-    document.getElementById('f-name').value=app.name;
-    document.getElementById('f-desc').value=app.descricao||'';
-    document.getElementById('f-url').value=app.url;
-    document.getElementById('f-badge').value=app.badge;
-    selectedPalette=app.palette||PALETTES[0].id;
-  }else{
-    ['f-name','f-desc','f-url'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('f-badge').value='Gestão';
-  }
-  renderSwatches();
-  document.getElementById('modal').classList.add('open');
+  if(id){const app=apps.find(a=>a.id===id);document.getElementById('f-name').value=app.name;document.getElementById('f-desc').value=app.descricao||'';document.getElementById('f-url').value=app.url;document.getElementById('f-badge').value=app.badge;selectedPalette=app.palette||PALETTES[0].id;}
+  else{['f-name','f-desc','f-url'].forEach(i=>document.getElementById(i).value='');document.getElementById('f-badge').value='Gestão';}
+  renderSwatches();document.getElementById('modal').classList.add('open');
 }
 function closeModal(){document.getElementById('modal').classList.remove('open');}
-function closeIfOverlay(e){if(e.target===document.getElementById('modal'))closeModal();}
 
-// PESQUISA
-function doSearch(e){
-  if(e) e.preventDefault();
-  const q=document.getElementById('search-input').value.trim();
-  if(!q)return;
-  // Se parece URL, abre direto; senão pesquisa no Google
-  const isUrl=/^(https?:\/\/|www\.)/i.test(q)||(/\.[a-z]{2,}$/i.test(q)&&!q.includes(' '));
-  window.open(isUrl?(q.startsWith('http')?q:'https://'+q):`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank');
+// ── TAREFAS ───────────────────────────────────────────────────────────────────
+async function loadTarefas(){
+  const row=document.getElementById('tasks-row');
+  try{
+    const tasks=await sbFetch(TODO_URL,'todo_items?select=id,titulo,prioridade,prazo,done&type=eq.task&done=eq.false&order=prazo.asc',TODO_KEY);
+    if(!tasks.length){row.innerHTML='<div style="color:rgba(255,255,255,.3);font-size:.75rem;">Sem tarefas pendentes.</div>';return;}
+    const now=new Date(),hoje=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    row.innerHTML=tasks.map(t=>{
+      const prazo=t.prazo?new Date(t.prazo):null;
+      const prazoDia=prazo?new Date(prazo.getFullYear(),prazo.getMonth(),prazo.getDate()):null;
+      const isHoje=prazoDia&&prazoDia.getTime()===hoje.getTime();
+      const isVencida=prazoDia&&prazoDia<hoje;
+      const prio=(t.prioridade||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const prioCls=prio==='alta'?'alta':prio==='media'?'media':'baixa';
+      const prioLabel=prio==='alta'?'Alta':prio==='media'?'Média':'Baixa';
+      const dataStr=prazo?`${prazo.getDate()} ${MESES_C[prazo.getMonth()]}`:'-';
+      const dayLabel=isHoje?'Hoje':isVencida?'⚠️ Vencida':dataStr;
+      return `<div class="task-item${isHoje?' hoje':''}${isVencida?' vencida':''}"><div class="task-day">${dayLabel}</div><div class="task-title">${t.titulo}</div><span class="task-prio ${prioCls}">${prioLabel}</span></div>`;
+    }).join('');
+  }catch{row.innerHTML='<div style="color:rgba(255,100,100,.5);font-size:.75rem;">Erro ao carregar tarefas.</div>';}
 }
-function doVoice(){
-  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('O teu browser não suporta pesquisa por voz.');return;}
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  const r=new SR();r.lang='pt-PT';r.start();
-  r.onresult=e=>{document.getElementById('search-input').value=e.results[0][0].transcript;doSearch();};
-}
-function doIA(){window.open('https://claude.ai','_blank');}
-document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch(e);});
 
-// INIT
-updateClock();
+// ── NOTÍCIAS ──────────────────────────────────────────────────────────────────
+let newsCache={};
+async function fetchNews(query){
+  if(newsCache[query])return newsCache[query];
+  const res=await fetch(`/api/noticias?q=${encodeURIComponent(query)}`,{signal:AbortSignal.timeout(8000)});
+  if(!res.ok)throw new Error();
+  const xml=new DOMParser().parseFromString(await res.text(),'application/xml');
+  const items=Array.from(xml.querySelectorAll('item')).slice(0,12).map(item=>({
+    title:(item.querySelector('title')?.textContent||'').replace(/ - [^-]+$/,''),
+    link:item.querySelector('link')?.textContent||'#',
+    source:item.querySelector('source')?.textContent||'',
+    pub:item.querySelector('pubDate')?.textContent||''
+  }));
+  newsCache[query]=items;return items;
+}
+async function loadNewsPreview(){
+  const preview=document.getElementById('news-preview');
+  try{
+    const items=await fetchNews('Portugal');
+    preview.innerHTML=items.slice(0,4).map((n,i)=>`<a class="ni" href="${n.link}" target="_blank" rel="noopener"><div class="ni-n">${String(i+1).padStart(2,'0')}</div><div><div class="ni-t">${n.title}</div><div class="ni-s">${n.source}</div></div></a>`).join('')+`<div class="more-btn" onclick="openNewsPopup()">+ ${items.length-4} notícias — ver todas</div>`;
+  }catch{preview.innerHTML='<div style="color:rgba(255,255,255,.3);font-size:.75rem;">⚠️ Notícias indisponíveis.</div>';}
+}
+async function openNewsPopup(){
+  openPopup('popup-news');
+  const activeQ=document.querySelector('#popup-news-cats .nc-popup.active')?.dataset.q||'Portugal';
+  await loadNewsInPopup(activeQ);
+}
+async function loadNewsInPopup(query){
+  const list=document.getElementById('popup-news-list');
+  list.innerHTML='<div style="color:rgba(255,255,255,.4);font-size:.8rem;">A carregar⋯</div>';
+  try{
+    const items=await fetchNews(query);
+    list.innerHTML=items.map((n,i)=>`<a class="ni" href="${n.link}" target="_blank" rel="noopener" style="padding:7px 8px;"><div class="ni-n" style="font-size:.75rem;">${String(i+1).padStart(2,'0')}</div><div><div class="ni-t" style="font-size:.78rem;">${n.title}</div><div class="ni-s">${n.source}${n.pub?` · ${new Date(n.pub).toLocaleDateString('pt-PT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`:''}</div></div></a>`).join('');
+  }catch{list.innerHTML='<div style="color:rgba(255,100,100,.5);font-size:.8rem;">Erro ao carregar.</div>';}
+}
+document.getElementById('popup-news-cats').addEventListener('click',e=>{
+  const btn=e.target.closest('.nc-popup');if(!btn)return;
+  document.querySelectorAll('.nc-popup').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  newsCache={};loadNewsInPopup(btn.dataset.q);
+});
+
+// ── EFEMÉRIDES ────────────────────────────────────────────────────────────────
+const FERIADOS=[
+  {dia:1,mes:1,nome:'Ano Novo',icon:'🎆',tipo:'feriado'},{dia:2,mes:1,nome:'Ponte (Ano Novo)',icon:'🌉',tipo:'ponte'},
+  {dia:17,mes:2,nome:'Carnaval',icon:'🎭',tipo:'feriado'},{dia:16,mes:2,nome:'Ponte (Carnaval)',icon:'🌉',tipo:'ponte'},
+  {dia:3,mes:4,nome:'Sexta-feira Santa',icon:'✝️',tipo:'feriado'},{dia:5,mes:4,nome:'Páscoa',icon:'🐣',tipo:'feriado'},
+  {dia:25,mes:4,nome:'Dia da Liberdade',icon:'🌹',tipo:'feriado'},{dia:1,mes:5,nome:'Dia do Trabalhador',icon:'✊',tipo:'feriado'},
+  {dia:4,mes:6,nome:'Corpo de Deus',icon:'⛪',tipo:'feriado'},{dia:10,mes:6,nome:'Dia de Portugal',icon:'🇵🇹',tipo:'feriado'},
+  {dia:24,mes:6,nome:'S. João',icon:'🔥',tipo:'feriado'},{dia:15,mes:8,nome:'Assunção de N.Sra.',icon:'⛪',tipo:'feriado'},
+  {dia:5,mes:10,nome:'Implantação da República',icon:'🏛️',tipo:'feriado'},{dia:1,mes:11,nome:'Todos os Santos',icon:'🕯️',tipo:'feriado'},
+  {dia:1,mes:12,nome:'Restauração da Independência',icon:'⚔️',tipo:'feriado'},{dia:30,mes:11,nome:'Ponte (Restauração)',icon:'🌉',tipo:'ponte'},
+  {dia:8,mes:12,nome:'Imaculada Conceição',icon:'⛪',tipo:'feriado'},{dia:25,mes:12,nome:'Natal',icon:'🎄',tipo:'feriado'},
+];
+const PONTES=new Set(FERIADOS.filter(f=>f.tipo==='ponte').map(f=>`${f.mes}-${f.dia}`));
+const FERIADOS_MAP={};FERIADOS.forEach(f=>{FERIADOS_MAP[`${f.mes}-${f.dia}`]=f;});
+const SANTOS={'1-1':'Maria, Mãe de Deus','1-6':'Epifania','1-17':'S. António Abade','1-20':'S. Sebastião','1-21':'S. Inês','2-3':'S. Brás','2-5':'Sta. Águeda','2-11':'N.Sra. de Lourdes','2-14':'S. Valentim','3-17':'S. Patrício','3-19':'S. José','3-25':'Anunciação do Senhor','4-5':'S. Vicente Ferrer','4-23':'S. Jorge','4-25':'S. Marcos','4-29':'Sta. Catarina de Sena','5-1':'S. José Operário','5-13':'N.Sra. de Fátima','5-22':'Sta. Rita de Cássia','6-5':'S. Bonifácio','6-13':'S. António de Lisboa','6-24':'S. João Batista','6-29':'S. Pedro e S. Paulo','7-3':'S. Tomé Apóstolo','7-11':'S. Bento','7-16':'N.Sra. do Carmo','7-22':'Sta. Maria Madalena','7-25':'S. Tiago Apóstolo','7-29':'Sta. Marta','8-4':'S. João M. Vianney','8-10':'S. Lourenço','8-11':'Sta. Clara','8-15':'Assunção de N.Sra.','8-24':'S. Bartolomeu','8-27':'Sta. Mônica','8-28':'S. Agostinho','9-3':'S. Gregório Magno','9-8':'Natividade de N.Sra.','9-14':'Exaltação da Santa Cruz','9-21':'S. Mateus','9-23':'S. Pio de Pietrelcina','9-27':'S. Vicente de Paulo','9-29':'S. Miguel, Gabriel e Rafael','9-30':'S. Jerónimo','10-1':'Sta. Teresa do Menino Jesus','10-4':'S. Francisco de Assis','10-7':'N.Sra. do Rosário','10-15':'Sta. Teresa de Ávila','10-18':'S. Lucas','10-22':'S. João Paulo II','11-1':'Todos os Santos','11-2':'Fiéis Defuntos','11-11':'S. Martinho de Tours','11-22':'Sta. Cecília','11-30':'S. André Apóstolo','12-3':'S. Francisco Xavier','12-6':'S. Nicolau de Mira','12-7':'S. Ambrósio','12-8':'Imaculada Conceição','12-13':'Sta. Lúcia','12-14':'S. João da Cruz','12-25':'Natal','12-26':'S. Estêvão','12-27':'S. João Evangelista','12-31':'S. Silvestre'};
+
+let efemCache=null;
+async function loadEfemérides(){
+  const now=new Date(),d=now.getDate(),m=now.getMonth()+1,year=now.getFullYear();
+  document.getElementById('efem-popup-title').textContent=`📅 Efemérides — ${d} de ${MESES_PT[m-1]} de ${year}`;
+  let cards=[];
+  const feriado=FERIADOS_MAP[`${m}-${d}`];
+  if(feriado)cards.push({icon:feriado.icon,tag:feriado.tipo==='ponte'?'Ponte':'Feriado Nacional',title:feriado.nome,url:null,hl:true});
+  const santo=SANTOS[`${m}-${d}`];
+  if(santo)cards.push({icon:'✝️',tag:'Santo do Dia',title:santo,url:null,hl:true});
+  try{
+    const pad=n=>String(n).padStart(2,'0');
+    const [dataPT,dataEN]=await Promise.all([
+      fetch(`https://pt.wikipedia.org/api/rest_v1/feed/onthisday/all/${pad(m)}/${pad(d)}`).then(r=>r.json()),
+      fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/${pad(m)}/${pad(d)}`).then(r=>r.json())
+    ]);
+    function mkCard(e,icon,tag,lang){
+      const nome=e.pages[0]?.titles?.normalized||e.text.slice(0,60);
+      const desc=(e.pages[0]?.description||'').slice(0,65);
+      const url=e.pages[0]?.content_urls?.desktop?.page||`https://${lang}.wikipedia.org/wiki/${encodeURIComponent(nome)}`;
+      const badge=`<span style="font-size:.55rem;background:rgba(255,255,255,.1);border-radius:3px;padding:0 3px;margin-left:3px;">${lang.toUpperCase()}</span>`;
+      return {icon,tag:`${tag} ${e.year}`,tagExtra:badge,title:nome,sub:desc,url};
+    }
+    const bPT=(dataPT.births||[]).filter(e=>e.year&&e.pages?.length)[0];
+    const bEN=(dataEN.births||[]).filter(e=>e.year&&e.pages?.length)[0];
+    if(bPT)cards.push(mkCard(bPT,'🎂','Nasceu em','pt'));
+    if(bEN)cards.push(mkCard(bEN,'🎂','Born in','en'));
+    const dPT=(dataPT.deaths||[]).filter(e=>e.year&&e.pages?.length)[0];
+    const dEN=(dataEN.deaths||[]).filter(e=>e.year&&e.pages?.length)[0];
+    if(dPT)cards.push(mkCard(dPT,'🕯️','Faleceu em','pt'));
+    if(dEN)cards.push(mkCard(dEN,'🕯️','Died in','en'));
+    const ePT=(dataPT.events||[]).filter(e=>e.year&&e.pages?.length).sort((a,b)=>a.year-b.year)[0];
+    const eEN=(dataEN.events||[]).filter(e=>e.year&&e.pages?.length).sort((a,b)=>a.year-b.year)[0];
+    if(ePT)cards.push(mkCard(ePT,'📜','Aconteceu em','pt'));
+    if(eEN)cards.push(mkCard(eEN,'📜','Happened in','en'));
+  }catch{}
+  efemCache=cards;
+  const makeCard=(c,mini=false)=>{
+    const wrap=c.url?`<a class="ec" href="${c.url}" target="_blank" rel="noopener" style="${c.hl?'border-color:rgba(240,160,64,.3);background:rgba(240,160,64,.05);':''}">`:`<div class="ec" style="${c.hl?'border-color:rgba(240,160,64,.3);background:rgba(240,160,64,.05);':''}">`;
+    const close=c.url?'</a>':'</div>';
+    return `${wrap}<div class="ec-i">${c.icon}</div><div><div class="ec-tag">${c.tag}${c.tagExtra||''}</div><div class="ec-t">${c.title}</div>${!mini&&c.sub?`<div style="font-size:.62rem;color:rgba(255,255,255,.35);margin-top:2px;">${c.sub}</div>`:''}</div>${close}`;
+  };
+  document.getElementById('efem-preview').innerHTML=cards.slice(0,4).map(c=>makeCard(c,true)).join('')+`<div class="more-btn ec-more" style="grid-column:1/-1;" onclick="openEfemPopup()">Ver todos →</div>`;
+  document.getElementById('popup-efem-body').innerHTML=cards.map(c=>makeCard(c,false)).join('');
+}
+function openEfemPopup(){openPopup('popup-efem');}
+
+// ── CALENDÁRIO ────────────────────────────────────────────────────────────────
+const FERIAS_MULTI={};
+function addF(k,p){if(!FERIAS_MULTI[k])FERIAS_MULTI[k]=[];if(!FERIAS_MULTI[k].includes(p))FERIAS_MULTI[k].push(p);}
+[3,4,18,19,20].forEach(d=>addF(`2-${d}`,'CLF'));[6,7,8,9,10].forEach(d=>addF(`4-${d}`,'CLF'));[24,25,26,27,28,31].forEach(d=>addF(`8-${d}`,'CLF'));[1,2,3,4].forEach(d=>addF(`9-${d}`,'CLF'));[21,22,23,24].forEach(d=>addF(`12-${d}`,'CLF'));
+[9,10].forEach(d=>addF(`4-${d}`,'PS'));[5,8,9,22,23].forEach(d=>addF(`6-${d}`,'PS'));addF('8-31','PS');[1,2,3,4,7,8,9,10,11].forEach(d=>addF(`9-${d}`,'PS'));addF('12-7','PS');
+[13,16,17,20].forEach(d=>addF(`3-${d}`,'TBF'));addF('4-24','TBF');[20,21,22].forEach(d=>addF(`5-${d}`,'TBF'));[5,22,23,25,26].forEach(d=>addF(`6-${d}`,'TBF'));addF('12-7','TBF');[28,29,30,31].forEach(d=>addF(`12-${d}`,'TBF'));
+[11,12].forEach(d=>addF(`6-${d}`,'TF'));[10,11,12,13,14,17,18,19,20,21].forEach(d=>addF(`8-${d}`,'TF'));[28,29,30,31].forEach(d=>addF(`12-${d}`,'TF'));
+[11,12].forEach(d=>addF(`6-${d}`,'SF'));[10,11,12,13,14,17,18,19,20,21].forEach(d=>addF(`8-${d}`,'SF'));[28,29,30,31].forEach(d=>addF(`12-${d}`,'SF'));
+[7,10,11,12,13,14].forEach(d=>addF(`8-${d}`,'JPP'));
+
+const ANIV_MAP={'CL':'2-14','CF':'2-15','PS':'3-14','LA':'3-26','DE':'4-9','SA':'4-16','MS':'4-30','TF':'5-20','JP':'6-24','HE':'11-8','TG':'12-4'};
+const ANIV={};Object.entries(ANIV_MAP).forEach(([ini,key])=>{if(!ANIV[key])ANIV[key]=[];ANIV[key].push(ini);});
+
+let filtroAtivo='ALL';
+const now=new Date(),TODAY_M=now.getMonth()+1,TODAY_D=now.getDate();
+
+function getFer(key){return FERIAS_MULTI[key]?.filter(p=>filtroAtivo==='ALL'||p===filtroAtivo)||[];}
+function getAniv(key){return ANIV[key]?.filter(ini=>filtroAtivo==='ALL'||ini===filtroAtivo)||[];}
+
+function buildMonth(m){
+  const first=new Date(2026,m-1,1).getDay();
+  const days=new Date(2026,m,0).getDate();
+  let html=`<div class="month"><div class="month-name">${MESES_PT[m-1]}</div><div class="month-dow">${['D','S','T','Q','Q','S','S'].map(d=>`<div class="dow">${d}</div>`).join('')}</div><div class="days">`;
+  for(let i=0;i<first;i++)html+=`<div class="day empty"></div>`;
+  for(let d=1;d<=days;d++){
+    const key=`${m}-${d}`;
+    const fer=FERIADOS_MAP[key];const isPonte=PONTES.has(key);
+    const ferias=getFer(key);const anivArr=getAniv(key);
+    const isToday=m===TODAY_M&&d===TODAY_D;
+    const dow=(first+d-1)%7;const isWe=dow===0||dow===6;
+    let cls='day';
+    if(isToday)cls+=' today';else if(isWe)cls+=' weekend';
+    if(fer&&!isPonte)cls+=' has-fer';else if(isPonte)cls+=' has-pont';else if(ferias.length)cls+=' has-ferias';else if(anivArr.length)cls+=' has-aniv';
+    const tt=[];
+    if(fer)tt.push(isPonte?'🌉 '+fer.nome:'🔴 '+fer.nome);
+    if(ferias.length)tt.push('🌴 '+ferias.join(', '));
+    if(anivArr.length)tt.push('🎂 '+anivArr.join(', '));
+    html+=`<div class="${cls}" data-m="${m}" data-d="${d}" data-tt="${tt.join('|').replace(/"/g,'&quot;')}">${d}</div>`;
+  }
+  const rem=(first+days)%7;if(rem>0)for(let i=rem;i<7;i++)html+=`<div class="day empty"></div>`;
+  html+=`</div></div>`;return html;
+}
+
+function rebuildCal(){
+  const cal=document.getElementById('cal');cal.innerHTML='';
+  for(let m=1;m<=12;m++)cal.innerHTML+=buildMonth(m);
+  updateCounters();
+}
+
+function updateCounters(){
+  let cF=0,cP=0,cFer=0,cA=0;
+  for(let m=1;m<=12;m++){
+    const days=new Date(2026,m,0).getDate();
+    for(let d=1;d<=days;d++){
+      const key=`${m}-${d}`;
+      const fer=FERIADOS_MAP[key];const isPonte=PONTES.has(key);
+      if(fer&&!isPonte)cF++;if(isPonte)cP++;
+      if(getFer(key).length)cFer++;if(getAniv(key).length)cA++;
+    }
+  }
+  document.getElementById('cnt-fer').textContent=cF;
+  document.getElementById('cnt-pont').textContent=cP;
+  document.getElementById('cnt-ferias').textContent=filtroAtivo==='ALL'?'—':cFer;
+  document.getElementById('cnt-aniv').textContent=filtroAtivo==='ALL'?'—':cA;
+}
+
+document.querySelectorAll('.fil-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    filtroAtivo=btn.dataset.p;
+    document.querySelectorAll('.fil-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');rebuildCal();
+  });
+});
+
+// Click no dia → popup
+document.getElementById('cal').addEventListener('click',e=>{
+  const day=e.target.closest('.day:not(.empty)');if(!day)return;
+  const m=parseInt(day.dataset.m),d=parseInt(day.dataset.d);
+  const key=`${m}-${d}`;
+  const fer=FERIADOS_MAP[key];const ferias=getFer(key);const anivArr=getAniv(key);const santo=SANTOS[key];
+  if(!fer&&!ferias.length&&!anivArr.length&&!santo)return;
+  document.getElementById('day-popup-title').textContent=`📅 ${d} de ${MESES_PT[m-1]} de 2026`;
+  let items='';
+  if(fer)items+=`<div class="day-popup-item"><div class="day-popup-icon">${fer.icon}</div><div><div class="day-popup-label">${fer.tipo==='ponte'?'Ponte':'Feriado'}</div><div class="day-popup-text">${fer.nome}</div></div></div>`;
+  if(santo)items+=`<div class="day-popup-item"><div class="day-popup-icon">✝️</div><div><div class="day-popup-label">Santo do Dia</div><div class="day-popup-text">${santo}</div></div></div>`;
+  if(anivArr.length)items+=`<div class="day-popup-item"><div class="day-popup-icon">🎂</div><div><div class="day-popup-label">Aniversário</div><div class="day-popup-text">${anivArr.join(', ')}</div></div></div>`;
+  if(ferias.length)items+=`<div class="day-popup-item"><div class="day-popup-icon">🌴</div><div><div class="day-popup-label">Férias</div><div class="day-popup-text">${ferias.join(', ')}</div></div></div>`;
+  document.getElementById('day-popup-body').innerHTML=items;
+  openPopup('popup-day');
+});
+
+// Tooltip
+const tooltipEl=document.getElementById('tooltip');
+document.addEventListener('mousemove',e=>{
+  const day=e.target.closest('.day[data-tt]');
+  if(day&&day.dataset.tt){
+    tooltipEl.style.display='block';
+    tooltipEl.innerHTML=day.dataset.tt.replace(/\|/g,'<br>');
+    tooltipEl.style.left=Math.min(e.clientX+12,window.innerWidth-220)+'px';
+    tooltipEl.style.top=Math.min(e.clientY+12,window.innerHeight-80)+'px';
+  }else{tooltipEl.style.display='none';}
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
 loadApps();
 loadWeather();
-loadBirthdays();
-loadFeriados();
-loadNews();
+loadTarefas();
+loadNewsPreview();
 loadEfemérides();
+rebuildCal();
 </script>
 </body>
 </html>
