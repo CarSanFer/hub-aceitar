@@ -150,7 +150,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Aceitar Hub <hub@send.aceitar.pt>',
+        from: 'Aceitar Hub <hub@aceitar.pt>',
         to: ['carlos.ferreira@aceitar.pt'],
         subject: `📅 ${dataFormatada} — Resumo do Dia`,
         html
