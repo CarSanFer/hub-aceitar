@@ -336,14 +336,50 @@ function loadFeriados(){
   const now=new Date();
   const mesAtual=now.getMonth()+1;
   const diaAtual=now.getDate();
-  const doMes=FERIADOS.filter(f=>f.mes===mesAtual).sort((a,b)=>a.dia-b.dia);
-  if(!doMes.length){list.innerHTML=`<div style="color:var(--muted);font-size:.82rem;padding:.3rem 0;">Nenhum feriado este mês.</div>`;return;}
-  list.innerHTML=doMes.map(f=>{
-    const isHoje=f.dia===diaAtual;
-    return `<div class="bday-item${isHoje?' style=\'border-color:rgba(240,160,64,.2)\'':''}">
-      <div style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">${f.icon}</div>
-      <div style="flex:1;min-width:0;"><div class="bday-name">${f.nome}</div><div class="bday-date">${f.dia} ${MESES_C[f.mes-1]}${isHoje?' · Hoje!':''}</div></div>
-    </div>`;
+
+  const feriados=FERIADOS.filter(f=>f.mes===mesAtual).sort((a,b)=>a.dia-b.dia);
+  const feriasMes=FERIAS.filter(f=>f.mes===mesAtual);
+
+  // Agrupar férias por dia
+  const feriasPorDia={};
+  feriasMes.forEach(f=>{
+    if(!feriasPorDia[f.dia]) feriasPorDia[f.dia]=[];
+    if(!feriasPorDia[f.dia].includes(f.pessoa)) feriasPorDia[f.dia].push(f.pessoa);
+  });
+
+  // Juntar feriados e dias de férias num único array ordenado por dia
+  const todosDias=[];
+  feriados.forEach(f=>todosDias.push({dia:f.dia,tipo:f.tipo,dados:f}));
+  Object.keys(feriasPorDia).forEach(dia=>todosDias.push({dia:parseInt(dia),tipo:'ferias',dados:feriasPorDia[dia]}));
+  todosDias.sort((a,b)=>a.dia-b.dia);
+
+  if(!todosDias.length){list.innerHTML=`<div style="color:var(--muted);font-size:.82rem;padding:.3rem 0;">Nenhum feriado ou férias este mês.</div>`;return;}
+
+  list.innerHTML=todosDias.map(item=>{
+    const isHoje=item.dia===diaAtual;
+    if(item.tipo==='ferias'){
+      const pessoas=item.dados;
+      return `<div class="bday-item" style="${isHoje?'border-color:rgba(240,160,64,.3);':''}">
+        <div style="width:28px;height:28px;border-radius:7px;background:rgba(80,200,120,.12);border:1px solid rgba(80,200,120,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;">🌴</div>
+        <div style="flex:1;min-width:0;">
+          <div class="bday-name" style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">
+            ${pessoas.map(p=>`<span style="font-size:.65rem;background:rgba(80,200,120,.15);color:#50c878;border:1px solid rgba(80,200,120,.3);border-radius:3px;padding:1px 5px;">${p}</span>`).join('')}
+            <span style="font-size:.72rem;color:var(--muted);">Férias</span>
+          </div>
+          <div class="bday-date">${item.dia} ${MESES_C[mesAtual-1]}${isHoje?' · Hoje!':''}</div>
+        </div>
+      </div>`;
+    }else{
+      const f=item.dados;
+      const isPonte=f.tipo==='ponte';
+      const cor=isPonte?'rgba(96,160,255,.15)':'rgba(255,255,255,.06)';
+      const borderCor=isPonte?'rgba(96,160,255,.3)':'rgba(255,255,255,.1)';
+      const badge=isPonte?`<span style="font-size:.6rem;background:rgba(96,160,255,.2);color:#60a0ff;border:1px solid rgba(96,160,255,.3);border-radius:3px;padding:1px 5px;margin-left:4px;">PONTE</span>`:'';
+      return `<div class="bday-item" style="${isHoje?'border-color:rgba(240,160,64,.3);':''}">
+        <div style="width:28px;height:28px;border-radius:7px;background:${cor};border:1px solid ${borderCor};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;">${f.icon}</div>
+        <div style="flex:1;min-width:0;"><div class="bday-name">${f.nome}${badge}</div><div class="bday-date">${f.dia} ${MESES_C[f.mes-1]}${isHoje?' · Hoje!':''}</div></div>
+      </div>`;
+    }
   }).join('');
 }
 
@@ -392,13 +428,83 @@ document.getElementById('news-cats').addEventListener('click',e=>{
 
 // EFEMÉRIDES
 const FERIADOS=[
-  {dia:1,mes:1,nome:'Ano Novo',icon:'🎆'},{dia:25,mes:4,nome:'Dia da Liberdade',icon:'🌹'},
-  {dia:1,mes:5,nome:'Dia do Trabalhador',icon:'✊'},{dia:10,mes:6,nome:'Dia de Portugal',icon:'🇵🇹'},
-  {dia:15,mes:8,nome:'Assunção de N.Sra.',icon:'⛪'},{dia:5,mes:10,nome:'Implantação da República',icon:'🏛️'},
-  {dia:1,mes:11,nome:'Todos os Santos',icon:'🕯️'},{dia:1,mes:12,nome:'Restauração da Independência',icon:'⚔️'},
-  {dia:8,mes:12,nome:'Imaculada Conceição',icon:'⛪'},{dia:25,mes:12,nome:'Natal',icon:'🎄'},
+  // Feriados nacionais fixos
+  {dia:1, mes:1,  nome:'Ano Novo',                    icon:'🎆', tipo:'feriado'},
+  {dia:25,mes:4,  nome:'Dia da Liberdade',             icon:'🌹', tipo:'feriado'},
+  {dia:1, mes:5,  nome:'Dia do Trabalhador',           icon:'✊', tipo:'feriado'},
+  {dia:10,mes:6,  nome:'Dia de Portugal',              icon:'🇵🇹', tipo:'feriado'},
+  {dia:15,mes:8,  nome:'Assunção de N.Sra.',           icon:'⛪', tipo:'feriado'},
+  {dia:5, mes:10, nome:'Implantação da República',     icon:'🏛️', tipo:'feriado'},
+  {dia:1, mes:11, nome:'Todos os Santos',              icon:'🕯️', tipo:'feriado'},
+  {dia:1, mes:12, nome:'Restauração da Independência', icon:'⚔️', tipo:'feriado'},
+  {dia:8, mes:12, nome:'Imaculada Conceição',          icon:'⛪', tipo:'feriado'},
+  {dia:25,mes:12, nome:'Natal',                        icon:'🎄', tipo:'feriado'},
+  // Feriados móveis (2026)
+  {dia:17,mes:2,  nome:'Carnaval',                     icon:'🎭', tipo:'feriado'},
+  {dia:3, mes:4,  nome:'Sexta-feira Santa',            icon:'✝️', tipo:'feriado'},
+  {dia:5, mes:4,  nome:'Páscoa',                       icon:'🐣', tipo:'feriado'},
+  {dia:4, mes:6,  nome:'Corpo de Deus',                icon:'⛪', tipo:'feriado'},
+  {dia:24,mes:6,  nome:'S. João',                      icon:'🔥', tipo:'feriado'},
+  // Pontes
+  {dia:2, mes:1,  nome:'Ponte (Ano Novo)',             icon:'🌉', tipo:'ponte'},
+  {dia:16,mes:2,  nome:'Ponte (Carnaval)',             icon:'🌉', tipo:'ponte'},
+  {dia:30,mes:11, nome:'Ponte (Restauração)',          icon:'🌉', tipo:'ponte'},
 ];
-const SANTOS={'1-1':'Maria, Mãe de Deus','1-6':'Epifania','1-17':'S. António Abade','1-20':'S. Sebastião','1-21':'S. Inês','1-25':'Conv. de S. Paulo','1-28':'S. Tomás de Aquino','2-2':'Apresentação do Senhor','2-3':'S. Brás','2-5':'Sta. Águeda','2-11':'N.Sra. de Lourdes','2-14':'S. Valentim','2-22':'Cátedra de S. Pedro','3-4':'S. Casimiro','3-17':'S. Patrício','3-19':'S. José','3-25':'Anunciação do Senhor','4-5':'S. Vicente Ferrer','4-23':'S. Jorge','4-25':'S. Marcos','4-29':'Sta. Catarina de Sena','5-1':'S. José Operário','5-13':'N.Sra. de Fátima','5-22':'Sta. Rita de Cássia','5-31':'Visitação de N.Sra.','6-5':'S. Bonifácio','6-13':'S. António de Lisboa','6-24':'S. João Batista','6-29':'S. Pedro e S. Paulo','7-3':'S. Tomé Apóstolo','7-4':'Sta. Isabel de Portugal','7-11':'S. Bento','7-16':'N.Sra. do Carmo','7-22':'Sta. Maria Madalena','7-25':'S. Tiago Apóstolo','7-26':'S. Joaquim e Sta. Ana','7-29':'Sta. Marta','7-31':'S. Inácio de Loyola','8-4':'S. João M. Vianney','8-6':'Transfiguração','8-10':'S. Lourenço','8-11':'Sta. Clara','8-15':'Assunção de N.Sra.','8-22':'Rainha de N.Sra.','8-24':'S. Bartolomeu','8-27':'Sta. Mônica','8-28':'S. Agostinho','9-3':'S. Gregório Magno','9-5':'Madre Teresa','9-8':'Natividade de N.Sra.','9-14':'Exaltação da Santa Cruz','9-15':'N.Sra. das Dores','9-21':'S. Mateus','9-23':'S. Pio de Pietrelcina','9-27':'S. Vicente de Paulo','9-29':'S. Miguel, Gabriel e Rafael','9-30':'S. Jerónimo','10-1':'Sta. Teresa do Menino Jesus','10-2':'Santos Anjos da Guarda','10-4':'S. Francisco de Assis','10-7':'N.Sra. do Rosário','10-15':'Sta. Teresa de Ávila','10-18':'S. Lucas','10-22':'S. João Paulo II','10-28':'S. Simão e Judas','11-1':'Todos os Santos','11-2':'Fiéis Defuntos','11-4':'S. Carlos Borromeu','11-9':'Dedicação Basílica Latrão','11-10':'S. Leão Magno','11-11':'S. Martinho de Tours','11-17':'Sta. Isabel da Hungria','11-21':'Apresentação de N.Sra.','11-22':'Sta. Cecília','11-30':'S. André Apóstolo','12-3':'S. Francisco Xavier','12-6':'S. Nicolau de Mira','12-7':'S. Ambrósio','12-8':'Imaculada Conceição','12-13':'Sta. Lúcia','12-14':'S. João da Cruz','12-25':'Natal','12-26':'S. Estêvão','12-27':'S. João Evangelista','12-28':'Santos Inocentes','12-31':'S. Silvestre'};
+// FÉRIAS INDIVIDUAIS (2026)
+function expandRange(dias, mes, pessoa){
+  // dias pode ser array de dias ou [diaInicio, diaFim] range
+  return dias.map(dia=>({dia, mes, pessoa, tipo:'ferias'}));
+}
+const FERIAS=[
+  // CLF — Fevereiro
+  ...[ 3,4,18,19,20].map(d=>({dia:d,mes:2, pessoa:'CLF',tipo:'ferias'})),
+  // CLF — Abril/Maio
+  ...[6,7,8,9,10].map(d=>({dia:d,mes:4, pessoa:'CLF',tipo:'ferias'})),
+  // CLF — Agosto/Setembro
+  ...[24,25,26,27,28,29,30,31].map(d=>({dia:d,mes:8, pessoa:'CLF',tipo:'ferias'})),
+  ...[1,2,3,4].map(d=>({dia:d,mes:9, pessoa:'CLF',tipo:'ferias'})),
+  // CLF — Dezembro
+  ...[21,22,23,24].map(d=>({dia:d,mes:12,pessoa:'CLF',tipo:'ferias'})),
+  // PS — Abril
+  ...[9,10].map(d=>({dia:d,mes:4, pessoa:'PS', tipo:'ferias'})),
+  // PS — Junho
+  ...[5,8,9,22,23].map(d=>({dia:d,mes:6, pessoa:'PS', tipo:'ferias'})),
+  // PS — Agosto/Setembro
+  ...[31].map(d=>({dia:d,mes:8, pessoa:'PS', tipo:'ferias'})),
+  ...[1,2,3,4,5,6,7,8,9,10,11].map(d=>({dia:d,mes:9, pessoa:'PS', tipo:'ferias'})),
+  // PS — Dezembro
+  {dia:7,mes:12,pessoa:'PS',tipo:'ferias'},
+  // TBF — Março
+  {dia:20,mes:3,pessoa:'TBF',tipo:'ferias'},
+  ...[13,14,15,16,17].map(d=>({dia:d,mes:3, pessoa:'TBF',tipo:'ferias'})),
+  // TBF — Abril
+  {dia:24,mes:4,pessoa:'TBF',tipo:'ferias'},
+  // TBF — Maio
+  ...[20,21,22].map(d=>({dia:d,mes:5, pessoa:'TBF',tipo:'ferias'})),
+  // TBF — Junho
+  ...[5,22,23,25,26].map(d=>({dia:d,mes:6, pessoa:'TBF',tipo:'ferias'})),
+  // TBF — Dezembro
+  {dia:7,mes:12,pessoa:'TBF',tipo:'ferias'},
+  ...[28,29,30,31].map(d=>({dia:d,mes:12,pessoa:'TBF',tipo:'ferias'})),
+  // TF — Junho
+  ...[11,12].map(d=>({dia:d,mes:6, pessoa:'TF', tipo:'ferias'})),
+  // TF — Agosto
+  ...[10,11,12,13,14].map(d=>({dia:d,mes:8, pessoa:'TF', tipo:'ferias'})),
+  // TF — Agosto/2ª semana
+  ...[17,18,19,20,21].map(d=>({dia:d,mes:8, pessoa:'TF', tipo:'ferias'})),
+  // TF — Dezembro
+  ...[28,29,30,31].map(d=>({dia:d,mes:12,pessoa:'TF', tipo:'ferias'})),
+  // SF — Junho
+  ...[11,12].map(d=>({dia:d,mes:6, pessoa:'SF', tipo:'ferias'})),
+  // SF — Agosto
+  ...[10,11,12,13,14].map(d=>({dia:d,mes:8, pessoa:'SF', tipo:'ferias'})),
+  ...[17,18,19,20,21].map(d=>({dia:d,mes:8, pessoa:'SF', tipo:'ferias'})),
+  // SF — Dezembro
+  ...[28,29,30,31].map(d=>({dia:d,mes:12,pessoa:'SF', tipo:'ferias'})),
+  // JPP — Agosto
+  ...[7,8,9,10,11,12,13,14].map(d=>({dia:d,mes:8, pessoa:'JPP',tipo:'ferias'})),
+];
+'1-1':'Maria, Mãe de Deus','1-6':'Epifania','1-17':'S. António Abade','1-20':'S. Sebastião','1-21':'S. Inês','1-25':'Conv. de S. Paulo','1-28':'S. Tomás de Aquino','2-2':'Apresentação do Senhor','2-3':'S. Brás','2-5':'Sta. Águeda','2-11':'N.Sra. de Lourdes','2-14':'S. Valentim','2-22':'Cátedra de S. Pedro','3-4':'S. Casimiro','3-17':'S. Patrício','3-19':'S. José','3-25':'Anunciação do Senhor','4-5':'S. Vicente Ferrer','4-23':'S. Jorge','4-25':'S. Marcos','4-29':'Sta. Catarina de Sena','5-1':'S. José Operário','5-13':'N.Sra. de Fátima','5-22':'Sta. Rita de Cássia','5-31':'Visitação de N.Sra.','6-5':'S. Bonifácio','6-13':'S. António de Lisboa','6-24':'S. João Batista','6-29':'S. Pedro e S. Paulo','7-3':'S. Tomé Apóstolo','7-4':'Sta. Isabel de Portugal','7-11':'S. Bento','7-16':'N.Sra. do Carmo','7-22':'Sta. Maria Madalena','7-25':'S. Tiago Apóstolo','7-26':'S. Joaquim e Sta. Ana','7-29':'Sta. Marta','7-31':'S. Inácio de Loyola','8-4':'S. João M. Vianney','8-6':'Transfiguração','8-10':'S. Lourenço','8-11':'Sta. Clara','8-15':'Assunção de N.Sra.','8-22':'Rainha de N.Sra.','8-24':'S. Bartolomeu','8-27':'Sta. Mônica','8-28':'S. Agostinho','9-3':'S. Gregório Magno','9-5':'Madre Teresa','9-8':'Natividade de N.Sra.','9-14':'Exaltação da Santa Cruz','9-15':'N.Sra. das Dores','9-21':'S. Mateus','9-23':'S. Pio de Pietrelcina','9-27':'S. Vicente de Paulo','9-29':'S. Miguel, Gabriel e Rafael','9-30':'S. Jerónimo','10-1':'Sta. Teresa do Menino Jesus','10-2':'Santos Anjos da Guarda','10-4':'S. Francisco de Assis','10-7':'N.Sra. do Rosário','10-15':'Sta. Teresa de Ávila','10-18':'S. Lucas','10-22':'S. João Paulo II','10-28':'S. Simão e Judas','11-1':'Todos os Santos','11-2':'Fiéis Defuntos','11-4':'S. Carlos Borromeu','11-9':'Dedicação Basílica Latrão','11-10':'S. Leão Magno','11-11':'S. Martinho de Tours','11-17':'Sta. Isabel da Hungria','11-21':'Apresentação de N.Sra.','11-22':'Sta. Cecília','11-30':'S. André Apóstolo','12-3':'S. Francisco Xavier','12-6':'S. Nicolau de Mira','12-7':'S. Ambrósio','12-8':'Imaculada Conceição','12-13':'Sta. Lúcia','12-14':'S. João da Cruz','12-25':'Natal','12-26':'S. Estêvão','12-27':'S. João Evangelista','12-28':'Santos Inocentes','12-31':'S. Silvestre'};
 
 async function loadEfemérides(){
   const now=new Date(),d=now.getDate(),m=now.getMonth()+1,year=now.getFullYear();
@@ -406,7 +512,10 @@ async function loadEfemérides(){
   const body=document.getElementById('efem-body');
   let cards=[];
   const feriado=FERIADOS.find(f=>f.dia===d&&f.mes===m);
-  if(feriado)cards.push(`<div class="efem-card hl"><div class="efem-ei">${feriado.icon}</div><div><div class="efem-tag">Feriado Nacional</div><div class="efem-title">${feriado.nome}</div></div></div>`);
+  if(feriado){
+    const label=feriado.tipo==='ponte'?'Ponte':'Feriado Nacional';
+    cards.push(`<div class="efem-card hl"><div class="efem-ei">${feriado.icon}</div><div><div class="efem-tag">${label}</div><div class="efem-title">${feriado.nome}</div></div></div>`);
+  }
   const santo=SANTOS[`${m}-${d}`];
   if(santo)cards.push(`<div class="efem-card hl"><div class="efem-ei">✝️</div><div><div class="efem-tag">Santo do Dia</div><div class="efem-title">${santo}</div></div></div>`);
 
