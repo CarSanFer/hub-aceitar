@@ -212,9 +212,9 @@ select.form-sel option{background:#0f1e38;}
     <div><span class="logo-text">Aceitar Hub</span><span class="logo-sub">Aceitar Sucessos, Lda</span></div>
   </div>
   <!-- Caixa header -->
-  <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:6px 12px;display:grid;grid-template-columns:repeat(12,1fr);align-items:center;gap:0;">
+  <div style="flex:1;padding:6px 12px;display:grid;grid-template-columns:repeat(12,1fr);align-items:center;gap:0;">
     <!-- Pesquisa: cols 1-8 -->
-    <div style="grid-column:1/9;">
+    <div style="grid-column:2/8; padding-left:30px;">
       <form style="display:flex;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:5px 14px;gap:8px;" onsubmit="doSearch(event)">
         <span style="color:rgba(255,255,255,.3);">🔍</span>
         <input id="search-input" type="text" placeholder="Pesquise no Google ou escreva um URL" style="flex:1;background:none;border:none;outline:none;color:#e8eaf0;font-family:Calibri,sans-serif;font-size:.82rem;" autocomplete="off">
@@ -224,7 +224,7 @@ select.form-sel option{background:#0f1e38;}
       </form>
     </div>
     <!-- Meteo: cols 9-10, ligeiramente à esquerda -->
-    <div style="grid-column:9/11;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;margin-left:-60px;border-left:1px solid rgba(255,255,255,.1);padding-left:12px;" onclick="openWxPopup()">
+    <div style="grid-column:9/11;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;margin-left:20px;padding-left:12px;" onclick="openWxPopup()">
       <span style="font-size:1.2rem;" id="wx-icon">⋯</span>
       <div><div style="font-size:.88rem;font-weight:600;color:white;" id="wx-temp">—°C</div><div style="font-size:.55rem;color:rgba(255,255,255,.45);" id="wx-desc">A carregar⋯</div></div>
     </div>
@@ -480,7 +480,7 @@ function closeModal(){document.getElementById('modal').classList.remove('open');
 async function loadTarefas(){
   const grid=document.getElementById('tasks-grid');
   try{
-    const tasks=await sbFetch(TODO_URL,'todo_items?select=id,titulo,prioridade,prazo,done,body&type=eq.task&done=eq.false&order=prazo.asc',TODO_KEY);
+    const tasks=await sbFetch(TODO_URL,'todo_items?select=id,titulo,prioridade,prazo,done,grupo&type=eq.task&done=eq.false&order=prazo.asc',TODO_KEY);
     if(!tasks||!tasks.length){grid.innerHTML='<div style="color:rgba(255,255,255,.3);font-size:.75rem;padding:4px 0;">Sem tarefas pendentes.</div>';return;}
     const now=new Date(),hoje=new Date(now.getFullYear(),now.getMonth(),now.getDate());
     grid.innerHTML=tasks.map(t=>{
@@ -493,7 +493,7 @@ async function loadTarefas(){
       const prioLabel=prio==='alta'?'Alta':prio==='media'?'Média':'Baixa';
       const dataStr=prazo?`${prazo.getDate()} ${MESES_C[prazo.getMonth()]}`:'-';
       const dayLabel=isHoje?'Hoje':isVencida?'⚠️ Vencida':dataStr;
-      const grupo=(t.body||'').split('\\')[0]||'';
+      const grupo=(t.grupo||'').trim();
       return `<div class="task-card${isHoje?' hoje':''}${isVencida?' vencida':''}">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <span class="task-prio ${prioCls}">${prioLabel}</span>
@@ -597,7 +597,7 @@ function addF(k,p){if(!FERIAS_MULTI[k])FERIAS_MULTI[k]=[];if(!FERIAS_MULTI[k].in
 [11,12].forEach(d=>addF(`6-${d}`,'SF'));[10,11,12,13,14,17,18,19,20,21].forEach(d=>addF(`8-${d}`,'SF'));[28,29,30,31].forEach(d=>addF(`12-${d}`,'SF'));
 [7,10,11,12,13,14].forEach(d=>addF(`8-${d}`,'JPP'));
 
-const ANIV_MAP={'CL':'2-14','CF':'2-15','PS':'3-14','LA':'3-26','DE':'4-9','SA':'4-16','MS':'4-30','TF':'5-20','JP':'6-24','HE':'11-8','TG':'12-4'};
+const ANIV_MAP={'CLF':'2-14','CF':'2-15','PS':'3-14','LG':'3-27','PD':'4-9','SF':'4-16','MS':'4-30','TBF':'5-20','JP':'6-24','HH':'11-8','TF':'12-4'};
 const ANIV={};Object.entries(ANIV_MAP).forEach(([ini,key])=>{if(!ANIV[key])ANIV[key]=[];ANIV[key].push(ini);});
 
 let filtroAtivo='ALL';
@@ -618,12 +618,29 @@ function buildMonth(m){
     let cls='day';
     if(isToday)cls+=' today';else if(isWe)cls+=' weekend';
     if(fer&&!isPonte)cls+=' has-fer';else if(isPonte)cls+=' has-pont';else if(ferias.length)cls+=' has-ferias';else if(anivArr.length)cls+=' has-aniv';
+    // Combinações: gradiente metade/metade
+    let extraStyle='';
+    if(fer&&!isPonte&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(220,50,50,.7) 50%,rgba(240,130,0,.7) 50%);';
+    else if(isPonte&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(40,100,255,.6) 50%,rgba(240,130,0,.7) 50%);';
+    else if(ferias.length&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(30,160,70,.55) 50%,rgba(240,130,0,.7) 50%);';
     const tt=[];
-    if(fer)tt.push(isPonte?'🌉 '+fer.nome:'🔴 '+fer.nome);
+    if(fer){
+      const santo=SANTOS[key];
+      // Se há santo no mesmo dia, mostrar só o santo; caso contrário mostrar feriado
+      if(santo) tt.push('✝️ '+santo);
+      else tt.push(isPonte?'🌉 '+fer.nome:'🔴 '+fer.nome);
+    } else {
+      const santo=SANTOS[key];
+      if(santo) tt.push('✝️ '+santo);
+    }
     if(ferias.length)tt.push('🌴 '+ferias.join(', '));
     if(anivArr.length)tt.push('🎂 '+anivArr.join(', '));
-    const santo=SANTOS[key];if(santo)tt.push('✝️ '+santo);
-    h+=`<div class="${cls}" data-m="${m}" data-d="${d}" data-tt="${tt.join('|').replace(/"/g,'&quot;')}">${d}</div>`;
+    // Superscript para 2+ pessoas de férias
+    let extraStyle2='';
+    const feriasSup=ferias.length>=2;
+
+    const dayContent=feriasSup?`<span style="color:#ff4444;font-weight:700;">${d}</span>`:d;
+    h+=`<div class="${cls}" data-m="${m}" data-d="${d}" data-tt="${tt.join('|').replace(/"/g,'&quot;')}"${extraStyle?` style="${extraStyle}"`:''}>${dayContent}</div>`;
   }
   const rem=(first+days)%7;if(rem>0)for(let i=rem;i<7;i++)h+=`<div class="day empty"></div>`;
   return h+`</div></div>`;
