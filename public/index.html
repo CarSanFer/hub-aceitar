@@ -18,7 +18,7 @@ body{background:#112240;color:#e8eaf0;min-height:100vh;font-size:12px;display:fl
 .months-grid-wrap{flex:1;display:flex;flex-direction:column;gap:6px;}
 .months-row{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;flex:1;}
 .month{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px 8px;display:flex;flex-direction:column;}
-.days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;flex:1;}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;flex:1;align-content:start;grid-template-rows:repeat(6,1fr);}
 .day{display:flex;align-items:center;justify-content:center;font-size:.55rem;border-radius:3px;color:rgba(255,255,255,.6);cursor:pointer;transition:opacity .15s;}
 /* RESPONSIVO */
 @media(max-width:1200px){
@@ -70,6 +70,8 @@ body{background:#112240;color:#e8eaf0;min-height:100vh;font-size:12px;display:fl
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
 .legend{display:flex;gap:10px;}
 .leg{display:flex;align-items:center;gap:4px;font-size:.62rem;color:rgba(255,255,255,.5);}
+.leg:hover{color:rgba(255,255,255,.8);}
+.leg.active-filter{color:white;font-weight:700;text-decoration:underline;}
 .leg-dot{width:10px;height:10px;border-radius:2px;}
 .leg-cnt{font-size:.55rem;background:rgba(0,0,0,.3);border-radius:3px;padding:0 3px;margin-left:2px;}
 .fil-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:Calibri,sans-serif;font-size:.62rem;padding:2px 7px;border-radius:100px;cursor:pointer;transition:all .15s;}
@@ -320,10 +322,10 @@ select.form-sel option{background:#0f1e38;}
         <button class="fil-btn" data-p="TBF">TBF</button>
       </div>
       <div class="legend">
-        <div class="leg"><div class="leg-dot" style="background:rgba(220,50,50,.8);"></div>Feriado<span class="leg-cnt" id="cnt-fer">—</span></div>
-        <div class="leg"><div class="leg-dot" style="background:rgba(40,100,255,.8);"></div>Ponte<span class="leg-cnt" id="cnt-pont">—</span></div>
-        <div class="leg"><div class="leg-dot" style="background:rgba(30,160,70,.8);"></div>Férias<span class="leg-cnt" id="cnt-ferias">—</span></div>
-        <div class="leg"><div class="leg-dot" style="background:rgba(240,130,0,.8);"></div>Aniversário<span class="leg-cnt" id="cnt-aniv">—</span></div>
+        <div class="leg" id="leg-fer" onclick="toggleLegFilter('fer')" style="cursor:pointer;" title="Filtrar feriados"><div class="leg-dot" style="background:rgba(220,50,50,.8);"></div>Feriado<span class="leg-cnt" id="cnt-fer">—</span></div>
+        <div class="leg" id="leg-pont" onclick="toggleLegFilter('pont')" style="cursor:pointer;" title="Filtrar pontes"><div class="leg-dot" style="background:rgba(40,100,255,.8);"></div>Ponte<span class="leg-cnt" id="cnt-pont">—</span></div>
+        <div class="leg" id="leg-ferias" onclick="toggleLegFilter('ferias')" style="cursor:pointer;" title="Filtrar férias"><div class="leg-dot" style="background:rgba(30,160,70,.8);"></div>Férias<span class="leg-cnt" id="cnt-ferias">—</span></div>
+        <div class="leg" id="leg-aniv" onclick="toggleLegFilter('aniv')" style="cursor:pointer;" title="Filtrar aniversários"><div class="leg-dot" style="background:rgba(240,130,0,.8);"></div>Aniversário<span class="leg-cnt" id="cnt-aniv">—</span></div>
       </div>
     </div>
     <div class="months-grid-wrap" id="cal"></div>
@@ -633,6 +635,19 @@ const ANIV_MAP={'CLF':'2-14','CF':'2-15','PS':'3-14','LG':'3-27','PD':'4-9','SF'
 const ANIV={};Object.entries(ANIV_MAP).forEach(([ini,key])=>{if(!ANIV[key])ANIV[key]=[];ANIV[key].push(ini);});
 
 let filtroAtivo='ALL';
+let filtroTipo=null; // 'fer','pont','ferias','aniv'
+
+function toggleLegFilter(tipo){
+  if(filtroTipo===tipo){
+    filtroTipo=null;
+    document.querySelectorAll('.leg').forEach(l=>l.classList.remove('active-filter'));
+  } else {
+    filtroTipo=tipo;
+    document.querySelectorAll('.leg').forEach(l=>l.classList.remove('active-filter'));
+    document.getElementById('leg-'+tipo).classList.add('active-filter');
+  }
+  rebuildCal();
+}
 const NOW=new Date(),TODAY_M=NOW.getMonth()+1,TODAY_D=NOW.getDate();
 function getFer(key){return FERIAS_MULTI[key]?.filter(p=>filtroAtivo==='ALL'||p===filtroAtivo)||[];}
 function getAniv(key){return ANIV[key]?.filter(ini=>filtroAtivo==='ALL'||ini===filtroAtivo)||[];}
@@ -650,6 +665,11 @@ function buildMonth(m){
     let cls='day';
     if(isToday)cls+=' today';else if(isWe)cls+=' weekend';
     if(fer&&!isPonte)cls+=' has-fer';else if(isPonte)cls+=' has-pont';else if(ferias.length)cls+=' has-ferias';else if(anivArr.length)cls+=' has-aniv';
+    // Aplicar filtro por tipo — esconder dias que não correspondem
+    if(filtroTipo){
+      const match=(filtroTipo==='fer'&&fer&&!isPonte)||(filtroTipo==='pont'&&isPonte)||(filtroTipo==='ferias'&&ferias.length)||(filtroTipo==='aniv'&&anivArr.length);
+      if(!match) cls+=' empty';
+    }
     // Combinações: gradiente metade/metade
     let extraStyle='';
     if(fer&&!isPonte&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(220,50,50,.7) 50%,rgba(240,130,0,.7) 50%);';
