@@ -653,30 +653,58 @@ let filtroTipo=null; // 'fer','pont','ferias','aniv'
 function openMesPopup(m){
   document.getElementById('mes-popup-title').textContent=`📅 ${MESES_PT[m-1]} 2026`;
   const days=new Date(2026,m,0).getDate();
-  const TIPO_LABEL={'fer':'🔴 Feriado','pont':'🌉 Ponte','ferias':'🌴 Férias','aniv':'🎂 Aniversário'};
-  let rows=[];
+  const DIAS_SEMANA=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  
+  // Organizar dias por semana
+  const semanas=[];
+  let semanaAtual=null;
   for(let d=1;d<=days;d++){
+    const dow=new Date(2026,m-1,d).getDay();
+    if(dow===0||d===1){
+      semanaAtual={dias:[]};
+      semanas.push(semanaAtual);
+    }
     const key=`${m}-${d}`;
     const fer=FERIADOS_MAP[key];const isPonte=PONTES.has(key);
     const ferias=FERIAS_MULTI[key]||[];
-    const anivArr=(ANIV[key]||[]);
+    const anivArr=ANIV[key]||[];
     const santo=SANTOS[key];
     const eventos=[];
-    if(fer&&!isPonte) eventos.push({icon:'🔴',label:santo||fer.nome,cor:'rgba(220,50,50,.15)',border:'rgba(220,50,50,.4)'});
-    if(isPonte) eventos.push({icon:'🌉',label:fer.nome,cor:'rgba(40,100,255,.15)',border:'rgba(40,100,255,.4)'});
-    if(ferias.length) eventos.push({icon:'🌴',label:'Férias: '+ferias.join(', '),cor:'rgba(30,160,70,.15)',border:'rgba(30,160,70,.4)'});
-    if(anivArr.length) eventos.push({icon:'🎂',label:'Aniversário: '+anivArr.join(', '),cor:'rgba(240,130,0,.15)',border:'rgba(240,130,0,.4)'});
-    if(!eventos.length) continue;
-    const dow=new Date(2026,m-1,d).getDay();
-    const diaStr=`${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][dow]} ${d}`;
-    eventos.forEach(ev=>{
-      rows.push(`<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:${ev.cor};border:1px solid ${ev.border};border-radius:8px;">
-        <div style="font-size:.75rem;font-weight:700;color:rgba(255,255,255,.7);min-width:52px;">${diaStr}</div>
-        <div style="font-size:.75rem;">${ev.icon} ${ev.label}</div>
-      </div>`);
-    });
+    if(fer&&!isPonte) eventos.push({icon:'🔴',label:santo||fer.nome,cor:'rgba(220,50,50,.2)',border:'rgba(220,50,50,.5)',txt:'#ff9999'});
+    if(isPonte) eventos.push({icon:'🌉',label:fer.nome,cor:'rgba(40,100,255,.2)',border:'rgba(40,100,255,.5)',txt:'#99bbff'});
+    if(ferias.length) eventos.push({icon:'🌴',label:ferias.join(', '),cor:'rgba(30,160,70,.2)',border:'rgba(30,160,70,.5)',txt:'#80e0a0'});
+    if(anivArr.length) eventos.push({icon:'🎂',label:anivArr.join(', '),cor:'rgba(240,130,0,.2)',border:'rgba(240,130,0,.5)',txt:'#ffc066'});
+    semanaAtual.dias.push({d,dow,eventos});
   }
-  document.getElementById('mes-popup-body').innerHTML=rows.length?rows.join(''):'<div style="color:rgba(255,255,255,.4);font-size:.8rem;">Sem eventos este mês.</div>';
+
+  // Numero da semana
+  let html='';
+  semanas.forEach((sem,si)=>{
+    const temEventos=sem.dias.some(x=>x.eventos.length);
+    const diasHtml=sem.dias.map(({d,dow,eventos})=>{
+      const isWe=dow===0||dow===6;
+      const cor=isWe?'rgba(255,255,255,.15)':'rgba(255,255,255,.5)';
+      const bg=isWe?'rgba(255,255,255,.03)':'transparent';
+      if(!eventos.length){
+        return `<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:${bg};border-radius:6px;">
+          <div style="font-size:.7rem;color:${cor};min-width:60px;">${DIAS_SEMANA[dow]} ${d}</div>
+          <div style="font-size:.65rem;color:rgba(255,255,255,.2);">—</div>
+        </div>`;
+      }
+      return eventos.map(ev=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:${ev.cor};border:1px solid ${ev.border};border-radius:6px;margin-bottom:2px;">
+        <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.8);min-width:60px;">${DIAS_SEMANA[dow]} ${d}</div>
+        <div style="font-size:.7rem;">${ev.icon}</div>
+        <div style="font-size:.7rem;color:${ev.txt};font-weight:600;">${ev.label}</div>
+      </div>`).join('');
+    }).join('');
+
+    html+=`<div style="margin-bottom:10px;">
+      <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:600;padding:4px 8px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.08);">Semana ${si+1}</div>
+      ${diasHtml}
+    </div>`;
+  });
+
+  document.getElementById('mes-popup-body').innerHTML=html;
   openPopup('popup-mes');
 }
 
@@ -709,10 +737,13 @@ function buildMonth(m){
     let cls='day';
     if(isToday)cls+=' today';else if(isWe)cls+=' weekend';
     if(fer&&!isPonte)cls+=' has-fer';else if(isPonte)cls+=' has-pont';else if(ferias.length)cls+=' has-ferias';else if(anivArr.length)cls+=' has-aniv';
-    // Aplicar filtro por tipo — esconder dias que não correspondem
+    // Filtro por tipo — não esconde, só remove cor dos dias que não correspondem
     if(filtroTipo){
       const match=(filtroTipo==='fer'&&fer&&!isPonte)||(filtroTipo==='pont'&&isPonte)||(filtroTipo==='ferias'&&ferias.length)||(filtroTipo==='aniv'&&anivArr.length);
-      if(!match) cls+=' empty';
+      if(!match){
+        cls=cls.replace(' has-fer','').replace(' has-pont','').replace(' has-ferias','').replace(' has-aniv','');
+        if(isToday) cls='day today'; else if(isWe) cls='day weekend'; else cls='day';
+      }
     }
     // Combinações: gradiente metade/metade
     let extraStyle='';
