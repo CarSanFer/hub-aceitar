@@ -654,15 +654,16 @@ function openMesPopup(m){
   document.getElementById('mes-popup-title').textContent=`📅 ${MESES_PT[m-1]} 2026`;
   const days=new Date(2026,m,0).getDate();
   const DIAS_SEMANA=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  
-  // Organizar dias por semana
+
+  // Agrupar por semanas ISO (Seg-Dom)
   const semanas=[];
-  let semanaAtual=null;
+  let semAtual=null;
   for(let d=1;d<=days;d++){
-    const dow=new Date(2026,m-1,d).getDay();
-    if(dow===0||d===1){
-      semanaAtual={dias:[]};
-      semanas.push(semanaAtual);
+    const dow=new Date(2026,m-1,d).getDay(); // 0=Dom,1=Seg,...,6=Sab
+    // Nova semana começa na Segunda (dow===1) ou no primeiro dia do mês
+    if(dow===1||d===1){
+      semAtual={num:semanas.length+1,dias:[]};
+      semanas.push(semAtual);
     }
     const key=`${m}-${d}`;
     const fer=FERIADOS_MAP[key];const isPonte=PONTES.has(key);
@@ -674,16 +675,17 @@ function openMesPopup(m){
     if(isPonte) eventos.push({icon:'🌉',label:fer.nome,cor:'rgba(40,100,255,.2)',border:'rgba(40,100,255,.5)',txt:'#99bbff'});
     if(ferias.length) eventos.push({icon:'🌴',label:ferias.join(', '),cor:'rgba(30,160,70,.2)',border:'rgba(30,160,70,.5)',txt:'#80e0a0'});
     if(anivArr.length) eventos.push({icon:'🎂',label:anivArr.join(', '),cor:'rgba(240,130,0,.2)',border:'rgba(240,130,0,.5)',txt:'#ffc066'});
-    semanaAtual.dias.push({d,dow,eventos});
+    semAtual.dias.push({d,dow,eventos});
   }
 
-  // Numero da semana
   let html='';
-  semanas.forEach((sem,si)=>{
-    const temEventos=sem.dias.some(x=>x.eventos.length);
+  semanas.forEach(sem=>{
+    // Calcular datas da semana para o cabeçalho
+    const primeiro=sem.dias[0].d;
+    const ultimo=sem.dias[sem.dias.length-1].d;
     const diasHtml=sem.dias.map(({d,dow,eventos})=>{
       const isWe=dow===0||dow===6;
-      const cor=isWe?'rgba(255,255,255,.15)':'rgba(255,255,255,.5)';
+      const cor=isWe?'rgba(255,255,255,.25)':'rgba(255,255,255,.6)';
       const bg=isWe?'rgba(255,255,255,.03)':'transparent';
       if(!eventos.length){
         return `<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:${bg};border-radius:6px;">
@@ -699,7 +701,7 @@ function openMesPopup(m){
     }).join('');
 
     html+=`<div style="margin-bottom:10px;">
-      <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:600;padding:4px 8px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.08);">Semana ${si+1}</div>
+      <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:600;padding:4px 8px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.08);">Semana ${sem.num} &nbsp;·&nbsp; ${primeiro} a ${ultimo} de ${MESES_PT[m-1]}</div>
       ${diasHtml}
     </div>`;
   });
@@ -737,19 +739,19 @@ function buildMonth(m){
     let cls='day';
     if(isToday)cls+=' today';else if(isWe)cls+=' weekend';
     if(fer&&!isPonte)cls+=' has-fer';else if(isPonte)cls+=' has-pont';else if(ferias.length)cls+=' has-ferias';else if(anivArr.length)cls+=' has-aniv';
-    // Filtro por tipo — não esconde, só remove cor dos dias que não correspondem
-    if(filtroTipo){
-      const match=(filtroTipo==='fer'&&fer&&!isPonte)||(filtroTipo==='pont'&&isPonte)||(filtroTipo==='ferias'&&ferias.length)||(filtroTipo==='aniv'&&anivArr.length);
-      if(!match){
-        cls=cls.replace(' has-fer','').replace(' has-pont','').replace(' has-ferias','').replace(' has-aniv','');
-        if(isToday) cls='day today'; else if(isWe) cls='day weekend'; else cls='day';
-      }
-    }
     // Combinações: gradiente metade/metade
     let extraStyle='';
     if(fer&&!isPonte&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(220,50,50,.7) 50%,rgba(240,130,0,.7) 50%);';
     else if(isPonte&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(40,100,255,.6) 50%,rgba(240,130,0,.7) 50%);';
     else if(ferias.length&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(30,160,70,.55) 50%,rgba(240,130,0,.7) 50%);';
+    // Filtro por tipo — remove cor dos dias que não correspondem
+    if(filtroTipo){
+      const match=(filtroTipo==='fer'&&fer&&!isPonte)||(filtroTipo==='pont'&&isPonte)||(filtroTipo==='ferias'&&ferias.length)||(filtroTipo==='aniv'&&anivArr.length);
+      if(!match){
+        cls='day'+(isToday?' today':isWe?' weekend':'');
+        extraStyle='';
+      }
+    }
     const tt=[];
     if(fer){
       const santo=SANTOS[key];
