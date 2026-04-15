@@ -681,6 +681,7 @@ function openMesPopup(m){
 }
 
 
+function toggleLegFilter(tipo){
   if(filtroTipo===tipo){
     filtroTipo=null;
     document.querySelectorAll('.leg').forEach(l=>l.classList.remove('active-filter'));
