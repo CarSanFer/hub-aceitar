@@ -650,6 +650,14 @@ const ANIV={};Object.entries(ANIV_MAP).forEach(([ini,key])=>{if(!ANIV[key])ANIV[
 let filtroAtivo='ALL';
 let filtroTipo=null; // 'fer','pont','ferias','aniv'
 
+function getISOWeek(d,m){
+  const date=new Date(2026,m-1,d);
+  date.setHours(0,0,0,0);
+  date.setDate(date.getDate()+3-(date.getDay()+6)%7);
+  const week1=new Date(date.getFullYear(),0,4);
+  return 1+Math.round(((date.getTime()-week1.getTime())/86400000-3+(week1.getDay()+6)%7)/7);
+}
+
 function openMesPopup(m){
   document.getElementById('mes-popup-title').textContent=`📅 ${MESES_PT[m-1]} 2026`;
   const days=new Date(2026,m,0).getDate();
@@ -701,7 +709,7 @@ function openMesPopup(m){
     }).join('');
 
     html+=`<div style="margin-bottom:10px;">
-      <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:600;padding:4px 8px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.08);">Semana ${sem.num} &nbsp;·&nbsp; ${primeiro} a ${ultimo} de ${MESES_PT[m-1]}</div>
+      <div style="font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;padding:4px 8px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.08);">Semana ${getISOWeek(primeiro,m)} &nbsp;·&nbsp; ${primeiro} a ${ultimo} de ${MESES_PT[m-1]}</div>
       ${diasHtml}
     </div>`;
   });
