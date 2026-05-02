@@ -629,12 +629,12 @@ function addF(k,p){if(!FERIAS_MULTI[k])FERIAS_MULTI[k]=[];if(!FERIAS_MULTI[k].in
 // CLF: adicionar 5/1
 addF('1-5','CLF');
 [3,4,18,19,20].forEach(d=>addF(`2-${d}`,'CLF'));[6,7,8,9,10].forEach(d=>addF(`4-${d}`,'CLF'));[24,25,26,27,28,31].forEach(d=>addF(`8-${d}`,'CLF'));[1,2,3,4].forEach(d=>addF(`9-${d}`,'CLF'));[21,22,23,24].forEach(d=>addF(`12-${d}`,'CLF'));
-// PS: adicionar 16,23/4 e 2/10
-[5,8,9,22,23].forEach(d=>addF(`6-${d}`,'PS'));addF('8-31','PS');[1,2,3,4,7,8,9,10,11].forEach(d=>addF(`9-${d}`,'PS'));addF('12-7','PS');[28,29,30,31].forEach(d=>addF(`12-${d}`,'PS'));[16,23].forEach(d=>addF(`4-${d}`,'PS'));addF('10-2','PS');
-// TBF: remover 13,16,17/3 → só 20/3; adicionar 13-17/7
-addF('3-20','TBF');addF('4-24','TBF');[20,21,22].forEach(d=>addF(`5-${d}`,'TBF'));[5,22,23,25,26].forEach(d=>addF(`6-${d}`,'TBF'));[13,14,15,16,17].forEach(d=>addF(`7-${d}`,'TBF'));addF('12-7','TBF');[28,29,30,31].forEach(d=>addF(`12-${d}`,'TBF'));
-// TF: remover 11,12/6; adicionar 19,22,23/6; adicionar 24/8
-[10,11,12,13,14,17,18,19,20,21].forEach(d=>addF(`8-${d}`,'TF'));addF('8-24','TF');[19,22,23].forEach(d=>addF(`6-${d}`,'TF'));[28,29,30,31].forEach(d=>addF(`12-${d}`,'TF'));
+// PS: sem 16,23/4
+[5,8,9,22,23].forEach(d=>addF(`6-${d}`,'PS'));addF('8-31','PS');[1,2,3,4,7,8,9,10,11].forEach(d=>addF(`9-${d}`,'PS'));addF('12-7','PS');[28,29,30,31].forEach(d=>addF(`12-${d}`,'PS'));addF('10-2','PS');
+// TBF: sem 24/4
+addF('3-20','TBF');[20,21,22].forEach(d=>addF(`5-${d}`,'TBF'));[5,22,23,25,26].forEach(d=>addF(`6-${d}`,'TBF'));[13,14,15,16,17].forEach(d=>addF(`7-${d}`,'TBF'));addF('12-7','TBF');[28,29,30,31].forEach(d=>addF(`12-${d}`,'TBF'));
+// TF: remover 11,12/6; adicionar 19,22,23/6; adicionar 24/8; adicionar 10/4
+[10,11,12,13,14,17,18,19,20,21].forEach(d=>addF(`8-${d}`,'TF'));addF('8-24','TF');[19,22,23].forEach(d=>addF(`6-${d}`,'TF'));addF('4-10','TF');[28,29,30,31].forEach(d=>addF(`12-${d}`,'TF'));
 // SF: eliminar 9/4, manter 10/4; adicionar 19,22,23/6; adicionar 24/8
 [10].forEach(d=>addF(`4-${d}`,'SF'));[10,11,12,13,14,17,18,19,20,21].forEach(d=>addF(`8-${d}`,'SF'));addF('8-24','SF');[19,22,23].forEach(d=>addF(`6-${d}`,'SF'));[28,29,30,31].forEach(d=>addF(`12-${d}`,'SF'));
 [7,10,11,12,13,14].forEach(d=>addF(`8-${d}`,'JPP'));
