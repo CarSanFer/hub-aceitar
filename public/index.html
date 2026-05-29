@@ -655,7 +655,7 @@ function addR(key,obj){if(!REUNIOES[key])REUNIOES[key]=[];REUNIOES[key].push(obj
 (()=>{
   const d=new Date(2026,0,1);
   while(d<=new Date(2026,11,31)){
-    if(d.getDay()===5){
+    if(d.getDay()===5&&d.getMonth()>=4){
       const key=`${d.getMonth()+1}-${d.getDate()}`;
       addR(key,{hora:'09:00',fim:'12:00',obra:'CAB',pessoas:['JPP'],recorrencia:'Semanal'});
     }
