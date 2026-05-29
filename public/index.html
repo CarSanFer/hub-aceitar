@@ -657,7 +657,7 @@ function addR(key,obj){if(!REUNIOES[key])REUNIOES[key]=[];REUNIOES[key].push(obj
   while(d<=new Date(2026,11,31)){
     if(d.getDay()===5){
       const key=`${d.getMonth()+1}-${d.getDate()}`;
-      addR(key,{hora:'09:00',fim:'12:00',obra:'Reunião de Obra',pessoas:['JPP'],recorrencia:'Semanal'});
+      addR(key,{hora:'09:00',fim:'12:00',obra:'CAB',pessoas:['JPP'],recorrencia:'Semanal'});
     }
     d.setDate(d.getDate()+1);
   }
@@ -695,12 +695,12 @@ function openMesPopup(m){
     const anivArr=ANIV[key]||[];
     const santo=SANTOS[key];
     const eventos=[];
-    if(fer&&!isPonte) eventos.push({icon:'🔴',label:santo||fer.nome,cor:'rgba(220,50,50,.2)',border:'rgba(220,50,50,.5)',txt:'#ff9999'});
-    if(isPonte) eventos.push({icon:'🌉',label:fer.nome,cor:'rgba(40,100,255,.2)',border:'rgba(40,100,255,.5)',txt:'#99bbff'});
-    if(ferias.length) eventos.push({icon:'🌴',label:ferias.join(', '),cor:'rgba(30,160,70,.2)',border:'rgba(30,160,70,.5)',txt:'#80e0a0'});
-    if(anivArr.length) eventos.push({icon:'🎂',label:anivArr.join(', '),cor:'rgba(240,130,0,.2)',border:'rgba(240,130,0,.5)',txt:'#ffc066'});
+    if(fer&&!isPonte) eventos.push({label:santo||fer.nome,cor:'rgba(220,50,50,.2)',border:'rgba(220,50,50,.5)',txt:'#ff9999',dot:'rgba(220,50,50,.8)'});
+    if(isPonte) eventos.push({label:fer.nome,cor:'rgba(40,100,255,.2)',border:'rgba(40,100,255,.5)',txt:'#99bbff',dot:'rgba(40,100,255,.8)'});
+    if(ferias.length) eventos.push({label:ferias.join(', '),cor:'rgba(30,160,70,.2)',border:'rgba(30,160,70,.5)',txt:'#80e0a0',dot:'rgba(30,160,70,.8)'});
+    if(anivArr.length) eventos.push({label:anivArr.join(', '),cor:'rgba(240,130,0,.2)',border:'rgba(240,130,0,.5)',txt:'#ffc066',dot:'rgba(240,130,0,.8)'});
     const reunsMes=REUNIOES[key]||[];
-    if(reunsMes.length) reunsMes.forEach(r=>eventos.push({icon:'🟣',label:`${r.hora}-${r.fim} · ${r.obra} (${r.pessoas.join(', ')})${r.recorrencia?' · '+r.recorrencia:''}`,cor:'rgba(140,80,220,.2)',border:'rgba(140,80,220,.5)',txt:'#c4a0ff'}));
+    if(reunsMes.length) reunsMes.forEach(r=>eventos.push({label:`${r.pessoas.join(', ')} ${r.hora}-${r.fim}${r.obra?' · '+r.obra:''}`,cor:'rgba(140,80,220,.2)',border:'rgba(140,80,220,.5)',txt:'#c4a0ff',dot:'rgba(140,80,220,.8)'}));
     semAtual.dias.push({d,dow,eventos});
   }
 
@@ -720,8 +720,8 @@ function openMesPopup(m){
         </div>`;
       }
       return eventos.map(ev=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:${ev.cor};border:1px solid ${ev.border};border-radius:6px;margin-bottom:2px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:${ev.dot};flex-shrink:0;"></div>
         <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.8);min-width:60px;">${DIAS_SEMANA[dow]} ${d}</div>
-        <div style="font-size:.7rem;">${ev.icon}</div>
         <div style="font-size:.7rem;color:${ev.txt};font-weight:600;">${ev.label}</div>
       </div>`).join('');
     }).join('');
@@ -793,7 +793,7 @@ function buildMonth(m){
     }
     if(ferias.length)tt.push('🌴 '+ferias.join(', '));
     if(anivArr.length)tt.push('🎂 '+anivArr.join(', '));
-    if(reuns.length)tt.push(...reuns.map(r=>`🟣 ${r.hora}-${r.fim} ${r.obra} (${r.pessoas.join(', ')})${r.recorrencia?' · '+r.recorrencia:''}`));
+    if(reuns.length)tt.push(...reuns.map(r=>`🟣 ${r.pessoas.join(', ')} ${r.hora}-${r.fim}${r.obra?' · '+r.obra:''}`));
     // Superscript para 2+ pessoas de férias
     let extraStyle2='';
     const feriasSup=ferias.length>=2;
