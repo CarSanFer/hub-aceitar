@@ -773,6 +773,7 @@ function toggleLegFilter(tipo){
 const NOW=new Date(),TODAY_M=NOW.getMonth()+1,TODAY_D=NOW.getDate();
 function getFer(key){return FERIAS_MULTI[key]?.filter(p=>filtroAtivo==='ALL'||p===filtroAtivo)||[];}
 function getAniv(key){return ANIV[key]?.filter(ini=>filtroAtivo==='ALL'||ini===filtroAtivo)||[];}
+function getReuns(key){return (REUNIOES[key]||[]).filter(r=>filtroAtivo==='ALL'||r.pessoas.includes(filtroAtivo));}
 
 function buildMonth(m){
   const first=new Date(2026,m-1,1).getDay(),days=new Date(2026,m,0).getDate();
@@ -782,22 +783,28 @@ function buildMonth(m){
     const key=`${m}-${d}`;
     const fer=FERIADOS_MAP[key];const isPonte=PONTES.has(key);
     const ferias=getFer(key);const anivArr=getAniv(key);
-    const reuns=REUNIOES[key]||[];
+    const reuns=getReuns(key);
+    // Feriados e pontes só aparecem se não há filtro de pessoa
+    const showFer=filtroAtivo==='ALL';
     const isToday=m===TODAY_M&&d===TODAY_D;
     const dow=(first+d-1)%7;const isWe=dow===0||dow===6;
     let cls='day';
     if(isToday)cls+=' today';else if(isWe)cls+=' weekend';
-    if(fer&&!isPonte)cls+=' has-fer';else if(isPonte)cls+=' has-pont';else if(ferias.length)cls+=' has-ferias';else if(anivArr.length)cls+=' has-aniv';else if(reuns.length)cls+=' has-reun';
-    // Combinações: gradiente metade/metade
+    if(showFer&&fer&&!isPonte)cls+=' has-fer';
+    else if(showFer&&isPonte)cls+=' has-pont';
+    else if(ferias.length)cls+=' has-ferias';
+    else if(anivArr.length)cls+=' has-aniv';
+    else if(reuns.length)cls+=' has-reun';
+    // Combinações gradiente
     let extraStyle='';
-    if(fer&&!isPonte&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(220,50,50,.7) 50%,rgba(240,130,0,.7) 50%);';
-    else if(isPonte&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(40,100,255,.6) 50%,rgba(240,130,0,.7) 50%);';
+    if(showFer&&fer&&!isPonte&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(220,50,50,.7) 50%,rgba(240,130,0,.7) 50%);';
+    else if(showFer&&isPonte&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(40,100,255,.6) 50%,rgba(240,130,0,.7) 50%);';
     else if(ferias.length&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(30,160,70,.55) 50%,rgba(240,130,0,.7) 50%);';
     else if(reuns.length&&ferias.length) extraStyle='background:linear-gradient(90deg,rgba(30,160,70,.55) 50%,rgba(140,80,220,.6) 50%);';
     else if(reuns.length&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(140,80,220,.6) 50%,rgba(240,130,0,.7) 50%);';
     // Filtro por tipo — remove cor dos dias que não correspondem
     if(filtroTipo){
-      const match=(filtroTipo==='fer'&&fer&&!isPonte)||(filtroTipo==='pont'&&isPonte)||(filtroTipo==='ferias'&&ferias.length)||(filtroTipo==='aniv'&&anivArr.length)||(filtroTipo==='reun'&&reuns.length);
+      const match=(filtroTipo==='fer'&&showFer&&fer&&!isPonte)||(filtroTipo==='pont'&&showFer&&isPonte)||(filtroTipo==='ferias'&&ferias.length)||(filtroTipo==='aniv'&&anivArr.length)||(filtroTipo==='reun'&&reuns.length);
       if(!match){
         cls='day'+(isToday?' today':isWe?' weekend':'');
         extraStyle='';
