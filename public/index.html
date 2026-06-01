@@ -659,6 +659,28 @@ function addR(key,obj){if(!REUNIOES[key])REUNIOES[key]=[];REUNIOES[key].push(obj
       const key=`${d.getMonth()+1}-${d.getDate()}`;
       addR(key,{hora:'09:00',fim:'12:00',obra:'CAB',pessoas:['JPP'],recorrencia:'Semanal'});
     }
+    // Segundas a partir de Junho: CES e PIC (JPP)
+    if(d.getDay()===1&&d>=new Date(2026,5,1)){
+      const key=`${d.getMonth()+1}-${d.getDate()}`;
+      addR(key,{hora:'09:30',fim:'12:00',obra:'CES',pessoas:['JPP'],recorrencia:'Semanal'});
+      addR(key,{hora:'14:30',fim:'17:00',obra:'PIC',pessoas:['JPP'],recorrencia:'Semanal'});
+    }
+    // Terças a partir de Junho: LSD (JPP)
+    if(d.getDay()===2&&d>=new Date(2026,5,1)){
+      const key=`${d.getMonth()+1}-${d.getDate()}`;
+      addR(key,{hora:'09:00',fim:'12:00',obra:'LSD',pessoas:['JPP'],recorrencia:'Semanal'});
+    }
+    // Quintas a partir de Junho: EA904 e 9AB (JPP)
+    if(d.getDay()===4&&d>=new Date(2026,5,1)){
+      const key=`${d.getMonth()+1}-${d.getDate()}`;
+      addR(key,{hora:'10:00',fim:'12:00',obra:'EA904',pessoas:['JPP'],recorrencia:'Semanal'});
+      addR(key,{hora:'14:30',fim:'17:00',obra:'9AB',pessoas:['JPP'],recorrencia:'Semanal'});
+    }
+    // Quartas a partir de Junho: PCS (MS)
+    if(d.getDay()===3&&d>=new Date(2026,5,1)){
+      const key=`${d.getMonth()+1}-${d.getDate()}`;
+      addR(key,{hora:'14:30',fim:'16:00',obra:'PCS',pessoas:['MS'],recorrencia:'Semanal'});
+    }
     d.setDate(d.getDate()+1);
   }
 })();
