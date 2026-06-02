@@ -697,6 +697,8 @@ function buildMonth(m){
     else if(ferias.length)cls+=' has-ferias';
     else if(anivArr.length)cls+=' has-aniv';
     else if(reuns.length)cls+=' has-reun';
+    // Aniversário sobrepõe fim de semana (mas não today, feriado, ponte, férias)
+    if(anivArr.length&&!ferias.length&&!(showFer&&fer))cls=cls.replace(' weekend','')+' has-aniv';
     // Combinações gradiente
     let extraStyle='';
     if(showFer&&fer&&!isPonte&&anivArr.length) extraStyle='background:linear-gradient(90deg,rgba(220,50,50,.7) 50%,rgba(240,130,0,.7) 50%);';
