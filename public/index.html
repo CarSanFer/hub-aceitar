@@ -343,28 +343,7 @@ select.form-sel option{background:#0f1e38;}
     <div class="months-grid-wrap" id="cal"></div>
   </div>
 
-  <!-- NOTÍCIAS + EFEMÉRIDES -->
-  <div class="bottom-row">
-    <div class="panel">
-      <div class="plabel">📰 Notícias</div>
-      <div class="cat-grid" id="news-cats">
-        <div class="cat-btn active" data-q="Portugal"><div class="cat-icon">🇵🇹</div><div class="cat-label">Portugal</div></div>
-        <div class="cat-btn" data-q="Economia Portugal"><div class="cat-icon">💼</div><div class="cat-label">Economia</div></div>
-        <div class="cat-btn" data-q="Construção obras Portugal"><div class="cat-icon">🏗️</div><div class="cat-label">Construção</div></div>
-        <div class="cat-btn" data-q="Inteligência Artificial Claude ChatGPT"><div class="cat-icon">🤖</div><div class="cat-label">IA</div></div>
-        <div class="cat-btn" data-q="Tecnologia"><div class="cat-icon">💡</div><div class="cat-label">Tecnologia</div></div>
-        <div class="cat-btn" data-q="Desporto Portugal"><div class="cat-icon">⚽</div><div class="cat-label">Desporto</div></div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="plabel">📅 Efemérides</div>
-      <div class="efem-cat-grid">
-        <div class="efem-btn active" data-tipo="births"><div class="efem-icon">🎂</div><div class="efem-label">Nasceu</div></div>
-        <div class="efem-btn" data-tipo="deaths"><div class="efem-icon">🕯️</div><div class="efem-label">Faleceu</div></div>
-        <div class="efem-btn" data-tipo="events"><div class="efem-icon">📜</div><div class="efem-label">Aconteceu</div></div>
-      </div>
-    </div>
-  </div>
+
 
 </div>
 
@@ -472,11 +451,19 @@ async function loadApps(){
     renderApps();
   }catch(e){console.error(e);}
 }
+const FIXED_APPS=[
+  {id:'fixed-sid',name:'SID',descricao:'Sistema Interno de Dados',url:'https://sid.aceitar.pt',badge:'Gestão',palette:'sand'},
+  {id:'fixed-sigo',name:'SIGO',descricao:'Sistema Interno Gestão de Obras',url:'https://sigo.aceitar.pt',badge:'Fiscalização',palette:'crimson'},
+  {id:'fixed-siga',name:'SIGA',descricao:'Sistema Interno de Gestão da Aceitar',url:'https://siga.aceitar.pt',badge:'Gestão',palette:'dark'},
+];
+
 function renderApps(){
   const grid=document.getElementById('apps-grid');
-  grid.innerHTML=apps.map((app,i)=>{
+  const allApps=[...FIXED_APPS,...apps.filter(a=>!['sid','sigo','siga'].some(s=>a.url?.includes(s+'.aceitar.pt')))];
+  grid.innerHTML=allApps.map(app=>{
     const pal=PALETTES.find(p=>p.id===app.palette)||PALETTES[0];
-    return `<a class="app-card" href="${app.url||'#'}" target="_blank" rel="noopener" style="background:${pal.bg}" oncontextmenu="event.preventDefault();openModal('${app.id}')">
+    const fixed=app.id?.startsWith('fixed-');
+    return `<a class="app-card" href="${app.url||'#'}" target="_blank" rel="noopener" style="background:${pal.bg}" ${!fixed?`oncontextmenu="event.preventDefault();openModal('${app.id}')"`:'title="Acesso fixo — não editável"'}>
       <span class="app-badge">${app.badge}</span>
       <div><div class="app-name">${app.name}</div><div class="app-desc">${app.descricao||''}</div></div>
     </a>`;
@@ -517,7 +504,8 @@ function closeModal(){document.getElementById('modal').classList.remove('open');
 async function loadTarefas(){
   const grid=document.getElementById('tasks-grid');
   try{
-    const tasks=await sbFetch(TODO_URL,'todo_items?select=id,titulo,prioridade,prazo,done,grupo&type=eq.task&done=eq.false&order=prazo.asc',TODO_KEY);
+    const hojeStr=new Date().toISOString().split('T')[0];
+    const tasks=await sbFetch(TODO_URL,`todo_items?select=id,titulo,prioridade,prazo,done,grupo&type=eq.task&done=eq.false&prazo=gte.${hojeStr}&order=prazo.asc`,TODO_KEY);
     if(!tasks||!tasks.length){grid.innerHTML='<div style="color:rgba(255,255,255,.3);font-size:.75rem;padding:4px 0;">Sem tarefas pendentes.</div>';return;}
     const now=new Date(),hoje=new Date(now.getFullYear(),now.getMonth(),now.getDate());
     grid.innerHTML=tasks.map(t=>{
@@ -676,10 +664,20 @@ function addR(key,obj){if(!REUNIOES[key])REUNIOES[key]=[];REUNIOES[key].push(obj
       addR(key,{hora:'10:00',fim:'12:00',obra:'EA904',pessoas:['JPP'],recorrencia:'Semanal'});
       addR(key,{hora:'14:30',fim:'17:00',obra:'9AB',pessoas:['JPP'],recorrencia:'Semanal'});
     }
-    // Quartas a partir de Junho: PCS (MS)
+    // Quartas a partir de Junho: PCS (MS), AB e JR (PS), GRI (MS), ESP (PD)
     if(d.getDay()===3&&d>=new Date(2026,5,1)){
       const key=`${d.getMonth()+1}-${d.getDate()}`;
       addR(key,{hora:'14:30',fim:'16:00',obra:'PCS',pessoas:['MS'],recorrencia:'Semanal'});
+      addR(key,{hora:'09:30',fim:'11:30',obra:'AB',pessoas:['PS'],recorrencia:'Semanal'});
+      addR(key,{hora:'14:30',fim:'16:30',obra:'JR',pessoas:['PS'],recorrencia:'Semanal'});
+      addR(key,{hora:'09:30',fim:'11:30',obra:'GRI',pessoas:['MS'],recorrencia:'Semanal'});
+      addR(key,{hora:'14:30',fim:'16:30',obra:'PCS',pessoas:['MS'],recorrencia:'Semanal'});
+      addR(key,{hora:'10:00',fim:'12:00',obra:'ESP',pessoas:['PD'],recorrencia:'Semanal'});
+    }
+    // Sextas a partir de Junho: JF (PS)
+    if(d.getDay()===5&&d>=new Date(2026,5,1)){
+      const key=`${d.getMonth()+1}-${d.getDate()}`;
+      addR(key,{hora:'09:30',fim:'16:30',obra:'JF',pessoas:['PS'],recorrencia:'Semanal'});
     }
     d.setDate(d.getDate()+1);
   }
