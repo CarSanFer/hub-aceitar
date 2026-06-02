@@ -560,59 +560,22 @@ async function openNewsPopup(query,label){
     list.innerHTML=items.map((n,i)=>`<a class="ni" href="${n.link}" target="_blank" rel="noopener"><div class="ni-n">${String(i+1).padStart(2,'0')}</div><div><div class="ni-t">${n.title}</div><div class="ni-s">${n.source}${n.pub?` · ${new Date(n.pub).toLocaleDateString('pt-PT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`:''} </div></div></a>`).join('');
   }catch{list.innerHTML='<div style="color:rgba(255,100,100,.5);">Erro ao carregar notícias.</div>';}
 }
-document.getElementById('news-cats').addEventListener('click',e=>{
-  const btn=e.target.closest('.cat-btn');if(!btn)return;
-  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  openNewsPopup(btn.dataset.q, btn.querySelector('.cat-label').textContent);
-});
 
-// ── EFEMÉRIDES ────────────────────────────────────────────────────────────────
+// ── CALENDÁRIO ────────────────────────────────────────────────────────────────
 const FERIADOS_MAP={};
 [
-  {dia:1,mes:1,nome:'Ano Novo',icon:'🎆',tipo:'feriado'},{dia:2,mes:1,nome:'Ponte (Ano Novo)',icon:'🌉',tipo:'ponte'},
-  {dia:17,mes:2,nome:'Carnaval',icon:'🎭',tipo:'feriado'},{dia:16,mes:2,nome:'Terça de Carnaval',icon:'🎭',tipo:'feriado'},{dia:15,mes:2,nome:'Ponte (Carnaval)',icon:'🌉',tipo:'ponte'},
-  {dia:3,mes:4,nome:'Sexta-feira Santa',icon:'✝️',tipo:'feriado'},{dia:5,mes:4,nome:'Páscoa',icon:'🐣',tipo:'feriado'},
-  {dia:25,mes:4,nome:'Dia da Liberdade',icon:'🌹',tipo:'feriado'},{dia:1,mes:5,nome:'Dia do Trabalhador',icon:'✊',tipo:'feriado'},
-  {dia:4,mes:6,nome:'Corpo de Deus',icon:'⛪',tipo:'feriado'},{dia:10,mes:6,nome:'Dia de Portugal',icon:'🇵🇹',tipo:'feriado'},
-  {dia:24,mes:6,nome:'S. João',icon:'🔥',tipo:'feriado'},{dia:15,mes:8,nome:'Assunção de N.Sra.',icon:'⛪',tipo:'feriado'},
-  {dia:5,mes:10,nome:'Implantação da República',icon:'🏛️',tipo:'feriado'},{dia:1,mes:11,nome:'Todos os Santos',icon:'🕯️',tipo:'feriado'},
-  {dia:30,mes:11,nome:'Ponte (Restauração)',icon:'🌉',tipo:'ponte'},{dia:1,mes:12,nome:'Restauração da Independência',icon:'⚔️',tipo:'feriado'},
-  {dia:8,mes:12,nome:'Imaculada Conceição',icon:'⛪',tipo:'feriado'},{dia:25,mes:12,nome:'Natal',icon:'🎄',tipo:'feriado'},
+  {dia:1,mes:1,nome:'Ano Novo',tipo:'feriado'},{dia:2,mes:1,nome:'Ponte (Ano Novo)',tipo:'ponte'},
+  {dia:17,mes:2,nome:'Carnaval',tipo:'feriado'},{dia:16,mes:2,nome:'Terça de Carnaval',tipo:'feriado'},{dia:15,mes:2,nome:'Ponte (Carnaval)',tipo:'ponte'},
+  {dia:3,mes:4,nome:'Sexta-feira Santa',tipo:'feriado'},{dia:5,mes:4,nome:'Páscoa',tipo:'feriado'},
+  {dia:25,mes:4,nome:'Dia da Liberdade',tipo:'feriado'},{dia:1,mes:5,nome:'Dia do Trabalhador',tipo:'feriado'},
+  {dia:4,mes:6,nome:'Corpo de Deus',tipo:'feriado'},{dia:10,mes:6,nome:'Dia de Portugal',tipo:'feriado'},
+  {dia:24,mes:6,nome:'S. João',tipo:'feriado'},{dia:15,mes:8,nome:'Assunção de N.Sra.',tipo:'feriado'},
+  {dia:5,mes:10,nome:'Implantação da República',tipo:'feriado'},{dia:1,mes:11,nome:'Todos os Santos',tipo:'feriado'},
+  {dia:30,mes:11,nome:'Ponte (Restauração)',tipo:'ponte'},{dia:1,mes:12,nome:'Restauração da Independência',tipo:'feriado'},
+  {dia:8,mes:12,nome:'Imaculada Conceição',tipo:'feriado'},{dia:25,mes:12,nome:'Natal',tipo:'feriado'},
 ].forEach(f=>FERIADOS_MAP[`${f.mes}-${f.dia}`]=f);
 const PONTES=new Set(Object.keys(FERIADOS_MAP).filter(k=>FERIADOS_MAP[k].tipo==='ponte'));
 const SANTOS={'1-1':'Maria, Mãe de Deus','2-14':'S. Valentim','3-19':'S. José','4-23':'S. Jorge','5-13':'N.Sra. de Fátima','6-13':'S. António de Lisboa','6-24':'S. João Batista','7-25':'S. Tiago Apóstolo','8-15':'Assunção de N.Sra.','9-29':'S. Miguel, Gabriel e Rafael','10-4':'S. Francisco de Assis','11-1':'Todos os Santos','11-11':'S. Martinho de Tours','12-8':'Imaculada Conceição','12-25':'Natal'};
-
-let efemData={};
-async function loadEfemérides(){
-  const now=new Date(),d=now.getDate(),m=now.getMonth()+1;
-  const pad=n=>String(n).padStart(2,'0');
-  try{
-    const [dataPT,dataEN]=await Promise.all([
-      fetch(`https://pt.wikipedia.org/api/rest_v1/feed/onthisday/all/${pad(m)}/${pad(d)}`).then(r=>r.json()),
-      fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/all/${pad(m)}/${pad(d)}`).then(r=>r.json())
-    ]);
-    efemData={births:[...(dataPT.births||[]).filter(e=>e.year&&e.pages?.length).slice(0,3).map(e=>{return {icon:'🎂',tag:`Nasceu em ${e.year} PT`,title:e.pages[0]?.titles?.normalized||e.text.slice(0,60),desc:(e.pages[0]?.description||'').slice(0,80),url:e.pages[0]?.content_urls?.desktop?.page||'#'};}),...(dataEN.births||[]).filter(e=>e.year&&e.pages?.length).slice(0,3).map(e=>{return {icon:'🎂',tag:`Born in ${e.year} EN`,title:e.pages[0]?.titles?.normalized||e.text.slice(0,60),desc:(e.pages[0]?.description||'').slice(0,80),url:e.pages[0]?.content_urls?.desktop?.page||'#'};})],deaths:[...(dataPT.deaths||[]).filter(e=>e.year&&e.pages?.length).slice(0,3).map(e=>{return {icon:'🕯️',tag:`Faleceu em ${e.year} PT`,title:e.pages[0]?.titles?.normalized||e.text.slice(0,60),desc:(e.pages[0]?.description||'').slice(0,80),url:e.pages[0]?.content_urls?.desktop?.page||'#'};}),...(dataEN.deaths||[]).filter(e=>e.year&&e.pages?.length).slice(0,3).map(e=>{return {icon:'🕯️',tag:`Died in ${e.year} EN`,title:e.pages[0]?.titles?.normalized||e.text.slice(0,60),desc:(e.pages[0]?.description||'').slice(0,80),url:e.pages[0]?.content_urls?.desktop?.page||'#'};})],events:[...(dataPT.events||[]).filter(e=>e.year&&e.pages?.length).sort((a,b)=>a.year-b.year).slice(0,3).map(e=>{return {icon:'📜',tag:`Aconteceu em ${e.year} PT`,title:e.pages[0]?.titles?.normalized||e.text.slice(0,60),desc:(e.pages[0]?.description||'').slice(0,80),url:e.pages[0]?.content_urls?.desktop?.page||'#'};}),...(dataEN.events||[]).filter(e=>e.year&&e.pages?.length).sort((a,b)=>a.year-b.year).slice(0,3).map(e=>{return {icon:'📜',tag:`Happened in ${e.year} EN`,title:e.pages[0]?.titles?.normalized||e.text.slice(0,60),desc:(e.pages[0]?.description||'').slice(0,80),url:e.pages[0]?.content_urls?.desktop?.page||'#'};})]}; 
-  }catch{efemData={births:[],deaths:[],events:[]};}
-}
-function openEfemPopup(tipo,label){
-  document.getElementById('efem-popup-title').textContent=label;
-  const items=efemData[tipo]||[];
-  document.getElementById('popup-efem-list').innerHTML=items.length
-    ?items.map(e=>`<a class="efem-item" href="${e.url}" target="_blank" rel="noopener"><div class="efem-item-icon">${e.icon}</div><div><div class="efem-item-tag">${e.tag}</div><div class="efem-item-title">${e.title}</div><div class="efem-item-desc">${e.desc}</div></div></a>`).join('')
-    :'<div style="color:rgba(255,255,255,.4);font-size:.8rem;">Sem dados disponíveis.</div>';
-  openPopup('popup-efem');
-}
-document.querySelector('.efem-cat-grid').addEventListener('click',e=>{
-  const btn=e.target.closest('.efem-btn');if(!btn)return;
-  document.querySelectorAll('.efem-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const tipo=btn.dataset.tipo;
-  const labels={'births':'🎂 Nasceu em','deaths':'🕯️ Faleceu em','events':'📜 Aconteceu em'};
-  openEfemPopup(tipo,labels[tipo]);
-});
-
-// ── CALENDÁRIO ────────────────────────────────────────────────────────────────
 const FERIAS_MULTI={};
 function addF(k,p){if(!FERIAS_MULTI[k])FERIAS_MULTI[k]=[];if(!FERIAS_MULTI[k].includes(p))FERIAS_MULTI[k].push(p);}
 // CLF: adicionar 5/1
