@@ -180,27 +180,6 @@ select.form-sel option{background:#0f1e38;}
   </div>
 </div>
 
-<!-- POPUP NOTÍCIAS -->
-<div class="popup-overlay" id="popup-news" onclick="if(event.target===this)closePopup('popup-news')">
-  <div class="popup">
-    <div class="popup-hdr">
-      <div class="popup-title" id="news-popup-title">📰 Notícias</div>
-      <button class="popup-close" onclick="closePopup('popup-news')">✕ Fechar</button>
-    </div>
-    <div id="popup-news-list" style="display:flex;flex-direction:column;gap:4px;"><div style="color:rgba(255,255,255,.4);">A carregar⋯</div></div>
-  </div>
-</div>
-
-<!-- POPUP EFEMÉRIDES -->
-<div class="popup-overlay" id="popup-efem" onclick="if(event.target===this)closePopup('popup-efem')">
-  <div class="popup" style="max-width:480px;">
-    <div class="popup-hdr">
-      <div class="popup-title" id="efem-popup-title">📅 Efemérides</div>
-      <button class="popup-close" onclick="closePopup('popup-efem')">✕ Fechar</button>
-    </div>
-    <div id="popup-efem-list" style="display:flex;flex-direction:column;gap:6px;"><div style="color:rgba(255,255,255,.4);">A carregar⋯</div></div>
-  </div>
-</div>
 
 <!-- POPUP MÊS -->
 <div class="popup-overlay" id="popup-mes" onclick="if(event.target===this)closePopup('popup-mes')">
@@ -424,7 +403,7 @@ async function loadWeather(){
   const parts=currentLocCoords.split('|');
   const [lat,lon,city]=[parseFloat(parts[0]),parseFloat(parts[1]),parts[2]];
   try{
-    const wx=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,windspeed_10m_max&timezone=auto&forecast_days=7`).then(r=>r.json());
+    const wx=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,windspeed_10m_max&timezone=Europe%2FLisbon&forecast_days=7`).then(r=>r.json());
     wxData={wx,city};
     const cur=wx.current_weather;
     document.getElementById('wx-icon').textContent=WX_ICONS[cur.weathercode]||'🌡️';
@@ -533,33 +512,6 @@ async function loadTarefas(){
 // Atualizar tarefas a cada 5 minutos
 setInterval(loadTarefas, 5*60*1000);
 
-// ── NOTÍCIAS ──────────────────────────────────────────────────────────────────
-let newsCache={};
-async function fetchNews(query){
-  if(newsCache[query])return newsCache[query];
-  const res=await fetch(`/api/noticias?q=${encodeURIComponent(query)}`,{signal:AbortSignal.timeout(8000)});
-  if(!res.ok)throw new Error();
-  const xml=new DOMParser().parseFromString(await res.text(),'application/xml');
-  const items=Array.from(xml.querySelectorAll('item')).slice(0,12).map(item=>{
-    return {
-      title:(item.querySelector('title')?.textContent||'').replace(/ - [^-]+$/,''),
-      link:item.querySelector('link')?.textContent||'#',
-      source:item.querySelector('source')?.textContent||'',
-      pub:item.querySelector('pubDate')?.textContent||''
-    };
-  });
-  newsCache[query]=items;return items;
-}
-async function openNewsPopup(query,label){
-  document.getElementById('news-popup-title').textContent='📰 '+label;
-  openPopup('popup-news');
-  const list=document.getElementById('popup-news-list');
-  list.innerHTML='<div style="color:rgba(255,255,255,.4);">A carregar⋯</div>';
-  try{
-    const items=await fetchNews(query);
-    list.innerHTML=items.map((n,i)=>`<a class="ni" href="${n.link}" target="_blank" rel="noopener"><div class="ni-n">${String(i+1).padStart(2,'0')}</div><div><div class="ni-t">${n.title}</div><div class="ni-s">${n.source}${n.pub?` · ${new Date(n.pub).toLocaleDateString('pt-PT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`:''} </div></div></a>`).join('');
-  }catch{list.innerHTML='<div style="color:rgba(255,100,100,.5);">Erro ao carregar notícias.</div>';}
-}
 
 // ── CALENDÁRIO ────────────────────────────────────────────────────────────────
 const FERIADOS_MAP={};
@@ -848,7 +800,7 @@ document.addEventListener('mousemove',e=>{
 loadApps();
 loadWeather();
 loadTarefas();
-loadEfemérides();
+
 rebuildCal();
 </script>
 </body>
