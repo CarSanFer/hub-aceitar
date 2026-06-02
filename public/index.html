@@ -282,18 +282,6 @@ select.form-sel option{background:#0f1e38;}
     </div>
   </div>
 
-  <!-- TAREFAS -->
-  <div class="panel" style="padding:8px 12px;">
-    <div style="margin-bottom:6px;">
-      <a href="https://todo.aceitar.pt" target="_blank" style="text-decoration:none;">
-        <div class="plabel" style="margin:0;cursor:pointer;">✅ Tarefas pendentes ↗</div>
-      </a>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;" id="tasks-grid">
-      <div style="color:rgba(255,255,255,.3);font-size:.75rem;">A carregar⋯</div>
-    </div>
-  </div>
-
   <!-- CALENDÁRIO -->
   <div class="panel cal-panel" style="padding:10px 14px;">
     <div class="cal-header">
@@ -434,17 +422,16 @@ const FIXED_APPS=[
   {id:'fixed-sid',name:'SID',descricao:'Sistema Interno de Dados',url:'https://sid.aceitar.pt',badge:'Gestão',palette:'sand'},
   {id:'fixed-sigo',name:'SIGO',descricao:'Sistema Interno Gestão de Obras',url:'https://sigo.aceitar.pt',badge:'Fiscalização',palette:'crimson'},
   {id:'fixed-siga',name:'SIGA',descricao:'Sistema Interno de Gestão da Aceitar',url:'https://siga.aceitar.pt',badge:'Gestão',palette:'dark'},
+  {id:'fixed-cronos',name:'Cronos',descricao:'Info de Afetações',url:'https://cronos.aceitar.pt',badge:'Gestão',palette:'green'},
 ];
 
 function renderApps(){
   const grid=document.getElementById('apps-grid');
-  const allApps=[...FIXED_APPS,...apps.filter(a=>!['sid','sigo','siga'].some(s=>a.url?.includes(s+'.aceitar.pt')))];
-  grid.innerHTML=allApps.map(app=>{
+  grid.innerHTML=FIXED_APPS.map(app=>{
     const pal=PALETTES.find(p=>p.id===app.palette)||PALETTES[0];
-    const fixed=app.id?.startsWith('fixed-');
-    return `<a class="app-card" href="${app.url||'#'}" target="_blank" rel="noopener" style="background:${pal.bg}" ${!fixed?`oncontextmenu="event.preventDefault();openModal('${app.id}')"`:'title="Acesso fixo — não editável"'}>
+    return `<a class="app-card" href="${app.url}" target="_blank" rel="noopener" style="background:${pal.bg}" title="Acesso fixo">
       <span class="app-badge">${app.badge}</span>
-      <div><div class="app-name">${app.name}</div><div class="app-desc">${app.descricao||''}</div></div>
+      <div><div class="app-name">${app.name}</div><div class="app-desc">${app.descricao}</div></div>
     </a>`;
   }).join('');
 }
