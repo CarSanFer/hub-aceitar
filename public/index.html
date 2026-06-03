@@ -579,7 +579,6 @@ function addR(key,obj){if(!REUNIOES[key])REUNIOES[key]=[];REUNIOES[key].push(obj
     // Quartas a partir de Junho: PCS (MS), AB e JR (PS), GRI (MS), ESP (PD)
     if(d.getDay()===3&&d>=new Date(2026,5,1)){
       const key=`${d.getMonth()+1}-${d.getDate()}`;
-      addR(key,{hora:'14:30',fim:'16:00',obra:'PCS',pessoas:['MS'],recorrencia:'Semanal'});
       addR(key,{hora:'09:30',fim:'11:30',obra:'AB',pessoas:['PS'],recorrencia:'Semanal'});
       addR(key,{hora:'14:30',fim:'16:30',obra:'JR',pessoas:['PS'],recorrencia:'Semanal'});
       addR(key,{hora:'09:30',fim:'11:30',obra:'GRI',pessoas:['MS'],recorrencia:'Semanal'});
