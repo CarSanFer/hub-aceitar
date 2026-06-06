@@ -552,32 +552,34 @@ function buildDayTooltip(key){
 function buildMonth(m){
   const first=new Date(2026,m-1,1).getDay(),days=new Date(2026,m,0).getDate();
   const DIAS_HDR=['D','S','T','Q','Q','S','S'];
-  // S: esconder Dom(0) e Sáb(6); FDS: mostrar tudo
-  const hideDow=mostrarFDS?[]:[ 0,6];
-  // Grid sempre 7 colunas, colunas escondidas com width 0
-  const colTemplate=DIAS_HDR.map((_,i)=>hideDow.includes(i)?'0':'1fr').join(' ');
+  // Quais colunas mostrar: S=dias úteis [1-5], FDS=todos [0-6]
+  const visibles=mostrarFDS?[0,1,2,3,4,5,6]:[1,2,3,4,5];
+  const ncols=visibles.length;
+  // Cabeçalho
   let h=`<div class="month">
   <div class="month-name" onclick="openMesPopup(${m})">${MESES_PT[m-1]}</div>
-  <div class="cal-grid" style="grid-template-columns:${colTemplate};gap:2px;">
-  ${DIAS_HDR.map((d,i)=>`<div class="dow" style="${hideDow.includes(i)?'display:none;':''}">${d}</div>`).join('')}`;
-  // Células vazias antes do 1º dia
-  for(let i=0;i<first;i++){
-    const hide=hideDow.includes(i%7);
-    h+=`<div class="day-wrap empty" style="${hide?'display:none;':''}"></div>`;
+  <div class="cal-grid" style="grid-template-columns:repeat(${ncols},1fr);gap:2px;">
+  ${visibles.map(i=>`<div class="dow">${DIAS_HDR[i]}</div>`).join('')}`;
+  // Calcular offset: quantas células visíveis ficam antes do 1.º dia do mês
+  // 1.º dia tem dow=first; posição no grid = index de first em visibles
+  const firstPos=visibles.indexOf(first);
+  // Se first não está em visibles (ex: 1.º é Dom no modo S), offset = 0
+  for(let i=0;i<Math.max(0,firstPos);i++){
+    h+=`<div class="day-wrap empty"><div class="day-label"></div><div class="day-halves"><div class="hm"></div><div class="ht"></div></div></div>`;
   }
   for(let d=1;d<=days;d++){
     const dow=(first+d-1)%7;
-    const hide=hideDow.includes(dow);
+    if(!visibles.includes(dow))continue; // saltar dias não mostrados
     const isWe=dow===0||dow===6;
     const isToday=m===TODAY_M&&d===TODAY_D;
     const key=`${m}-${d}`;
     const tt=buildDayTooltip(key);
     const ferias=getFer(key);
     const multiF=ferias.length>=2;
-    let lCls='day-label'+(isToday?' today-l':isWe?' we':'')+(multiF?' multi-f':'');
+    const lCls='day-label'+(isToday?' today-l':isWe?' we':'')+(multiF?' multi-f':'');
     const clsM=getHalfClass(key,'M')||'';
     const clsT=getHalfClass(key,'T')||'';
-    h+=`<div class="day-wrap${isToday?' has-today':''}" data-m="${m}" data-d="${d}" data-tt="${tt.replace(/"/g,'&quot;')}" style="${hide?'display:none;':''}">
+    h+=`<div class="day-wrap${isToday?' has-today':''}" data-m="${m}" data-d="${d}" data-tt="${tt.replace(/"/g,'&quot;')}">
       <div class="${lCls}">${d}</div>
       <div class="day-halves"><div class="hm ${clsM}"></div><div class="ht ${clsT}"></div></div>
     </div>`;
