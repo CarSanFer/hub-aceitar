@@ -56,13 +56,13 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
 .dow-row{display:contents;}
 .dow{text-align:center;font-size:.48rem;color:rgba(255,255,255,.25);font-weight:600;padding-bottom:2px;}
 /* Cada célula de dia */
-.day-wrap{display:flex;flex-direction:column;gap:1px;min-height:18px;}
+.day-wrap{display:flex;flex-direction:column;gap:1px;min-height:28px;}
 .day-wrap.empty{visibility:hidden;}
-.day-label{text-align:center;font-size:.52rem;color:rgba(255,255,255,.55);line-height:1;}
+.day-label{text-align:center;font-size:.55rem;color:rgba(255,255,255,.55);line-height:1;padding-top:1px;}
 .day-label.we{color:rgba(255,255,255,.25);}
 .day-label.today-l{color:white;font-weight:700;}
 .day-label.multi-f{color:#ff6666;font-weight:700;}
-.day-halves{display:grid;grid-template-columns:1fr 1fr;gap:1px;height:10px;}
+.day-halves{display:grid;grid-template-columns:1fr 1fr;gap:1px;height:18px;}
 .hm,.ht{border-radius:1px;}
 .hm.fer,.ht.fer{background:rgba(220,50,50,.65);}
 .hm.pont,.ht.pont{background:rgba(40,100,255,.6);}
@@ -260,8 +260,12 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
   <div class="panel cal-panel">
     <!-- Filtros e legenda -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:5px;">
-      <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-        <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:600;margin-right:3px;">📅 2026</span>
+      <!-- S / FDS -->
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+        <span style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:600;margin-right:2px;">📅 2026</span>
+        <button class="fil-btn active" id="btn-s" onclick="toggleFDS('S')">S</button>
+        <button class="fil-btn" id="btn-fds" onclick="toggleFDS('FDS')">FDS</button>
+        <div style="width:1px;height:16px;background:rgba(255,255,255,.12);margin:0 4px;"></div>
         <button class="fil-btn active" data-p="ALL">Todos</button>
         <button class="fil-btn" data-p="TF">TF</button>
         <button class="fil-btn" data-p="SF">SF</button>
@@ -481,7 +485,13 @@ function addR(key,obj){if(!REUNIOES[key])REUNIOES[key]=[];REUNIOES[key].push(obj
 })();
 
 // FILTROS
-let filtroAtivo='ALL',filtroTipo=null;
+let filtroAtivo='ALL',filtroTipo=null,mostrarFDS=false;
+function toggleFDS(modo){
+  mostrarFDS=modo==='FDS';
+  document.getElementById('btn-s').classList.toggle('active',!mostrarFDS);
+  document.getElementById('btn-fds').classList.toggle('active',mostrarFDS);
+  rebuildCal();
+}
 function getFer(key){return FERIAS_MULTI[key]?.filter(p=>filtroAtivo==='ALL'||p===filtroAtivo)||[];}
 function getAniv(key){return ANIV[key]?.filter(ini=>filtroAtivo==='ALL'||ini===filtroAtivo)||[];}
 function getReuns(key){return (REUNIOES[key]||[]).filter(r=>filtroAtivo==='ALL'||r.pessoas.includes(filtroAtivo));}
@@ -549,6 +559,9 @@ function buildMonth(m){
   for(let d=1;d<=days;d++){
     const dow=(first+d-1)%7;
     const isWe=dow===0||dow===6;
+    // Esconder dias conforme filtro S/FDS
+    if(!mostrarFDS&&isWe){h+=`<div class="day-wrap empty"></div>`;continue;}
+    if(mostrarFDS&&!isWe){h+=`<div class="day-wrap empty"></div>`;continue;}
     const isToday=m===TODAY_M&&d===TODAY_D;
     const key=`${m}-${d}`;
     const tt=buildDayTooltip(key);
