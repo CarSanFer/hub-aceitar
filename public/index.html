@@ -56,13 +56,13 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
 .dow-row{display:contents;}
 .dow{text-align:center;font-size:.48rem;color:rgba(255,255,255,.25);font-weight:600;padding-bottom:2px;}
 /* Cada célula de dia */
-.day-wrap{display:flex;flex-direction:column;gap:1px;min-height:28px;}
+.day-wrap{display:flex;flex-direction:column;gap:2px;min-height:38px;}
 .day-wrap.empty{visibility:hidden;}
-.day-label{text-align:center;font-size:.55rem;color:rgba(255,255,255,.55);line-height:1;padding-top:1px;}
+.day-label{text-align:center;font-size:.58rem;color:rgba(255,255,255,.55);line-height:1;padding-top:2px;}
 .day-label.we{color:rgba(255,255,255,.25);}
 .day-label.today-l{color:white;font-weight:700;}
 .day-label.multi-f{color:#ff6666;font-weight:700;}
-.day-halves{display:grid;grid-template-columns:1fr 1fr;gap:1px;height:18px;}
+.day-halves{display:grid;grid-template-columns:1fr 1fr;gap:1px;flex:1;min-height:24px;}
 .hm,.ht{border-radius:1px;}
 .hm.fer,.ht.fer{background:rgba(220,50,50,.65);}
 .hm.pont,.ht.pont{background:rgba(40,100,255,.6);}
@@ -549,19 +549,29 @@ function buildDayTooltip(key){
 
 function buildMonth(m){
   const first=new Date(2026,m-1,1).getDay(),days=new Date(2026,m,0).getDate();
-  // Cabeçalho dias da semana
+  // Em modo S: só Seg(1)–Sex(5) → 5 colunas, dow 0=Dom e 6=Sab excluídos
+  // Em modo FDS: todas as 7 colunas
+  const cols=mostrarFDS?[0,1,2,3,4,5,6]:[1,2,3,4,5]; // índices dos dias incluídos
+  const ncols=cols.length;
+  const DIAS_HDR=['D','S','T','Q','Q','S','S'];
+  // Cabeçalho
   let h=`<div class="month">
   <div class="month-name" onclick="openMesPopup(${m})">${MESES_PT[m-1]}</div>
-  <div class="cal-grid">
-  <div class="dow">D</div><div class="dow">S</div><div class="dow">T</div><div class="dow">Q</div><div class="dow">Q</div><div class="dow">S</div><div class="dow">S</div>`;
-  // Células vazias antes do 1º dia
-  for(let i=0;i<first;i++)h+=`<div class="day-wrap empty"><div class="day-label"></div><div class="day-halves"><div class="hm"></div><div class="ht"></div></div></div>`;
+  <div class="cal-grid" style="grid-template-columns:repeat(${ncols},1fr);">
+  ${cols.map(c=>`<div class="dow">${DIAS_HDR[c]}</div>`).join('')}`;
+  // Calcular o offset do primeiro dia nas colunas filtradas
+  // Para modo S: o 1º dia (first=0=Dom) não existe nas colunas, então offset=0 para Seg
+  // Precisamos de calcular quantas células vazias antes do 1º dia
   for(let d=1;d<=days;d++){
-    const dow=(first+d-1)%7;
+    const dow=(first+d-1)%7; // dia da semana deste dia (0=Dom)
+    if(!cols.includes(dow))continue; // saltar dias não incluídos
+    // Preencher células vazias para este dia (apenas no início do mês)
+    if(d===1){
+      // quantas posições vazias antes do primeiro dia neste grid
+      const posInCols=cols.indexOf(dow);
+      for(let i=0;i<posInCols;i++)h+=`<div class="day-wrap empty"><div class="day-label"></div><div class="day-halves"><div class="hm"></div><div class="ht"></div></div></div>`;
+    }
     const isWe=dow===0||dow===6;
-    // Esconder dias conforme filtro S/FDS
-    if(!mostrarFDS&&isWe){h+=`<div class="day-wrap empty"></div>`;continue;}
-    if(mostrarFDS&&!isWe){h+=`<div class="day-wrap empty"></div>`;continue;}
     const isToday=m===TODAY_M&&d===TODAY_D;
     const key=`${m}-${d}`;
     const tt=buildDayTooltip(key);
