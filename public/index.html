@@ -54,7 +54,7 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
 .month-name:hover{background:rgba(255,255,255,.12);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;flex:1;}
 .dow-row{display:contents;}
-.dow{text-align:center;font-size:.48rem;color:rgba(255,255,255,.25);font-weight:600;padding-bottom:2px;}
+.dow{text-align:center;font-size:.48rem;color:rgba(255,255,255,.25);font-weight:600;min-height:38px;display:flex;align-items:center;justify-content:center;}
 /* Cada célula de dia */
 .day-wrap{display:flex;flex-direction:column;gap:2px;min-height:38px;}
 .day-wrap.empty{visibility:hidden;}
@@ -589,38 +589,44 @@ function buildMonth(m){
 }
 
 function rebuildCal(){
-  const body=document.getElementById('cal-body');body.innerHTML='';
+  const body=document.getElementById('cal-body');
+  // Guardar estado dos trimestres
+  const estados=TRIM_MONTHS.map((_,ti)=>{
+    const el=document.getElementById(`trim-body-${ti}`);
+    return el?!el.classList.contains('collapsed'):ti===TRIM_ATUAL;
+  });
+  body.innerHTML='';
   TRIM_MONTHS.forEach((meses,ti)=>{
-    const isAtual=ti===TRIM_ATUAL;
+    const isOpen=estados[ti];
     const div=document.createElement('div');
     div.innerHTML=`
       <div class="trim-header" onclick="toggleTrim(${ti})">
-        <span class="trim-toggle${isAtual?'':' collapsed'}" id="trim-tog-${ti}">▼</span>
+        <span class="trim-toggle${isOpen?'':' collapsed'}" id="trim-tog-${ti}">▼</span>
         <span class="trim-label">${TRIM_NAMES[ti]}</span>
       </div>
-      <div class="trim-body${isAtual?'':' collapsed'}" id="trim-body-${ti}">
+      <div class="trim-body${isOpen?'':' collapsed'}" id="trim-body-${ti}">
         ${meses.map(m=>buildMonth(m)).join('')}
       </div>`;
     body.appendChild(div);
   });
-  updateCounters();
-  // Tooltip
-  body.addEventListener('mousemove',e=>{
-    const w=e.target.closest('.day-wrap[data-tt]');
-    if(w&&w.dataset.tt){
-      tooltipEl.style.display='block';
-      tooltipEl.innerHTML=w.dataset.tt.replace(/\|/g,'<br>');
-      tooltipEl.style.left=Math.min(e.clientX+12,window.innerWidth-200)+'px';
-      tooltipEl.style.top=Math.min(e.clientY+12,window.innerHeight-80)+'px';
-    } else tooltipEl.style.display='none';
-  });
-  body.addEventListener('mouseleave',()=>tooltipEl.style.display='none');
-  // Click no dia
-  body.addEventListener('click',e=>{
-    const w=e.target.closest('.day-wrap[data-m]');
-    if(w&&!e.target.closest('.month-name'))openDiaPopup(parseInt(w.dataset.m),parseInt(w.dataset.d));
-  });
 }
+
+// Listeners globais (só uma vez)
+const calBody=document.getElementById('cal-body');
+calBody.addEventListener('mousemove',e=>{
+  const w=e.target.closest('.day-wrap[data-tt]');
+  if(w&&w.dataset.tt){
+    tooltipEl.style.display='block';
+    tooltipEl.innerHTML=w.dataset.tt.replace(/\|/g,'<br>');
+    tooltipEl.style.left=Math.min(e.clientX+12,window.innerWidth-200)+'px';
+    tooltipEl.style.top=Math.min(e.clientY+12,window.innerHeight-80)+'px';
+  } else tooltipEl.style.display='none';
+});
+calBody.addEventListener('mouseleave',()=>tooltipEl.style.display='none');
+calBody.addEventListener('click',e=>{
+  const w=e.target.closest('.day-wrap[data-m]');
+  if(w&&!e.target.closest('.month-name'))openDiaPopup(parseInt(w.dataset.m),parseInt(w.dataset.d));
+});
 
 function toggleTrim(ti){
   document.getElementById(`trim-body-${ti}`).classList.toggle('collapsed');
