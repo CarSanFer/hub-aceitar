@@ -222,6 +222,7 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
     <a class="hdr-app" href="https://sid.aceitar.pt" target="_blank" style="background:linear-gradient(135deg,#3a2a10,#c09050);border-color:rgba(192,144,80,.4);color:white;">SID</a>
     <a class="hdr-app" href="https://sigo.aceitar.pt" target="_blank" style="background:linear-gradient(135deg,#5a1010,#d84040);border-color:rgba(216,64,64,.4);color:white;">SIGO</a>
     <a class="hdr-app" href="https://siga.aceitar.pt" target="_blank" style="background:linear-gradient(135deg,#1a1a2a,#3a3a6a);border-color:rgba(80,80,160,.4);color:white;">SIGA</a>
+    <a class="hdr-app" href="https://sego.aceitar.pt" target="_blank" style="background:linear-gradient(135deg,#0d3a2a,#1a9a6a);border-color:rgba(26,154,106,.4);color:white;">SEGO</a>
   </div>
   <div style="flex:1;padding:0 8px;">
     <form id="search-form" style="display:flex;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:5px 14px;gap:8px;">
@@ -471,6 +472,7 @@ const AINSP={};
 function addA(key,obj){if(!AINSP[key])AINSP[key]=[];AINSP[key].push(obj);}
 addA('6-3',{hora:'14:30',nome:'Porto (9 de Julho)',pessoas:['AF','MS']});
 addA('6-5',{hora:'12:00',nome:'Lisboa (Anjos)',pessoas:['AF','MS']});
+addA('6-15',{hora:'09:30',nome:'Braga (Ana Cristina Simões)',pessoas:['AF','MS']});
 const REUNIOES={};
 function addR(key,obj){if(!REUNIOES[key])REUNIOES[key]=[];REUNIOES[key].push(obj);}
 (()=>{
@@ -503,8 +505,8 @@ function toggleLegFilter(tipo){
   else{filtroTipo=tipo;document.querySelectorAll('.leg').forEach(l=>l.classList.remove('active-filter'));document.getElementById('leg-'+tipo).classList.add('active-filter');}
   rebuildCal();
 }
-document.querySelectorAll('.fil-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{filtroAtivo=btn.dataset.p;document.querySelectorAll('.fil-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rebuildCal();});
+document.querySelectorAll('.fil-btn[data-p]').forEach(btn=>{
+  btn.addEventListener('click',()=>{filtroAtivo=btn.dataset.p;document.querySelectorAll('.fil-btn[data-p]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rebuildCal();});
 });
 
 // LÓGICA DE COR DAS MEIAS-CÉLULAS
