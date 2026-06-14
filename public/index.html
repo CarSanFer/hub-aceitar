@@ -24,14 +24,14 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
 .panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:8px 12px;}
 
 /* FILTROS */
-.fil-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:Calibri,sans-serif;font-size:.62rem;padding:2px 7px;border-radius:100px;cursor:pointer;transition:all .15s;}
+.fil-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-family:Calibri,sans-serif;font-size:.75rem;padding:4px 12px;border-radius:7px;cursor:pointer;transition:all .15s;font-weight:600;}
 .fil-btn:hover{background:rgba(255,255,255,.1);color:white;}
-.fil-btn.active{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);color:white;font-weight:600;}
+.fil-btn.active{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);color:white;font-weight:700;}
 
 /* LEGENDA */
-.leg{display:flex;align-items:center;gap:4px;font-size:.62rem;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:2px 10px;cursor:pointer;transition:all .15s;min-width:88px;justify-content:center;}
+.leg{display:flex;align-items:center;gap:5px;font-size:.75rem;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:4px 12px;cursor:pointer;transition:all .15s;min-width:100px;justify-content:center;font-weight:600;}
 .leg:hover{background:rgba(255,255,255,.12);color:white;}
-.leg.active-filter{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);color:white;font-weight:600;}
+.leg.active-filter{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);color:white;font-weight:700;}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .leg-cnt{font-size:.55rem;background:rgba(0,0,0,.3);border-radius:3px;padding:0 3px;margin-left:2px;}
 
@@ -472,7 +472,8 @@ const AINSP={};
 function addA(key,obj){if(!AINSP[key])AINSP[key]=[];AINSP[key].push(obj);}
 addA('6-3',{hora:'14:30',nome:'Porto (9 de Julho)',pessoas:['AF','MS']});
 addA('6-5',{hora:'12:00',nome:'Lisboa (Anjos)',pessoas:['AF','MS']});
-addA('6-15',{hora:'09:30',nome:'Braga (Ana Cristina Simões)',pessoas:['AF','MS']});
+addA('6-15',{hora:'08:00',nome:'Ovar (Pedro Natário)',pessoas:['MS','AF']});
+addA('6-16',{hora:'08:00',nome:'Ovar (Pedro Natário)',pessoas:['AF','MS']});
 const REUNIOES={};
 function addR(key,obj){if(!REUNIOES[key])REUNIOES[key]=[];REUNIOES[key].push(obj);}
 (()=>{
@@ -483,7 +484,7 @@ function addR(key,obj){if(!REUNIOES[key])REUNIOES[key]=[];REUNIOES[key].push(obj
     if(d.getDay()===2&&d>=new Date(2026,5,1)){const key=`${d.getMonth()+1}-${d.getDate()}`;addR(key,{hora:'09:00',fim:'12:00',obra:'LSD',pessoas:['JPP']});addR(key,{hora:'14:30',fim:'16:30',obra:'ARR',pessoas:['PD']});}
     if(d.getDay()===4&&d>=new Date(2026,5,1)){const key=`${d.getMonth()+1}-${d.getDate()}`;addR(key,{hora:'10:00',fim:'12:00',obra:'EA904',pessoas:['JPP']});addR(key,{hora:'14:30',fim:'17:00',obra:'9AB',pessoas:['JPP']});addR(key,{hora:'14:30',fim:'15:30',obra:'SOU',pessoas:['PD']});}
     if(d.getDay()===3&&d>=new Date(2026,5,1)){const key=`${d.getMonth()+1}-${d.getDate()}`;addR(key,{hora:'09:30',fim:'11:30',obra:'AB',pessoas:['PS']});addR(key,{hora:'14:30',fim:'16:30',obra:'JR',pessoas:['PS']});addR(key,{hora:'09:30',fim:'11:30',obra:'GRI',pessoas:['MS']});addR(key,{hora:'14:30',fim:'16:30',obra:'PCS',pessoas:['MS']});addR(key,{hora:'10:00',fim:'12:00',obra:'ESP',pessoas:['PD']});}
-    if(d.getDay()===5&&d>=new Date(2026,5,1)){const key=`${d.getMonth()+1}-${d.getDate()}`;addR(key,{hora:'09:30',fim:'16:30',obra:'JF',pessoas:['PS']});}
+    if(d.getDay()===5&&d>=new Date(2026,5,1)){const key=`${d.getMonth()+1}-${d.getDate()}`;addR(key,{hora:'09:30',fim:'11:30',obra:'JF',pessoas:['PS']});}
     d.setDate(d.getDate()+1);
   }
 })();
@@ -551,27 +552,31 @@ function buildDayTooltip(key){
   return tt.join('|');
 }
 
-function buildMonth(m){
+function calcRows(m){
+  const first=new Date(2026,m-1,1).getDay(),days=new Date(2026,m,0).getDate();
+  const visibles=mostrarFDS?[0,1,2,3,4,5,6]:[1,2,3,4,5];
+  const firstPos=Math.max(0,visibles.indexOf(first));
+  // contar quantas células visíveis tem o mês
+  let cells=firstPos;
+  for(let d=1;d<=days;d++){const dow=(first+d-1)%7;if(visibles.includes(dow))cells++;}
+  return Math.ceil(cells/visibles.length);
+}
+
+function buildMonth(m,nrows){
   const first=new Date(2026,m-1,1).getDay(),days=new Date(2026,m,0).getDate();
   const DIAS_HDR=['D','S','T','Q','Q','S','S'];
-  // Quais colunas mostrar: S=dias úteis [1-5], FDS=todos [0-6]
   const visibles=mostrarFDS?[0,1,2,3,4,5,6]:[1,2,3,4,5];
   const ncols=visibles.length;
-  // Cabeçalho
+  const rowH=`${100/nrows}%`;
   let h=`<div class="month">
   <div class="month-name" onclick="openMesPopup(${m})">${MESES_PT[m-1]}</div>
-  <div class="cal-grid" style="grid-template-columns:repeat(${ncols},1fr);gap:2px;">
+  <div class="cal-grid" style="grid-template-columns:repeat(${ncols},1fr);grid-template-rows:auto repeat(${nrows},1fr);gap:2px;flex:1;">
   ${visibles.map(i=>`<div class="dow">${DIAS_HDR[i]}</div>`).join('')}`;
-  // Calcular offset: quantas células visíveis ficam antes do 1.º dia do mês
-  // 1.º dia tem dow=first; posição no grid = index de first em visibles
-  const firstPos=visibles.indexOf(first);
-  // Se first não está em visibles (ex: 1.º é Dom no modo S), offset = 0
-  for(let i=0;i<Math.max(0,firstPos);i++){
-    h+=`<div class="day-wrap empty"><div class="day-label"></div><div class="day-halves"><div class="hm"></div><div class="ht"></div></div></div>`;
-  }
+  const firstPos=Math.max(0,visibles.indexOf(first));
+  for(let i=0;i<firstPos;i++)h+=`<div class="day-wrap empty"></div>`;
   for(let d=1;d<=days;d++){
     const dow=(first+d-1)%7;
-    if(!visibles.includes(dow))continue; // saltar dias não mostrados
+    if(!visibles.includes(dow))continue;
     const isWe=dow===0||dow===6;
     const isToday=m===TODAY_M&&d===TODAY_D;
     const key=`${m}-${d}`;
@@ -592,7 +597,6 @@ function buildMonth(m){
 
 function rebuildCal(){
   const body=document.getElementById('cal-body');
-  // Guardar estado dos trimestres
   const estados=TRIM_MONTHS.map((_,ti)=>{
     const el=document.getElementById(`trim-body-${ti}`);
     return el?!el.classList.contains('collapsed'):ti===TRIM_ATUAL;
@@ -600,6 +604,8 @@ function rebuildCal(){
   body.innerHTML='';
   TRIM_MONTHS.forEach((meses,ti)=>{
     const isOpen=estados[ti];
+    // Calcular número máximo de linhas entre os 3 meses
+    const maxRows=Math.max(...meses.map(m=>calcRows(m)));
     const div=document.createElement('div');
     div.innerHTML=`
       <div class="trim-header" onclick="toggleTrim(${ti})">
@@ -607,7 +613,7 @@ function rebuildCal(){
         <span class="trim-label">${TRIM_NAMES[ti]}</span>
       </div>
       <div class="trim-body${isOpen?'':' collapsed'}" id="trim-body-${ti}">
-        ${meses.map(m=>buildMonth(m)).join('')}
+        ${meses.map(m=>buildMonth(m,maxRows)).join('')}
       </div>`;
     body.appendChild(div);
   });
