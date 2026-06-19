@@ -58,12 +58,13 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
 /* Cada célula de dia */
 .day-wrap{display:flex;flex-direction:column;gap:2px;min-height:38px;}
 .day-wrap.empty{visibility:hidden;}
-.day-label{text-align:center;font-size:.58rem;color:rgba(255,255,255,.55);line-height:1;padding-top:2px;}
+.day-label{text-align:center;font-size:.58rem;color:rgba(255,255,255,.55);line-height:1;padding:2px 0 1px;}
 .day-label.we{color:rgba(255,255,255,.25);}
 .day-label.today-l{color:white;font-weight:700;}
 .day-label.multi-f{color:#ff6666;font-weight:700;}
-.day-halves{display:grid;grid-template-columns:1fr 1fr;gap:1px;flex:1;min-height:24px;}
-.hm,.ht{border-radius:1px;}
+/* M em cima, T em baixo */
+.day-halves{display:flex;flex-direction:column;gap:1px;flex:1;min-height:24px;}
+.hm,.ht{border-radius:1px;flex:1;}
 .hm.fer,.ht.fer{background:rgba(220,50,50,.65);}
 .hm.pont,.ht.pont{background:rgba(40,100,255,.6);}
 .hm.ferias,.ht.ferias{background:rgba(30,160,70,.55);}
@@ -71,6 +72,19 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
 .hm.reun,.ht.reun{background:rgba(140,80,220,.65);}
 .hm.ainsp,.ht.ainsp{background:rgba(220,200,0,.75);}
 .day-wrap.has-today .day-halves{outline:1px solid rgba(255,255,255,.8);border-radius:2px;}
+
+/* RESPONSIVO */
+@media(max-width:900px){
+  .trim-body{grid-template-columns:1fr!important;}
+  .hdr{flex-wrap:wrap;gap:6px;}
+  .hdr>div:nth-child(3){order:10;flex:0 0 100%;}
+  .main{padding:6px 8px;}
+}
+@media(max-width:600px){
+  .hdr-app{padding:3px 8px;font-size:.68rem;}
+  .fil-btn,.leg{font-size:.65rem;padding:3px 8px;}
+  .cal-body{font-size:10px;}
+}
 
 /* POPUP */
 .popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;}
@@ -201,6 +215,89 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
   </div>
 </div>
 
+<!-- POPUP NOVO EVENTO -->
+<div class="popup-overlay" id="popup-evento" onclick="if(event.target===this)closePopup('popup-evento')">
+  <div class="popup" style="max-width:480px;">
+    <div class="popup-hdr">
+      <div class="popup-title">➕ Novo Evento</div>
+      <button class="popup-close" onclick="closePopup('popup-evento')">✕ Fechar</button>
+    </div>
+    <!-- Password gate -->
+    <div id="ev-gate">
+      <div style="margin-bottom:12px;font-size:.8rem;color:rgba(255,255,255,.5);">Introduza a password para adicionar eventos.</div>
+      <div style="display:flex;gap:8px;">
+        <input type="password" id="ev-pwd" placeholder="Password" style="flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:7px 12px;color:white;font-family:Calibri;font-size:.85rem;outline:none;" onkeydown="if(event.key==='Enter')checkEvPwd()">
+        <button onclick="checkEvPwd()" style="background:white;color:#112240;border:none;border-radius:8px;padding:7px 16px;font-family:Calibri;font-weight:700;cursor:pointer;">Entrar</button>
+      </div>
+      <div id="ev-pwd-err" style="color:#ff8888;font-size:.72rem;margin-top:6px;display:none;">Password incorrecta.</div>
+    </div>
+    <!-- Formulário (oculto até password correcta) -->
+    <div id="ev-form" style="display:none;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Tipo</label>
+          <select id="ev-tipo" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;" onchange="updateEvForm()">
+            <option value="ferias">🌴 Férias</option>
+            <option value="reun">🟣 Reunião</option>
+            <option value="ainsp">🟡 AInspect</option>
+            <option value="aniv">🎂 Aniversário</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Pessoa(s)</label>
+          <div id="ev-pessoas" style="display:flex;flex-wrap:wrap;gap:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:5px 8px;min-height:34px;">
+            ${['TF','SF','CF','JPP','PS','MS','AF','PD','CLF','TBF'].map(p=>`<span class="ev-pessoa-btn" onclick="toggleEvPessoa('${p}')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">${p}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Data início</label>
+          <input type="date" id="ev-data-ini" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;color-scheme:dark;">
+        </div>
+        <div>
+          <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Data fim</label>
+          <input type="date" id="ev-data-fim" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;color-scheme:dark;">
+        </div>
+      </div>
+      <div id="ev-hora-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Hora início</label>
+          <input type="time" id="ev-hora-ini" value="09:00" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;color-scheme:dark;">
+        </div>
+        <div>
+          <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Hora fim</label>
+          <input type="time" id="ev-hora-fim" value="12:00" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;color-scheme:dark;">
+        </div>
+      </div>
+      <div id="ev-nome-row" style="margin-bottom:10px;">
+        <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Nome / Obra</label>
+        <input type="text" id="ev-nome" placeholder="ex: Porto (9 de Julho)" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;">
+      </div>
+      <div id="ev-recorr-row" style="margin-bottom:10px;">
+        <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Recorrência</label>
+        <select id="ev-recorr" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;">
+          <option value="none">Sem recorrência (data única)</option>
+          <option value="weekly-mon">Semanal — Segundas</option>
+          <option value="weekly-tue">Semanal — Terças</option>
+          <option value="weekly-wed">Semanal — Quartas</option>
+          <option value="weekly-thu">Semanal — Quintas</option>
+          <option value="weekly-fri">Semanal — Sextas</option>
+          <option value="weekly-sat">Semanal — Sábados</option>
+          <option value="weekly-sun">Semanal — Domingos</option>
+          <option value="biweekly">Quinzenal</option>
+          <option value="monthly">Mensal</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+        <button onclick="closePopup('popup-evento')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);border-radius:8px;padding:7px 16px;font-family:Calibri;cursor:pointer;">Cancelar</button>
+        <button onclick="guardarEvento()" style="background:white;color:#112240;border:none;border-radius:8px;padding:7px 20px;font-family:Calibri;font-weight:700;cursor:pointer;">Guardar</button>
+      </div>
+      <div id="ev-resultado" style="margin-top:10px;font-size:.75rem;display:none;padding:8px;border-radius:6px;"></div>
+    </div>
+  </div>
+</div>
+
 <!-- POPUP DIA -->
 <div class="popup-overlay" id="popup-dia" onclick="if(event.target===this)closePopup('popup-dia')">
   <div class="popup" style="max-width:400px;">
@@ -250,8 +347,8 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
       </div>
     </div>
   </div>
-  <div class="hdr-clock" onclick="openDataPopup()">
-    <div style="font-size:.52rem;color:rgba(255,255,255,.38);text-transform:uppercase;" id="clk-day"></div>
+  <button onclick="openEvento()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:4px 12px;font-family:Calibri;font-size:.82rem;cursor:pointer;flex-shrink:0;font-weight:600;">➕</button>
+  <div class="hdr-clock" onclick="openDataPopup()">    <div style="font-size:.52rem;color:rgba(255,255,255,.38);text-transform:uppercase;" id="clk-day"></div>
     <div style="font-size:.95rem;font-weight:300;color:white;font-variant-numeric:tabular-nums;" id="clk-time"></div>
     <div style="font-size:.52rem;color:rgba(255,255,255,.38);" id="clk-date"></div>
   </div>
@@ -436,6 +533,91 @@ function switchEfem(el,tipo){
   document.getElementById('efem-list').innerHTML=items.length
     ?items.map(e=>`<a class="efem-item" href="${e.url}" target="_blank" rel="noopener"><div style="font-size:1rem;flex-shrink:0;">${e.icon}</div><div><div style="font-size:.58rem;color:rgba(255,255,255,.35);text-transform:uppercase;">${e.tag}</div><div style="font-size:.78rem;color:rgba(255,255,255,.9);margin-top:1px;">${e.title}</div><div style="font-size:.63rem;color:rgba(255,255,255,.45);margin-top:1px;">${e.desc}</div></div></a>`).join('')
     :'<div style="color:rgba(255,255,255,.4);font-size:.8rem;">Sem dados.</div>';
+}
+
+// ── FORMULÁRIO DE EVENTOS ────────────────────────────────────────────────────
+let evPessoasSel=[];
+function openEvento(){
+  evPessoasSel=[];
+  document.getElementById('ev-gate').style.display='block';
+  document.getElementById('ev-form').style.display='none';
+  document.getElementById('ev-pwd').value='';
+  document.getElementById('ev-pwd-err').style.display='none';
+  document.getElementById('ev-resultado').style.display='none';
+  const hoje=new Date().toISOString().split('T')[0];
+  document.getElementById('ev-data-ini').value=hoje;
+  document.getElementById('ev-data-fim').value=hoje;
+  openPopup('popup-evento');
+}
+function checkEvPwd(){
+  if(document.getElementById('ev-pwd').value==='csf'){
+    document.getElementById('ev-gate').style.display='none';
+    document.getElementById('ev-form').style.display='block';
+    updateEvForm();
+  } else {
+    document.getElementById('ev-pwd-err').style.display='block';
+  }
+}
+function toggleEvPessoa(p){
+  const idx=evPessoasSel.indexOf(p);
+  if(idx>=0)evPessoasSel.splice(idx,1);else evPessoasSel.push(p);
+  document.querySelectorAll('.ev-pessoa-btn').forEach(b=>{
+    const active=evPessoasSel.includes(b.textContent.trim());
+    b.style.background=active?'rgba(255,255,255,.25)':'rgba(255,255,255,.06)';
+    b.style.color=active?'white':'rgba(255,255,255,.5)';
+    b.style.borderColor=active?'rgba(255,255,255,.4)':'rgba(255,255,255,.1)';
+  });
+}
+function updateEvForm(){
+  const tipo=document.getElementById('ev-tipo').value;
+  const showHora=['reun','ainsp'].includes(tipo);
+  document.getElementById('ev-hora-row').style.display=showHora?'grid':'none';
+  document.getElementById('ev-nome-row').style.display=showHora?'block':'none';
+  document.getElementById('ev-recorr-row').style.display=showHora?'block':'none';
+  const dfimDiv=document.querySelector('#ev-data-fim').closest('div');
+  dfimDiv.style.display=tipo==='aniv'?'none':'block';
+}
+function guardarEvento(){
+  const tipo=document.getElementById('ev-tipo').value;
+  const pessoas=[...evPessoasSel];
+  const dataIni=document.getElementById('ev-data-ini').value;
+  const dataFim=document.getElementById('ev-data-fim').value||dataIni;
+  const horaIni=document.getElementById('ev-hora-ini').value;
+  const horaFim=document.getElementById('ev-hora-fim').value;
+  const nome=document.getElementById('ev-nome').value.trim();
+  const recorr=document.getElementById('ev-recorr').value;
+  if(!dataIni){alert('Selecione uma data.');return;}
+  if(tipo!=='aniv'&&pessoas.length===0){alert('Selecione pelo menos uma pessoa.');return;}
+  const datas=[];
+  const ini=new Date(dataIni+'T12:00:00');
+  const fim=new Date((dataFim||dataIni)+'T12:00:00');
+  const DOW_MAP={'weekly-mon':1,'weekly-tue':2,'weekly-wed':3,'weekly-thu':4,'weekly-fri':5,'weekly-sat':6,'weekly-sun':0};
+  if(recorr==='none'||tipo==='aniv'||tipo==='ferias'){
+    for(let d=new Date(ini);d<=fim;d.setDate(d.getDate()+1))datas.push(new Date(d));
+  } else if(recorr.startsWith('weekly')){
+    const tdow=DOW_MAP[recorr];
+    for(let d=new Date(ini);d<=fim;d.setDate(d.getDate()+1)){if(d.getDay()===tdow)datas.push(new Date(d));}
+  } else if(recorr==='biweekly'){
+    let skip=false;
+    for(let d=new Date(ini);d<=fim;d.setDate(d.getDate()+7)){if(!skip)datas.push(new Date(d));skip=!skip;}
+  } else if(recorr==='monthly'){
+    for(let d=new Date(ini);d<=fim;d.setMonth(d.getMonth()+1))datas.push(new Date(d));
+  }
+  let count=0;
+  datas.forEach(dt=>{
+    const key=`${dt.getMonth()+1}-${dt.getDate()}`;
+    if(tipo==='ferias'){pessoas.forEach(p=>addF(key,p));count++;}
+    else if(tipo==='reun'){addR(key,{hora:horaIni,fim:horaFim,obra:nome,pessoas});count++;}
+    else if(tipo==='ainsp'){addA(key,{hora:horaIni,nome,pessoas});count++;}
+    else if(tipo==='aniv'){
+      if(pessoas.length){const p=pessoas[0];ANIV_MAP[p]=`${dt.getMonth()+1}-${dt.getDate()}`;Object.keys(ANIV).forEach(k=>delete ANIV[k]);Object.entries(ANIV_MAP).forEach(([ini,key])=>{if(!ANIV[key])ANIV[key]=[];ANIV[key].push(ini);});}
+      count++;
+    }
+  });
+  rebuildCal();
+  const res=document.getElementById('ev-resultado');
+  res.style.cssText='display:block;background:rgba(30,160,70,.2);border:1px solid rgba(30,160,70,.4);color:#80e0a0;padding:8px;border-radius:6px;font-size:.75rem;margin-top:10px;';
+  res.textContent=`✓ ${count} dia(s) adicionado(s). Nota: os dados existem só nesta sessão — pede ao administrador para os tornar permanentes.`;
 }
 
 // DADOS CALENDÁRIO
