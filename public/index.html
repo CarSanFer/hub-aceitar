@@ -45,26 +45,26 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
 .trim-label{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:700;}
 .trim-toggle{font-size:.6rem;color:rgba(255,255,255,.3);transition:transform .3s;display:inline-block;}
 .trim-toggle.collapsed{transform:rotate(-90deg);}
-.trim-body{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;overflow:hidden;transition:max-height .35s ease;max-height:500px;}
+.trim-body{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;overflow:hidden;transition:max-height .35s ease;max-height:900px;}
 .trim-body.collapsed{max-height:0;}
 
 /* Mês */
 .month{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px 8px;display:flex;flex-direction:column;}
 .month-name{font-size:.65rem;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;text-align:center;cursor:pointer;padding:2px 4px;border-radius:4px;transition:background .15s;}
 .month-name:hover{background:rgba(255,255,255,.12);}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;flex:1;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;flex:1;}
 .dow-row{display:contents;}
 .dow{text-align:center;font-size:.48rem;color:rgba(255,255,255,.25);font-weight:600;min-height:38px;display:flex;align-items:center;justify-content:center;}
 /* Cada célula de dia */
-.day-wrap{display:flex;flex-direction:column;gap:2px;min-height:60px;}
+.day-wrap{display:flex;flex-direction:column;gap:3px;min-height:90px;}
 .day-wrap.empty{visibility:hidden;}
 .day-label{text-align:center;font-size:.58rem;color:rgba(255,255,255,.55);line-height:1;padding:2px 0 1px;}
 .day-label.we{color:rgba(255,255,255,.25);}
 .day-label.today-l{color:white;font-weight:700;}
 .day-label.multi-f{color:#ff6666;font-weight:700;}
 /* M em cima, T em baixo */
-.day-halves{display:flex;flex-direction:column;gap:1px;flex:1;min-height:40px;}
-.hm,.ht{border-radius:1px;flex:1;}
+.day-halves{display:flex;flex-direction:column;gap:2px;flex:1;min-height:60px;}
+.hm,.ht{border-radius:2px;flex:1;margin:0 2px;}
 .hm.fer,.ht.fer{background:rgba(220,50,50,.65);}
 .hm.pont,.ht.pont{background:rgba(40,100,255,.6);}
 .hm.ferias,.ht.ferias{background:rgba(30,160,70,.55);}
