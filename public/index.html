@@ -56,14 +56,14 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
 .dow-row{display:contents;}
 .dow{text-align:center;font-size:.48rem;color:rgba(255,255,255,.25);font-weight:600;min-height:38px;display:flex;align-items:center;justify-content:center;}
 /* Cada célula de dia */
-.day-wrap{display:flex;flex-direction:column;gap:2px;min-height:38px;}
+.day-wrap{display:flex;flex-direction:column;gap:2px;min-height:60px;}
 .day-wrap.empty{visibility:hidden;}
 .day-label{text-align:center;font-size:.58rem;color:rgba(255,255,255,.55);line-height:1;padding:2px 0 1px;}
 .day-label.we{color:rgba(255,255,255,.25);}
 .day-label.today-l{color:white;font-weight:700;}
 .day-label.multi-f{color:#ff6666;font-weight:700;}
 /* M em cima, T em baixo */
-.day-halves{display:flex;flex-direction:column;gap:1px;flex:1;min-height:24px;}
+.day-halves{display:flex;flex-direction:column;gap:1px;flex:1;min-height:40px;}
 .hm,.ht{border-radius:1px;flex:1;}
 .hm.fer,.ht.fer{background:rgba(220,50,50,.65);}
 .hm.pont,.ht.pont{background:rgba(40,100,255,.6);}
@@ -236,7 +236,7 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
         <div>
           <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Tipo</label>
-          <select id="ev-tipo" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;" onchange="updateEvForm()">
+          <select id="ev-tipo" style="width:100%;background:#0f1e38;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;color-scheme:dark;" onchange="updateEvForm()">
             <option value="ferias">🌴 Férias</option>
             <option value="reun">🟣 Reunião</option>
             <option value="ainsp">🟡 AInspect</option>
@@ -246,7 +246,16 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
         <div>
           <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Pessoa(s)</label>
           <div id="ev-pessoas" style="display:flex;flex-wrap:wrap;gap:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:5px 8px;min-height:34px;">
-            ${['TF','SF','CF','JPP','PS','MS','AF','PD','CLF','TBF'].map(p=>`<span class="ev-pessoa-btn" onclick="toggleEvPessoa('${p}')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">${p}</span>`).join('')}
+            <span class="ev-pessoa-btn" onclick="toggleEvPessoa('TF')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">TF</span>
+            <span class="ev-pessoa-btn" onclick="toggleEvPessoa('SF')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">SF</span>
+            <span class="ev-pessoa-btn" onclick="toggleEvPessoa('CF')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">CF</span>
+            <span class="ev-pessoa-btn" onclick="toggleEvPessoa('JPP')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">JPP</span>
+            <span class="ev-pessoa-btn" onclick="toggleEvPessoa('PS')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">PS</span>
+            <span class="ev-pessoa-btn" onclick="toggleEvPessoa('MS')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">MS</span>
+            <span class="ev-pessoa-btn" onclick="toggleEvPessoa('AF')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">AF</span>
+            <span class="ev-pessoa-btn" onclick="toggleEvPessoa('PD')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">PD</span>
+            <span class="ev-pessoa-btn" onclick="toggleEvPessoa('CLF')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">CLF</span>
+            <span class="ev-pessoa-btn" onclick="toggleEvPessoa('TBF')" style="font-size:.65rem;padding:2px 7px;border-radius:100px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);">TBF</span>
           </div>
         </div>
       </div>
@@ -276,7 +285,7 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
       </div>
       <div id="ev-recorr-row" style="margin-bottom:10px;">
         <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Recorrência</label>
-        <select id="ev-recorr" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;">
+        <select id="ev-recorr" style="width:100%;background:#0f1e38;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;color-scheme:dark;">
           <option value="none">Sem recorrência (data única)</option>
           <option value="weekly-mon">Semanal — Segundas</option>
           <option value="weekly-tue">Semanal — Terças</option>
