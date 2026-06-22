@@ -219,7 +219,7 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
 <div class="popup-overlay" id="popup-evento" onclick="if(event.target===this)closePopup('popup-evento')">
   <div class="popup" style="max-width:480px;">
     <div class="popup-hdr">
-      <div class="popup-title">➕ Novo Evento</div>
+      <div class="popup-title" id="ev-popup-title">➕ Novo Evento</div>
       <button class="popup-close" onclick="closePopup('popup-evento')">✕ Fechar</button>
     </div>
     <!-- Password gate -->
@@ -231,7 +231,47 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
       </div>
       <div id="ev-pwd-err" style="color:#ff8888;font-size:.72rem;margin-top:6px;display:none;">Password incorrecta.</div>
     </div>
-    <!-- Formulário (oculto até password correcta) -->
+    <!-- Tabs Adicionar / Apagar -->
+    <div id="ev-tabs" style="display:none;flex;gap:6px;margin-bottom:14px;">
+      <button id="ev-tab-add" onclick="switchEvTab('add')" style="flex:1;padding:7px;border-radius:8px;cursor:pointer;font-family:Calibri;font-size:.78rem;font-weight:600;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:white;">➕ Adicionar</button>
+      <button id="ev-tab-del" onclick="switchEvTab('del')" style="flex:1;padding:7px;border-radius:8px;cursor:pointer;font-family:Calibri;font-size:.78rem;font-weight:600;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);">🗑️ Apagar</button>
+    </div>
+    <!-- Formulário apagar -->
+    <div id="ev-del-form" style="display:none;">
+      <div style="margin-bottom:10px;">
+        <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Tipo</label>
+        <select id="ev-del-tipo" style="width:100%;background:#0f1e38;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;color-scheme:dark;">
+          <option value="ferias">🌴 Férias</option>
+          <option value="reun">🟣 Reunião</option>
+          <option value="ainsp">🟡 AInspect</option>
+          <option value="aniv">🎂 Aniversário</option>
+        </select>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Pessoa</label>
+        <select id="ev-del-pessoa" style="width:100%;background:#0f1e38;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;color-scheme:dark;">
+          <option value="ALL">Todas</option>
+          <option value="TF">TF</option><option value="SF">SF</option><option value="CF">CF</option>
+          <option value="JPP">JPP</option><option value="PS">PS</option><option value="MS">MS</option>
+          <option value="AF">AF</option><option value="PD">PD</option><option value="CLF">CLF</option><option value="TBF">TBF</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Data início</label>
+          <input type="date" id="ev-del-ini" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;color-scheme:dark;">
+        </div>
+        <div>
+          <label style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Data fim</label>
+          <input type="date" id="ev-del-fim" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:white;font-family:Calibri;font-size:.82rem;outline:none;color-scheme:dark;">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+        <button onclick="closePopup('popup-evento')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);border-radius:8px;padding:7px 16px;font-family:Calibri;cursor:pointer;">Cancelar</button>
+        <button onclick="apagarEvento()" style="background:rgba(220,50,50,.8);color:white;border:none;border-radius:8px;padding:7px 20px;font-family:Calibri;font-weight:700;cursor:pointer;">Apagar</button>
+      </div>
+      <div id="ev-del-resultado" style="display:none;margin-top:10px;padding:8px;border-radius:6px;font-size:.75rem;"></div>
+    </div>
     <div id="ev-form" style="display:none;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
         <div>
@@ -545,27 +585,45 @@ function switchEfem(el,tipo){
 }
 
 // ── FORMULÁRIO DE EVENTOS ────────────────────────────────────────────────────
-let evPessoasSel=[];
+let evPessoasSel=[], evTabAtual='add';
 function openEvento(){
-  evPessoasSel=[];
+  evPessoasSel=[];evTabAtual='add';
   document.getElementById('ev-gate').style.display='block';
+  document.getElementById('ev-tabs').style.display='none';
   document.getElementById('ev-form').style.display='none';
+  document.getElementById('ev-del-form').style.display='none';
   document.getElementById('ev-pwd').value='';
   document.getElementById('ev-pwd-err').style.display='none';
   document.getElementById('ev-resultado').style.display='none';
+  document.getElementById('ev-del-resultado').style.display='none';
+  document.getElementById('ev-popup-title').textContent='➕ Evento';
   const hoje=new Date().toISOString().split('T')[0];
   document.getElementById('ev-data-ini').value=hoje;
   document.getElementById('ev-data-fim').value=hoje;
+  document.getElementById('ev-del-ini').value=hoje;
+  document.getElementById('ev-del-fim').value=hoje;
   openPopup('popup-evento');
 }
 function checkEvPwd(){
   if(document.getElementById('ev-pwd').value==='csf'){
     document.getElementById('ev-gate').style.display='none';
-    document.getElementById('ev-form').style.display='block';
-    updateEvForm();
+    document.getElementById('ev-tabs').style.display='flex';
+    switchEvTab('add');
   } else {
     document.getElementById('ev-pwd-err').style.display='block';
   }
+}
+function switchEvTab(tab){
+  evTabAtual=tab;
+  document.getElementById('ev-tab-add').style.background=tab==='add'?'rgba(255,255,255,.18)':'rgba(255,255,255,.06)';
+  document.getElementById('ev-tab-add').style.borderColor=tab==='add'?'rgba(255,255,255,.35)':'rgba(255,255,255,.12)';
+  document.getElementById('ev-tab-add').style.color=tab==='add'?'white':'rgba(255,255,255,.5)';
+  document.getElementById('ev-tab-del').style.background=tab==='del'?'rgba(220,50,50,.3)':'rgba(255,255,255,.06)';
+  document.getElementById('ev-tab-del').style.borderColor=tab==='del'?'rgba(220,50,50,.6)':'rgba(255,255,255,.12)';
+  document.getElementById('ev-tab-del').style.color=tab==='del'?'#ff9999':'rgba(255,255,255,.5)';
+  document.getElementById('ev-form').style.display=tab==='add'?'block':'none';
+  document.getElementById('ev-del-form').style.display=tab==='del'?'block':'none';
+  if(tab==='add')updateEvForm();
 }
 function toggleEvPessoa(p){
   const idx=evPessoasSel.indexOf(p);
@@ -629,7 +687,48 @@ function guardarEvento(){
   res.textContent=`✓ ${count} dia(s) adicionado(s). Nota: os dados existem só nesta sessão — pede ao administrador para os tornar permanentes.`;
 }
 
-// DADOS CALENDÁRIO
+function apagarEvento(){
+  const tipo=document.getElementById('ev-del-tipo').value;
+  const pessoa=document.getElementById('ev-del-pessoa').value;
+  const dataIni=document.getElementById('ev-del-ini').value;
+  const dataFim=document.getElementById('ev-del-fim').value||dataIni;
+  if(!dataIni){alert('Selecione uma data.');return;}
+  const ini=new Date(dataIni+'T12:00:00');
+  const fim=new Date(dataFim+'T12:00:00');
+  let count=0;
+  for(let d=new Date(ini);d<=fim;d.setDate(d.getDate()+1)){
+    const key=`${d.getMonth()+1}-${d.getDate()}`;
+    if(tipo==='ferias'){
+      if(FERIAS_MULTI[key]){
+        if(pessoa==='ALL'){FERIAS_MULTI[key]=[];count++;}
+        else{const i=FERIAS_MULTI[key].indexOf(pessoa);if(i>=0){FERIAS_MULTI[key].splice(i,1);count++;}}
+      }
+    } else if(tipo==='reun'){
+      if(REUNIOES[key]){
+        const antes=REUNIOES[key].length;
+        REUNIOES[key]=REUNIOES[key].filter(r=>pessoa==='ALL'?false:!r.pessoas.includes(pessoa));
+        count+=antes-REUNIOES[key].length;
+      }
+    } else if(tipo==='ainsp'){
+      if(AINSP[key]){
+        const antes=AINSP[key].length;
+        AINSP[key]=AINSP[key].filter(a=>pessoa==='ALL'?false:!a.pessoas.includes(pessoa));
+        count+=antes-AINSP[key].length;
+      }
+    } else if(tipo==='aniv'){
+      if(pessoa!=='ALL'){
+        const k=ANIV_MAP[pessoa];
+        if(k===key){delete ANIV_MAP[pessoa];Object.keys(ANIV).forEach(k2=>delete ANIV[k2]);Object.entries(ANIV_MAP).forEach(([ini2,key2])=>{if(!ANIV[key2])ANIV[key2]=[];ANIV[key2].push(ini2);});count++;}
+      }
+    }
+  }
+  rebuildCal();
+  const res=document.getElementById('ev-del-resultado');
+  res.style.cssText='display:block;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);color:#ff9999;padding:8px;border-radius:6px;font-size:.75rem;margin-top:10px;';
+  res.textContent=`🗑️ ${count} registo(s) apagado(s). Nota: só nesta sessão.`;
+}
+
+
 const FERIADOS_MAP={};
 [
   {dia:1,mes:1,nome:'Ano Novo',tipo:'feriado'},{dia:2,mes:1,nome:'Ponte (Ano Novo)',tipo:'ponte'},
