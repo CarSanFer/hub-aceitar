@@ -442,6 +442,8 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
 </div>
 
 <script>
+const SB_URL='https://kofgzhavulclnywhzmoc.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmd6aGF2dWxjbG55d2h6bW9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwOTYxMTEsImV4cCI6MjA5MDY3MjExMX0.iuEQlvE2YpoMLRUK7VCZiKBxkYgY4GRDlFaQkmbO4pI';
 const MESES_PT=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const DIAS_C=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const DIAS_PT=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
@@ -644,6 +646,25 @@ function updateEvForm(){
   const dfimDiv=document.querySelector('#ev-data-fim').closest('div');
   dfimDiv.style.display=tipo==='aniv'?'none':'block';
 }
+function applyEvento(ev){
+  const d=new Date(ev.data+'T12:00:00');
+  const key=`${d.getMonth()+1}-${d.getDate()}`;
+  if(ev.tipo==='ferias'){(ev.pessoas||[]).forEach(p=>addF(key,p));}
+  else if(ev.tipo==='reun'){addR(key,{hora:ev.hora_ini,fim:ev.hora_fim,obra:ev.nome,pessoas:ev.pessoas||[]});}
+  else if(ev.tipo==='ainsp'){addA(key,{hora:ev.hora_ini,nome:ev.nome,pessoas:ev.pessoas||[]});}
+  else if(ev.tipo==='aniv'){(ev.pessoas||[]).forEach(p=>{ANIV_MAP[p]=key;});Object.keys(ANIV).forEach(k=>delete ANIV[k]);Object.entries(ANIV_MAP).forEach(([p,k])=>{if(!ANIV[k])ANIV[k]=[];ANIV[k].push(p);});}
+}
+
+async function carregarEventos(){
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/hub_eventos?select=*&order=data.asc`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}});
+    if(!r.ok)return;
+    const evs=await r.json();
+    evs.forEach(ev=>applyEvento(ev));
+    rebuildCal();
+  }catch(e){console.warn('Eventos:',e);}
+}
+
 function guardarEvento(){
   const tipo=document.getElementById('ev-tipo').value;
   const pessoas=[...evPessoasSel];
@@ -668,23 +689,32 @@ function guardarEvento(){
     let skip=false;
     for(let d=new Date(ini);d<=fim;d.setDate(d.getDate()+7)){if(!skip)datas.push(new Date(d));skip=!skip;}
   } else if(recorr==='monthly'){
-    for(let d=new Date(ini);d<=fim;d.setMonth(d.getMonth()+1))datas.push(new Date(d));
-  }
-  let count=0;
-  datas.forEach(dt=>{
-    const key=`${dt.getMonth()+1}-${dt.getDate()}`;
-    if(tipo==='ferias'){pessoas.forEach(p=>addF(key,p));count++;}
-    else if(tipo==='reun'){addR(key,{hora:horaIni,fim:horaFim,obra:nome,pessoas});count++;}
-    else if(tipo==='ainsp'){addA(key,{hora:horaIni,nome,pessoas});count++;}
-    else if(tipo==='aniv'){
-      if(pessoas.length){const p=pessoas[0];ANIV_MAP[p]=`${dt.getMonth()+1}-${dt.getDate()}`;Object.keys(ANIV).forEach(k=>delete ANIV[k]);Object.entries(ANIV_MAP).forEach(([ini,key])=>{if(!ANIV[key])ANIV[key]=[];ANIV[key].push(ini);});}
-      count++;
-    }
-  });
-  rebuildCal();
+    for(let d=new Date(ini);d<=fim;d.setMonth(d.getMonth()+1))datas.push(new Date(d));}
   const res=document.getElementById('ev-resultado');
-  res.style.cssText='display:block;background:rgba(30,160,70,.2);border:1px solid rgba(30,160,70,.4);color:#80e0a0;padding:8px;border-radius:6px;font-size:.75rem;margin-top:10px;';
-  res.textContent=`✓ ${count} dia(s) adicionado(s). Nota: os dados existem só nesta sessão — pede ao administrador para os tornar permanentes.`;
+  res.style.cssText='display:block;background:rgba(255,200,0,.1);border:1px solid rgba(255,200,0,.3);color:#ffe080;padding:8px;border-radius:6px;font-size:.75rem;margin-top:10px;';
+  res.textContent='A guardar...';
+  const rows=datas.map(dt=>({
+    tipo,pessoas,
+    data:dt.toISOString().split('T')[0],
+    hora_ini:['reun','ainsp'].includes(tipo)?horaIni:null,
+    hora_fim:['reun','ainsp'].includes(tipo)?horaFim:null,
+    nome:['reun','ainsp'].includes(tipo)?nome:null
+  }));
+  fetch(`${SB_URL}/rest/v1/hub_eventos`,{
+    method:'POST',
+    headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify(rows)
+  }).then(r=>{
+    if(!r.ok)throw new Error(r.status);
+    rows.forEach(ev=>applyEvento(ev));
+    rebuildCal();
+    res.style.cssText='display:block;background:rgba(30,160,70,.2);border:1px solid rgba(30,160,70,.4);color:#80e0a0;padding:8px;border-radius:6px;font-size:.75rem;margin-top:10px;';
+    res.textContent=`✓ ${datas.length} dia(s) guardado(s) permanentemente.`;
+  }).catch(e=>{
+    res.style.cssText='display:block;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);color:#ff9999;padding:8px;border-radius:6px;font-size:.75rem;margin-top:10px;';
+    res.textContent=`Erro: ${e.message}. A guardar localmente...`;
+    rows.forEach(ev=>applyEvento(ev));rebuildCal();
+  });
 }
 
 function apagarEvento(){
@@ -693,51 +723,31 @@ function apagarEvento(){
   const dataIni=document.getElementById('ev-del-ini').value;
   const dataFim=document.getElementById('ev-del-fim').value||dataIni;
   if(!dataIni){alert('Selecione uma data.');return;}
-  const ini=new Date(dataIni+'T12:00:00');
-  const fim=new Date(dataFim+'T12:00:00');
-  let count=0;
-  for(let d=new Date(ini);d<=fim;d.setDate(d.getDate()+1)){
-    const key=`${d.getMonth()+1}-${d.getDate()}`;
-    if(tipo==='ferias'){
-      if(FERIAS_MULTI[key]){
-        const antes=FERIAS_MULTI[key].length;
-        if(pessoa==='ALL') FERIAS_MULTI[key]=[];
-        else FERIAS_MULTI[key]=FERIAS_MULTI[key].filter(p=>p!==pessoa);
-        count+=antes-FERIAS_MULTI[key].length;
-      }
-    } else if(tipo==='reun'){
-      if(REUNIOES[key]){
-        const antes=REUNIOES[key].length;
-        if(pessoa==='ALL') REUNIOES[key]=[];
-        else REUNIOES[key]=REUNIOES[key].filter(r=>!r.pessoas.includes(pessoa));
-        count+=antes-REUNIOES[key].length;
-      }
-    } else if(tipo==='ainsp'){
-      if(AINSP[key]){
-        const antes=AINSP[key].length;
-        if(pessoa==='ALL') AINSP[key]=[];
-        else AINSP[key]=AINSP[key].filter(a=>!a.pessoas.includes(pessoa));
-        count+=antes-AINSP[key].length;
-      }
-    } else if(tipo==='aniv'){
-      if(pessoa!=='ALL'){
-        const keyAniv=ANIV_MAP[pessoa];
-        const keyDia=`${d.getMonth()+1}-${d.getDate()}`;
-        if(keyAniv===keyDia){
-          delete ANIV_MAP[pessoa];
-          Object.keys(ANIV).forEach(k=>delete ANIV[k]);
-          Object.entries(ANIV_MAP).forEach(([p2,k2])=>{if(!ANIV[k2])ANIV[k2]=[];ANIV[k2].push(p2);});
-          count++;
-        }
-      }
-    }
-  }
-  rebuildCal();
   const res=document.getElementById('ev-del-resultado');
-  res.style.cssText='display:block;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);color:#ff9999;padding:8px;border-radius:6px;font-size:.75rem;margin-top:10px;';
-  res.textContent=count>0?`🗑️ ${count} registo(s) apagado(s).`:`Nenhum registo encontrado para os critérios indicados.`;
+  res.style.cssText='display:block;background:rgba(255,200,0,.1);border:1px solid rgba(255,200,0,.3);color:#ffe080;padding:8px;border-radius:6px;font-size:.75rem;margin-top:10px;';
+  res.textContent='A apagar...';
+  let url=`${SB_URL}/rest/v1/hub_eventos?tipo=eq.${tipo}&data=gte.${dataIni}&data=lte.${dataFim}`;
+  if(pessoa!=='ALL')url+=`&pessoas=cs.{${pessoa}}`;
+  fetch(url,{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Prefer':'return=minimal'}})
+  .then(r=>{
+    if(!r.ok)throw new Error(r.status);
+    const ini=new Date(dataIni+'T12:00:00'),fim=new Date(dataFim+'T12:00:00');
+    let count=0;
+    for(let d=new Date(ini);d<=fim;d.setDate(d.getDate()+1)){
+      const key=`${d.getMonth()+1}-${d.getDate()}`;
+      if(tipo==='ferias'&&FERIAS_MULTI[key]){const a=FERIAS_MULTI[key].length;FERIAS_MULTI[key]=pessoa==='ALL'?[]:FERIAS_MULTI[key].filter(p=>p!==pessoa);count+=a-FERIAS_MULTI[key].length;}
+      else if(tipo==='reun'&&REUNIOES[key]){const a=REUNIOES[key].length;REUNIOES[key]=pessoa==='ALL'?[]:REUNIOES[key].filter(r=>!r.pessoas.includes(pessoa));count+=a-REUNIOES[key].length;}
+      else if(tipo==='ainsp'&&AINSP[key]){const a=AINSP[key].length;AINSP[key]=pessoa==='ALL'?[]:AINSP[key].filter(x=>!x.pessoas.includes(pessoa));count+=a-AINSP[key].length;}
+      else if(tipo==='aniv'&&pessoa!=='ALL'&&ANIV_MAP[pessoa]===key){delete ANIV_MAP[pessoa];Object.keys(ANIV).forEach(k=>delete ANIV[k]);Object.entries(ANIV_MAP).forEach(([p,k])=>{if(!ANIV[k])ANIV[k]=[];ANIV[k].push(p);});count++;}
+    }
+    rebuildCal();
+    res.style.cssText='display:block;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);color:#ff9999;padding:8px;border-radius:6px;font-size:.75rem;margin-top:10px;';
+    res.textContent=count>0?`🗑️ Apagado(s) permanentemente.`:`Nenhum registo encontrado.`;
+  }).catch(e=>{
+    res.style.cssText='display:block;background:rgba(220,50,50,.2);border:1px solid rgba(220,50,50,.4);color:#ff9999;padding:8px;border-radius:6px;font-size:.75rem;margin-top:10px;';
+    res.textContent=`Erro: ${e.message}`;
+  });
 }
-
 
 const FERIADOS_MAP={};
 [
@@ -1035,6 +1045,7 @@ function toggleSemRow(hdr){
 const tooltipEl=document.getElementById('tooltip');
 loadWeather();
 rebuildCal();
+carregarEventos();
 </script>
 </body>
 </html>
