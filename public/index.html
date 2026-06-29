@@ -397,6 +397,7 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
     </div>
   </div>
   <button onclick="openEvento()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:4px 12px;font-family:Calibri;font-size:.82rem;cursor:pointer;flex-shrink:0;font-weight:600;">➕</button>
+  <button onclick="exportarFerias()" style="background:rgba(30,160,70,.2);border:1px solid rgba(30,160,70,.4);color:#80e0a0;border-radius:7px;padding:4px 12px;font-family:Calibri;font-size:.82rem;cursor:pointer;flex-shrink:0;font-weight:600;">📥 Férias</button>
   <div class="hdr-clock" onclick="openDataPopup()">    <div style="font-size:.52rem;color:rgba(255,255,255,.38);text-transform:uppercase;" id="clk-day"></div>
     <div style="font-size:.95rem;font-weight:300;color:white;font-variant-numeric:tabular-nums;" id="clk-time"></div>
     <div style="font-size:.52rem;color:rgba(255,255,255,.38);" id="clk-date"></div>
@@ -749,6 +750,28 @@ function apagarEvento(){
   });
 }
 
+function exportarFerias(){
+  const DIAS_SEMANA=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const rows=[['Pessoa','Data','Dia da Semana','Mês']];
+  for(let m=1;m<=12;m++){
+    const days=new Date(2026,m,0).getDate();
+    for(let d=1;d<=days;d++){
+      const key=`${m}-${d}`;
+      const ferias=FERIAS_MULTI[key]||[];
+      ferias.forEach(p=>{
+        const dt=new Date(2026,m-1,d);
+        rows.push([p,`${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/2026`,DIAS_SEMANA[dt.getDay()],MESES_PT[m-1]]);
+      });
+    }
+  }
+  const csv='\uFEFF'+rows.map(r=>r.map(c=>`"${c}"`).join(';')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='ferias_2026.csv';a.click();
+  URL.revokeObjectURL(url);
+}
+
 const FERIADOS_MAP={};
 [
   {dia:1,mes:1,nome:'Ano Novo',tipo:'feriado'},{dia:2,mes:1,nome:'Ponte (Ano Novo)',tipo:'ponte'},
@@ -974,7 +997,7 @@ function openDiaPopup(m,d){
   ainsp.forEach(a=>eventos.push({
     label:`${a.pessoas.join(', ')} ${a.hora} · ${a.nome}`,
     cor:'rgba(220,200,0,.2)',border:'rgba(220,200,0,.5)',txt:'#e8e040',dot:'rgba(220,200,0,.8)',
-    icsBtn:`<button onclick="exportICS(${m},${d},'${a.hora.replace(':','')}','${(a.nome||'').replace(/'/g,"\\'")}','${a.pessoas.join(',')}',${d},${m})" style="margin-left:auto;background:rgba(220,200,0,.2);border:1px solid rgba(220,200,0,.5);color:#e8e040;border-radius:5px;padding:2px 8px;font-size:.65rem;cursor:pointer;font-family:Calibri;white-space:nowrap;">📅 .ics</button>`
+    icsBtn:`<button onclick="exportICS(${m},${d},'${a.hora}','${(a.nome||'').replace(/'/g,"\\'")}','${a.pessoas.join(',')}')" style="margin-left:auto;background:rgba(220,200,0,.2);border:1px solid rgba(220,200,0,.5);color:#e8e040;border-radius:5px;padding:2px 8px;font-size:.65rem;cursor:pointer;font-family:Calibri;white-space:nowrap;">📅 .ics</button>`
   }));
   document.getElementById('dia-popup-body').innerHTML=eventos.length
     ?eventos.map(ev=>`<div class="day-popup-item" style="background:${ev.cor};border:1px solid ${ev.border};display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:${ev.dot};flex-shrink:0;"></div><div style="font-size:.8rem;color:${ev.txt};font-weight:600;flex:1;">${ev.label}</div>${ev.icsBtn||''}</div>`).join('')
@@ -982,14 +1005,16 @@ function openDiaPopup(m,d){
   openPopup('popup-dia');
 }
 
-function exportICS(m,d,horaStr,nome,pessoasStr,dia,mes){
+function exportICS(m,d,horaStr,nome,pessoasStr){
   const pad=n=>String(n).padStart(2,'0');
   const ano=2026;
-  const hIni=horaStr.slice(0,2);
-  const mIni=horaStr.slice(2,4)||'00';
+  // horaStr pode vir como "0800" ou "08:00"
+  const horaClean=horaStr.replace(':','');
+  const hIni=horaClean.slice(0,2);
+  const mIni=horaClean.slice(2,4)||'00';
   const hFim=String(parseInt(hIni)+2).padStart(2,'0');
-  const dtStart=`${ano}${pad(m)}${pad(d)}T${pad(hIni)}${pad(mIni)}00`;
-  const dtEnd=`${ano}${pad(m)}${pad(d)}T${hFim}${pad(mIni)}00`;
+  const dtStart=`${ano}${pad(m)}${pad(d)}T${pad(hIni)}${mIni}00`;
+  const dtEnd=`${ano}${pad(m)}${pad(d)}T${hFim}${mIni}00`;
   const dtStamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
   const uid=`ainsp-${ano}${pad(m)}${pad(d)}-${Date.now()}@aceitar.pt`;
   const ics=[
