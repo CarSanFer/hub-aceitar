@@ -971,11 +971,53 @@ function openDiaPopup(m,d){
   if(ferias.length) eventos.push({label:'Férias: '+ferias.join(', '),cor:'rgba(30,160,70,.2)',border:'rgba(30,160,70,.5)',txt:'#80e0a0',dot:'rgba(30,160,70,.8)'});
   if(anivArr.length) eventos.push({label:'Aniversário: '+anivArr.join(', '),cor:'rgba(240,130,0,.2)',border:'rgba(240,130,0,.5)',txt:'#ffc066',dot:'rgba(240,130,0,.8)'});
   reuns.forEach(r=>eventos.push({label:`${r.pessoas.join(', ')} ${r.hora}-${r.fim} · ${r.obra}`,cor:'rgba(140,80,220,.2)',border:'rgba(140,80,220,.5)',txt:'#c4a0ff',dot:'rgba(140,80,220,.8)'}));
-  ainsp.forEach(a=>eventos.push({label:`${a.pessoas.join(', ')} ${a.hora} · ${a.nome}`,cor:'rgba(220,200,0,.2)',border:'rgba(220,200,0,.5)',txt:'#e8e040',dot:'rgba(220,200,0,.8)'}));
+  ainsp.forEach(a=>eventos.push({
+    label:`${a.pessoas.join(', ')} ${a.hora} · ${a.nome}`,
+    cor:'rgba(220,200,0,.2)',border:'rgba(220,200,0,.5)',txt:'#e8e040',dot:'rgba(220,200,0,.8)',
+    icsBtn:`<button onclick="exportICS(${m},${d},'${a.hora.replace(':','')}','${(a.nome||'').replace(/'/g,"\\'")}','${a.pessoas.join(',')}',${d},${m})" style="margin-left:auto;background:rgba(220,200,0,.2);border:1px solid rgba(220,200,0,.5);color:#e8e040;border-radius:5px;padding:2px 8px;font-size:.65rem;cursor:pointer;font-family:Calibri;white-space:nowrap;">📅 .ics</button>`
+  }));
   document.getElementById('dia-popup-body').innerHTML=eventos.length
-    ?eventos.map(ev=>`<div class="day-popup-item" style="background:${ev.cor};border:1px solid ${ev.border};"><div style="width:8px;height:8px;border-radius:50%;background:${ev.dot};flex-shrink:0;"></div><div style="font-size:.8rem;color:${ev.txt};font-weight:600;">${ev.label}</div></div>`).join('')
+    ?eventos.map(ev=>`<div class="day-popup-item" style="background:${ev.cor};border:1px solid ${ev.border};display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:50%;background:${ev.dot};flex-shrink:0;"></div><div style="font-size:.8rem;color:${ev.txt};font-weight:600;flex:1;">${ev.label}</div>${ev.icsBtn||''}</div>`).join('')
     :'<div style="color:rgba(255,255,255,.4);font-size:.8rem;">Sem eventos neste dia.</div>';
   openPopup('popup-dia');
+}
+
+function exportICS(m,d,horaStr,nome,pessoasStr,dia,mes){
+  const pad=n=>String(n).padStart(2,'0');
+  const ano=2026;
+  const hIni=horaStr.slice(0,2);
+  const mIni=horaStr.slice(2,4)||'00';
+  // Duração padrão de 2h se não houver hora fim
+  const hFim=String(parseInt(hIni)+2).padStart(2,'0');
+  const dtStart=`${ano}${pad(m)}${pad(d)}T${pad(hIni)}${pad(mIni)}00`;
+  const dtEnd=`${ano}${pad(m)}${pad(d)}T${hFim}${pad(mIni)}00`;
+  const dtStamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+  const uid=`ainsp-${ano}${pad(m)}${pad(d)}-${Date.now()}@aceitar.pt`;
+  const ics=[
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Aceitar Hub//PT',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTAMP:${dtStamp}`,
+    `DTSTART:${dtStart}`,
+    `DTEND:${dtEnd}`,
+    `SUMMARY:AInsp · ${nome}`,
+    `DESCRIPTION:Participantes: ${pessoasStr}`,
+    `LOCATION:${nome}`,
+    'STATUS:CONFIRMED',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`ainsp_${ano}${pad(m)}${pad(d)}_${nome.replace(/[^a-zA-Z0-9]/g,'_')}.ics`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // POPUP MÊS (vista semanas colapsadas)
