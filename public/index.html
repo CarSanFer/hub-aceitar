@@ -987,7 +987,6 @@ function exportICS(m,d,horaStr,nome,pessoasStr,dia,mes){
   const ano=2026;
   const hIni=horaStr.slice(0,2);
   const mIni=horaStr.slice(2,4)||'00';
-  // Duração padrão de 2h se não houver hora fim
   const hFim=String(parseInt(hIni)+2).padStart(2,'0');
   const dtStart=`${ano}${pad(m)}${pad(d)}T${pad(hIni)}${pad(mIni)}00`;
   const dtEnd=`${ano}${pad(m)}${pad(d)}T${hFim}${pad(mIni)}00`;
@@ -999,11 +998,28 @@ function exportICS(m,d,horaStr,nome,pessoasStr,dia,mes){
     'PRODID:-//Aceitar Hub//PT',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
+    'BEGIN:VTIMEZONE',
+    'TZID:Europe/Lisbon',
+    'BEGIN:STANDARD',
+    'DTSTART:19701025T030000',
+    'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10',
+    'TZOFFSETFROM:+0100',
+    'TZOFFSETTO:+0000',
+    'TZNAME:WET',
+    'END:STANDARD',
+    'BEGIN:DAYLIGHT',
+    'DTSTART:19700329T020000',
+    'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3',
+    'TZOFFSETFROM:+0000',
+    'TZOFFSETTO:+0100',
+    'TZNAME:WEST',
+    'END:DAYLIGHT',
+    'END:VTIMEZONE',
     'BEGIN:VEVENT',
     `UID:${uid}`,
-    `DTSTAMP:${dtStamp}`,
-    `DTSTART:${dtStart}`,
-    `DTEND:${dtEnd}`,
+    `DTSTAMP:${dtStamp}Z`,
+    `DTSTART;TZID=Europe/Lisbon:${dtStart}`,
+    `DTEND;TZID=Europe/Lisbon:${dtEnd}`,
     `SUMMARY:AInsp · ${nome}`,
     `DESCRIPTION:Participantes: ${pessoasStr}`,
     `LOCATION:${nome}`,
