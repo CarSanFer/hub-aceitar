@@ -400,8 +400,9 @@ body{background:#112240;color:#e8eaf0;font-size:12px;display:flex;flex-direction
       </div>
     </div>
   </div>
-  <button onclick="openEvento()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:4px 12px;font-family:Calibri;font-size:.82rem;cursor:pointer;flex-shrink:0;font-weight:600;">➕</button>
-  <button onclick="exportarFerias()" style="background:rgba(30,160,70,.2);border:1px solid rgba(30,160,70,.4);color:#80e0a0;border-radius:7px;padding:4px 12px;font-family:Calibri;font-size:.82rem;cursor:pointer;flex-shrink:0;font-weight:600;">📥 Férias</button>
+  <button id="btn-lock" onclick="checkAdmin()" title="Acesso administrador" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.4);border-radius:7px;padding:4px 10px;font-family:Calibri;font-size:.82rem;cursor:pointer;flex-shrink:0;">🔒</button>
+  <button id="btn-add-ev" onclick="openEvento()" style="display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:4px 12px;font-family:Calibri;font-size:.82rem;cursor:pointer;flex-shrink:0;font-weight:600;">➕</button>
+  <button id="btn-export-ferias" onclick="exportarFerias()" style="display:none;background:rgba(30,160,70,.2);border:1px solid rgba(30,160,70,.4);color:#80e0a0;border-radius:7px;padding:4px 12px;font-family:Calibri;font-size:.82rem;cursor:pointer;flex-shrink:0;font-weight:600;">📥 Férias</button>
   <div class="hdr-clock" onclick="openDataPopup()">    <div style="font-size:.52rem;color:rgba(255,255,255,.38);text-transform:uppercase;" id="clk-day"></div>
     <div style="font-size:.95rem;font-weight:300;color:white;font-variant-numeric:tabular-nums;" id="clk-time"></div>
     <div style="font-size:.52rem;color:rgba(255,255,255,.38);" id="clk-date"></div>
@@ -593,6 +594,24 @@ function switchEfem(el,tipo){
 
 // ── FORMULÁRIO DE EVENTOS ────────────────────────────────────────────────────
 let evPessoasSel=[], evTabAtual='add';
+// ── ACESSO ADMIN ──────────────────────────────────────────────────────────────
+function checkAdmin(){
+  if(sessionStorage.getItem('hubAdmin')==='1'){revealAdminBtns();return;}
+  const pwd=prompt('Password de administrador:');
+  if(pwd==='csf'){
+    sessionStorage.setItem('hubAdmin','1');
+    revealAdminBtns();
+  } else if(pwd!==null){
+    alert('Password incorrecta.');
+  }
+}
+function revealAdminBtns(){
+  document.getElementById('btn-lock').style.display='none';
+  document.getElementById('btn-add-ev').style.display='inline-block';
+  document.getElementById('btn-export-ferias').style.display='inline-block';
+}
+if(sessionStorage.getItem('hubAdmin')==='1')revealAdminBtns();
+
 function openEvento(){
   evPessoasSel=[];evTabAtual='add';
   document.getElementById('ev-gate').style.display='block';
@@ -807,7 +826,7 @@ function addR(key,obj){if(!REUNIOES[key])REUNIOES[key]=[];REUNIOES[key].push(obj
 // Todos os dados (férias, aniversários, reuniões, AInsp) são carregados do Supabase via carregarEventos()
 
 // FILTROS
-let filtroAtivo='ALL',filtroTipo=null,mostrarFDS=false;
+let filtroAtivo='ALL',filtroTipos=new Set(),mostrarFDS=false;
 function toggleFDS(modo){
   mostrarFDS=modo==='FDS';
   document.getElementById('btn-s').classList.toggle('active',!mostrarFDS);
@@ -819,8 +838,8 @@ function getAniv(key){return ANIV[key]?.filter(ini=>filtroAtivo==='ALL'||ini===f
 function getReuns(key){return (REUNIOES[key]||[]).filter(r=>filtroAtivo==='ALL'||r.pessoas.includes(filtroAtivo));}
 function getAinsp(key){return (AINSP[key]||[]).filter(a=>filtroAtivo==='ALL'||a.pessoas.includes(filtroAtivo));}
 function toggleLegFilter(tipo){
-  if(filtroTipo===tipo){filtroTipo=null;document.querySelectorAll('.leg').forEach(l=>l.classList.remove('active-filter'));}
-  else{filtroTipo=tipo;document.querySelectorAll('.leg').forEach(l=>l.classList.remove('active-filter'));document.getElementById('leg-'+tipo).classList.add('active-filter');}
+  if(filtroTipos.has(tipo)){filtroTipos.delete(tipo);document.getElementById('leg-'+tipo).classList.remove('active-filter');}
+  else{filtroTipos.add(tipo);document.getElementById('leg-'+tipo).classList.add('active-filter');}
   rebuildCal();
 }
 document.querySelectorAll('.fil-btn[data-p]').forEach(btn=>{
@@ -842,10 +861,10 @@ function getHalfClass(key,half){
   else if(showFer&&isPonte)base='pont';
   else if(ferias.length)base='ferias';
   else if(anivArr.length)base='aniv';
-  if(filtroTipo){
-    const matchBase=(filtroTipo==='fer'&&showFer&&fer&&!isPonte)||(filtroTipo==='pont'&&showFer&&isPonte)||(filtroTipo==='ferias'&&ferias.length)||(filtroTipo==='aniv'&&anivArr.length);
-    if(half==='M')return(matchBase?base:null)||(filtroTipo==='ainsp'&&ainspM.length?'ainsp':null)||(filtroTipo==='reun'&&reunsM.length?'reun':null)||null;
-    else return(matchBase?base:null)||(filtroTipo==='ainsp'&&ainspT.length?'ainsp':null)||(filtroTipo==='reun'&&reunsT.length?'reun':null)||null;
+  if(filtroTipos.size>0){
+    const matchBase=(filtroTipos.has('fer')&&showFer&&fer&&!isPonte)||(filtroTipos.has('pont')&&showFer&&isPonte)||(filtroTipos.has('ferias')&&ferias.length)||(filtroTipos.has('aniv')&&anivArr.length);
+    if(half==='M')return(matchBase?base:null)||(filtroTipos.has('ainsp')&&ainspM.length?'ainsp':null)||(filtroTipos.has('reun')&&reunsM.length?'reun':null)||null;
+    else return(matchBase?base:null)||(filtroTipos.has('ainsp')&&ainspT.length?'ainsp':null)||(filtroTipos.has('reun')&&reunsT.length?'reun':null)||null;
   }
   // Aniversário sobrepõe fim de semana
   const dow=new Date(2026,parseInt(key.split('-')[0])-1,parseInt(key.split('-')[1])).getDay();
